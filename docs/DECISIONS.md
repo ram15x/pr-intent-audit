@@ -1,0 +1,81 @@
+# Decisions log
+
+## 2026-11-24 — Angle
+Ticket-vs-PR checking already ships in Qodo, CodeRabbit, cubic and Augment, and all need a linked Jira/Linear ticket.
+We build around the gap: **the ask is the prompt you gave a coding agent** (or an issue/PR body), not a ticket.
+Three pillars: (1) agent-PR auditor, (2) public fault-injection benchmark as proof, (3) deterministic evidence verification as the engine.
+
+## Stack changes vs the handoff SOP
+- No Ollama (too slow on this machine). Cloud free tiers only: Gemini + Groq, OpenRouter as fallback. Every call cached by prompt hash.
+- Groq free tier is ~8K tokens/min on gpt-oss-120b, so prompts stay small: one requirement + its hunks per call.
+- Free-tier prompts may be used for training (Gemini): public repos only.
+- Free limits are unstable; recheck on the provider console before each benchmark run.
+
+## Repo
+Name: pr-intent-audit (public). Not pushed yet.
+
+## 2026-11-24 — Multi-model judges that learn
+- 2+ judges from different model families (Gemini, Groq gpt-oss, Qwen) judge each requirement independently.
+- A learned combiner (logistic regression / small GBM) trained on benchmark ground truth replaces plain voting. Features: each judge's verdict, evidence-verified flag, hunk-match score, diff size.
+- Memory of past mistakes: retrieve similar failed cases into the prompt (in-context learning, no fine-tuning).
+- Stretch: fine-tune a small open model on stored traces (Colab free GPU).
+- Honesty: evaluate with repo-held-out cross-validation and confidence intervals; compare against single judge and plain voting; report if the combiner does not win.
+- Every run is traced from day one so training data accumulates.
+
+## 2026-11-24 — Our own models, no API keys (supersedes the API-key plan above)
+Owner decision: the judging models are built by us, not rented. Rationale: ownership, zero quota risk, reproducible, stronger portfolio story.
+- Training data comes free from the benchmark engine: take merged PRs, inject faults (revert hunks, add unrelated hunks), labels are known by construction. No LLM labeler.
+- Model 1 `relevance`: cross-encoder (requirement sentence, hunk) -> relevant? Replaces keyword/embedding retrieval.
+- Model 2 `verdict`: classifier (requirement, relevant hunks) -> done/partial/missing. Extractive: it points at hunks/lines, it never generates quotes, so fabricated evidence is impossible by construction.
+- Model 3 `creep`: classifier for orphan hunks -> supporting / unrequested.
+- Ensemble: 2+ different architectures/seeds, learned combiner (see above) trained on held-out repos.
+- Requirements: rule-based splitting of checklists/sentences first; no LLM needed for v1.
+- Frontier LLMs appear only as optional baselines in the benchmark, off by default.
+- Training on free GPU (Kaggle/Colab) with small pretrained code encoders; inference on CPU.
+- Risk: small models may reason worse than frontier LLMs. We measure and report.
+
+## 2026-11-24 — First real report exposed a limit (keep in README "Where it fails")
+- Audit of py-tg-moder#93 marked 3/3 requirements DONE from the same two generic hunks (config + test file); rank 100. Evidence lines were the first lines of the hunk, unrelated to the requirements.
+- Root cause 1: the relevance model was trained on PR-level labels (hunk from same PR = relevant), so it cannot separate requirements WITHIN one PR. Our 0.908 requirement-level F1 only measures the cross-PR case.
+- Root cause 2: evidence selection took first lines, not matching lines.
+- Root cause 3: Russian ask vs English code model (no multilingual support).
+- Mitigation now: a requirement is DONE only if a line in the cited hunk shares vocabulary with it; otherwise UNCLEAR.
+- Real fix needs within-PR training signal: hand-labelled requirement->hunk gold set, and/or a multilingual encoder.
+
+## 2026-11-24 — Gold eval: relevance model is a PR-membership detector (FAILURE, keep in README)
+- Exact fault injection on 7 gold PRs: 0/9 omitted requirements caught. Deleting the hunks that implement a requirement leaves scores ~0.99 because every remaining hunk of the same PR still looks relevant.
+- Clean run: a MISSING and a PARTIAL requirement were both called DONE. "done recall 1.0" is meaningless: it says done to everything.
+- The earlier 0.908 requirement-level F1 only measured cross-PR discrimination. It does not support any claim about within-PR auditing.
+- Fix in progress: within-PR supervision from commits. (commit message -> hunks of that commit) positive; hunks of OTHER commits in the same PR negative.
+
+## 2026-11-24 — Within-PR supervision did NOT work; moving to a hybrid (NEGATIVE RESULT, keep in README)
+- Relevance model v2 (CodeBERT + commit-message supervision, gold PRs held out): overall test AUC 0.801 [0.768, 0.845], but WITHIN-PR test AUC 0.502 (n=136 rows): chance.
+- A plain IDF keyword overlap gets 0.61 on the same within-PR test rows: the learned model is worse than lexical matching for "which hunk implements this change".
+- Gold fault injection (requirement's exclusive hunks deleted): still 0/9 caught. Clean gold run: 1 false MISSING, 2 abstentions, PARTIAL called DONE.
+- Why (hypotheses, untested): ~110 PRs with commit supervision is too little; commit messages are often generic ("address review", "docs"); a 125M encoder with 384 tokens saturates on same-PR vocabulary.
+- Decision: hybrid. Our components keep what they do well (ingest, requirement cleaning, retrieval, evidence verification, scope-creep orphans, PR-vs-ask mismatch, benchmark). The per-requirement implementation judgement goes to an LLM judge (free-tier APIs) whose output is checked by our verifier and fused by a learned combiner. Measure hybrid vs ours-only on the same gold + fault-injection set.
+
+## 2026-11-25 — Hybrid on 14 gold PRs (46 scored requirements), labels still UNREVIEWED drafts
+Judge for almost all new calls: Groq gpt-oss-120b (Gemini free quota exhausted); cached earlier answers mix Gemini 3.5 Flash and Groq.
+- Hybrid (our top-5 retrieval -> LLM judge -> our verifier): done-precision 0.966, done-recall 0.824, abstained 5/46, false "done" on not-done 1/7, omitted requirement no longer "done" 10/13 (6/13 as "missing").
+- Ablation, judge sees ALL hunks instead of our top-5: recall 0.839, abstained 9/46, faults 9/12. => our relevance model adds nothing measurable on these small (4-12 hunk) PRs. Untested on large PRs.
+- Ablation, no verifier: abstained 0, precision/recall unchanged, but faults caught only 7/14 (vs 10/13): without it, a judge keeps saying "done" after the code is deleted. Verifier earns its keep (intervals overlap; suggestive, not proven).
+- FLAW found: the fault harness removed only hunks "exclusive" to a requirement, so some faults were partial removals (e.g. sigma R5 kept its test hunk; gh-factory had duplicate files). Fixed: remove ALL hunks a requirement points at; controls = requirements sharing none of them. Numbers above predate the fix.
+
+## 2026-11-25 (b) — Strict fault harness results, 14-PR gold set (labels NOT human-reviewed)
+
+Gold base rate: 39/46 requirements are "done". Any "done precision" must be read against 0.85.
+
+| Variant | done precision | done recall | abstained | faults no longer "done" (95% Wilson) | faults -> "missing" |
+|---|---|---|---|---|---|
+| ours-only (relevance + verdict + orphan) | 0.868 | 0.943 | 6 | 3/32 (~0.03-0.24) | 0/32 |
+| hybrid top5 + verifier | 0.966 | 0.824 | 5 | 21/28 (0.57-0.87) | 15/28 (0.36-0.70) |
+| hybrid top5, no verifier | 0.970 | 0.821 | 0 | 19/31 (0.44-0.76) | 15/31 (0.32-0.65) |
+
+Findings:
+- Ours-only precision (0.868) is ~ the base rate: it is effectively an "always done" detector on within-PR questions. Confirms the earlier 0/9 and within-PR AUC 0.502 results.
+- Hybrid is clearly better than ours-only (intervals do not overlap). The verifier's gain (61% -> 75%) is NOT statistically established: intervals overlap heavily.
+- Fault denominators differ per variant (faults are only injected where baseline said "done"); abstained requirements drop out, which is mildly generous to the verified variant.
+- Remaining "misses" are partly harness noise: fault removes only the hunks the gold label points at; duplicate files (gh-factory baseline/ vs .github/) and incomplete gold hunk lists leave the requirement legitimately satisfied. True catch rate is likely underestimated, but we cannot say by how much until labels are reviewed.
+- Judging is mostly Groq gpt-oss-120b (Gemini quota exhausted); cached answers mix providers.
+- Gold labels were written by Claude and the judge is also an LLM: correlated bias is possible. Human review required.

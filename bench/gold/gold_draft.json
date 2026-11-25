@@ -1,0 +1,830 @@
+[
+ {
+  "pr": "https://github.com/CanastaWiki/Canasta-CLI/pull/924",
+  "title": "feat(reconcile): add 'canasta reconcile' to fix config/runtime drift",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "`sync_compose_profiles` — re-derive COMPOSE_PROFILES from the feature flags + DB mode (self-heals internal-db / elasticsearch drift; tears down deactivated profiles).",
+    "status": "done",
+    "hunks": [
+     "roles/instance_lifecycle/tasks/reconcile.yml:1-33"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Regenerate rendered config (Caddyfile from the current wikis.yaml).",
+    "status": "done",
+    "hunks": [
+     "roles/instance_lifecycle/tasks/reconcile.yml:1-33"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "`docker compose up -d` — start anything missing, recreate only what changed. **No `down`**, so it is non-disruptive.",
+    "status": "done",
+    "hunks": [
+     "roles/instance_lifecycle/tasks/reconcile.yml:1-33"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Non-disruptive (`up -d`, not `down`/`up`) — a full restart stays `canasta restart`.",
+    "status": "done",
+    "hunks": [
+     "roles/instance_lifecycle/tasks/reconcile.yml:1-33",
+     "tests/unit/test_reconcile.py:1-64"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "Does NOT re-render from the gitops source — works on the current `.env` + derived rules (re-rendering is `gitops pull`'s job).",
+    "status": "done",
+    "hunks": [
+     "roles/instance_lifecycle/tasks/reconcile.yml:1-33",
+     "tests/unit/test_reconcile.py:1-64"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 6,
+    "text": "`doctor`'s consistency warnings point operators at `canasta reconcile`.",
+    "status": "done",
+    "hunks": [
+     "direct_commands/doctor.py:238-245",
+     "direct_commands/doctor.py:312-318",
+     "tests/unit/test_doctor_consistency.py:129-135"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/aganezov/ont_qc_mcp/pull/135",
+  "title": "fix: update AnyIO and restore dependency audit",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Issue #134: Restore scheduled dependency audit with a scoped AnyIO update Summary The September 19 scheduled CI run fails the dependency audit with the locked AnyIO version.",
+    "status": "done",
+    "hunks": [
+     ".github/workflows/ci.yml:110-116"
+    ],
+    "confidence": "high",
+    "note": "issue summary"
+   },
+   {
+    "id": 2,
+    "text": "Update AnyIO without bundling unrelated dependency upgrades.",
+    "status": "done",
+    "hunks": [
+     "pyproject.toml:23-29"
+    ],
+    "confidence": "high",
+    "note": "lockfile dropped as noise"
+   },
+   {
+    "id": 3,
+    "text": "Remove the obsolete pytest audit exemption from CI and the local gate, and add a changelog entry.",
+    "status": "done",
+    "hunks": [
+     ".github/workflows/ci.yml:110-116",
+     "scripts/ci-local.sh:44-50",
+     "CHANGELOG.md:7-13"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/cisagov/manage.get.gov/pull/5156",
+  "title": "#5153: Add in psycogreen library - [none]",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "add in psycogreen",
+    "status": "done",
+    "hunks": [
+     "src/Pipfile:21-27",
+     "src/requirements.txt:51-57"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "update the gunicorn configuration to use psycogreen such that it's compatible with gunicorn gevent",
+    "status": "done",
+    "hunks": [
+     "src/gunicorn.conf.py:1-30",
+     "src/run.sh:6-11"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Relates to #5090",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "a reference, not a requirement"
+   }
+  ],
+  "creep_hunks": [
+   {
+    "hunk": "src/requirements.txt:2-20",
+    "confidence": "medium",
+    "note": "unrelated version bumps (boto3, botocore ...)"
+   }
+  ],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/pfBlockerNG/pfBlockerNG/pull/672",
+  "title": "pfblockerng: resolve DNSBLIP reprocess marker folder from action (#655)",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "The IP-feed reprocess gate (~15329) checks `{$pfbfolder}/{$header}.update` with `$pfbfolder` = the action's folder.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "describes existing behaviour"
+   },
+   {
+    "id": 2,
+    "text": "Pre-existing This predates #654 (the marker was hardcoded to `denydir` before that change too).",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "background"
+   },
+   {
+    "id": 3,
+    "text": "Fix Resolve the DNSBLIP marker folder (and the `DNSBLIP_<fam>.txt` destination, if applicable) from the `$pfb['dnsbl_ip']` action instead of hardcoding `denydir`, so the marker lands where the feed loop looks.",
+    "status": "done",
+    "hunks": [
+     "src/usr/local/pkg/pfblockerng/pfblockerng.inc:1479-1508",
+     "src/usr/local/pkg/pfblockerng/pfblockerng.inc:14686-14702",
+     "src/usr/local/pkg/pfblockerng/pfblockerng.inc:14731-14747"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Add coverage for the Alias_Native action.",
+    "status": "done",
+    "hunks": [
+     "tests/php/DnsblipMarkerFolderTest.php:1-130"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/jt-mchorse/chunking-strategies-lab/pull/97",
+  "title": "fix(corpus): read documents with utf-8-sig to tolerate a BOM (#95)",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "shift chunk character offsets by 1 for the first chunk,",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "bug symptom"
+   },
+   {
+    "id": 2,
+    "text": "leak `﻿` into the first chunk's text and into any snippet-match comparison,",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "bug symptom"
+   },
+   {
+    "id": 3,
+    "text": "subtly perturb retrieval/scoring against a BOM-less twin.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "bug symptom"
+   },
+   {
+    "id": 4,
+    "text": "A BOM-prefixed corpus document loads with identical text to its BOM-less twin (no leading `﻿`).",
+    "status": "done",
+    "hunks": [
+     "chunking_lab/corpus.py:36-55"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "BOM-less documents unaffected.",
+    "status": "done",
+    "hunks": [
+     "chunking_lab/corpus.py:36-55"
+    ],
+    "confidence": "medium",
+    "note": "implicit; H4 may test it"
+   },
+   {
+    "id": 6,
+    "text": "Lock test with a BOM fixture, confirmed failing pre-fix.",
+    "status": "done",
+    "hunks": [
+     "tests/test_corpus.py:50-79"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [
+   {
+    "hunk": "MEMORY/full_history_ai.md:1051-1074",
+    "confidence": "high",
+    "note": "agent session log file"
+   },
+   {
+    "hunk": "MEMORY/full_history_human.md:672-686",
+    "confidence": "high",
+    "note": "agent session log file"
+   }
+  ],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/oddessentials/odd-bot-moltbook/pull/40",
+  "title": "perf(spa): gate Manus dev runtime out of prod + split brief data (#38)",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "`build.rollupOptions.output.manualChunks` to split vendor/route bundles.",
+    "status": "partial",
+    "hunks": [
+     "agent-brief/vite.config.ts:5-93"
+    ],
+    "confidence": "medium",
+    "note": "CORRECTED: hunk only isolates data/briefs.json via manualChunks; vendor/route splitting not done. Issue lists approaches 'to evaluate, not commit to'."
+   },
+   {
+    "id": 2,
+    "text": "Route-level dynamic `import()` (wouter lazy routes).",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "no routing/App file in the diff"
+   },
+   {
+    "id": 3,
+    "text": "Audit heavy deps (the full Radix UI set is pulled in).",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "manualChunks may group radix; cannot tell"
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/nanohype/eks-gitops/pull/84",
+  "title": "Keep a freshly vended spoke from deadlocking on IPs, arch, and Karpenter",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Cilium ENI-mode per-node IP limit (~35 on m7g.large) is exceeded → pods stuck `ContainerCreating` with `cilium-cni: no IPs available`.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "problem statement"
+   },
+   {
+    "id": 2,
+    "text": "Karpenter, itself scheduled on a saturated bootstrap node, loses DNS and can't resolve the EC2 API (`lookup ec2.us-west-2.amazonaws.com: i/o timeout`) → can't launch nodes → can't relieve the pressure. Deadlock.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "problem statement"
+   },
+   {
+    "id": 3,
+    "text": "A dev/smoke addon profile that installs a minimal set (skip falco/trivy/gpu-operator/neuron/grafana-prometheus for non-prod), and/or",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "no addon-profile hunk"
+   },
+   {
+    "id": 4,
+    "text": "Size the bootstrap node group for the catalog (more/bigger nodes, or prefix-delegation for more IPs/node), and/or",
+    "status": "done",
+    "hunks": [
+     "addons/networking/cilium/values.yaml:4-15"
+    ],
+    "confidence": "high",
+    "note": "prefix delegation in cilium values"
+   },
+   {
+    "id": 5,
+    "text": "Give Karpenter a priorityClass + anti-affinity so it isn't stranded on a saturated bootstrap node.",
+    "status": "partial",
+    "hunks": [
+     "addons/operations/karpenter/values.yaml:2-13"
+    ],
+    "confidence": "low",
+    "note": "priorityClass seen; anti-affinity not verified"
+   }
+  ],
+  "creep_hunks": [
+   {
+    "hunk": "addons/operations/karpenter-resources/base/nodepool.yaml:15-24",
+    "confidence": "low",
+    "note": "arm64 nodepool; justified by the PR title, not by a listed requirement"
+   },
+   {
+    "hunk": "addons/operations/karpenter-resources/base/nodepool.yaml:69-78",
+    "confidence": "low",
+    "note": "same"
+   }
+  ],
+  "reviewed_by_human": false
+ },
+ {
+  "pr": "https://github.com/adamsuk/gh-factory/pull/10",
+  "title": "fix: issue form acceptance criteria uses a placeholder",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "The baseline issue form uses `placeholder` for Acceptance criteria, matching touchlineHQ/.github#2",
+    "status": "done",
+    "hunks": [
+     "baseline/files/.github/ISSUE_TEMPLATE/task.yml:21-28"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "gh-factory's own copy matches, so the drift check stays clean",
+    "status": "done",
+    "hunks": [
+     ".github/ISSUE_TEMPLATE/task.yml:21-28"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "A test covers it, and CHANGELOG.md has a dated entry",
+    "status": "done",
+    "hunks": [
+     "tests/test_render.py:103-114",
+     "CHANGELOG.md:5-19"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false,
+  "source": "pool"
+ },
+ {
+  "pr": "https://github.com/ztrange/veri/pull/2693",
+  "title": "fix: tick wrapped criteria under the last Acceptance criteria heading (#2630)",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "the criteria sit under a **second** `## Acceptance criteria` heading — one that replaces an",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "problem description"
+   },
+   {
+    "id": 2,
+    "text": "the checkbox text **wraps over several lines**.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "problem description"
+   },
+   {
+    "id": 3,
+    "text": "With two unfenced `## Acceptance criteria` headings in the body, the tick applies under the last one: a matcher held only by a criterion under the last heading ticks it and leaves the superseded criteria above it unticked, and a matcher held only above the last heading exits 3. Pinned by a case in `skills/tdd/scripts/tests/py/test_tick_issue_criterion.py`.",
+    "status": "done",
+    "hunks": [
+     "skills/tdd/scripts/veri/tick_issue_criterion.py:27-37",
+     "skills/tdd/scripts/veri/tick_issue_criterion.py:41-61",
+     "skills/tdd/scripts/veri/tick_issue_criterion.py:69-75",
+     "skills/tdd/scripts/tests/py/test_tick_issue_criterion.py:580-667"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "A criterion whose checkbox text wraps over several lines is ticked when the matcher occurs in any of its lines, and only the checkbox line is rewritten. Pinned by a case with a three-line wrapped criterion whose matcher sits in its second line.",
+    "status": "done",
+    "hunks": [
+     "skills/tdd/scripts/veri/tick_issue_criterion.py:41-61",
+     "skills/tdd/scripts/tests/py/test_tick_issue_criterion.py:580-667"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "The script exits 0 only when the issue body it writes back differs from the one it read; when the tick changed nothing it exits 3 and writes nothing. Pinned by a case that feeds a body where the matched line is already ticked.",
+    "status": "done",
+    "hunks": [
+     "skills/tdd/scripts/tests/py/test_tick_issue_criterion.py:580-667",
+     "skills/tdd/scripts/veri/tick_issue_criterion.py:69-75"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [
+   {
+    "hunk": ".tdd/issue-2630-metrics.md:1-168",
+    "confidence": "low",
+    "note": "agent TDD metrics artifact; repo convention?"
+   },
+   {
+    "hunk": ".tdd/issue-2630.md:1-6",
+    "confidence": "low",
+    "note": "agent TDD plan artifact; repo convention?"
+   }
+  ],
+  "reviewed_by_human": false,
+  "source": "pool"
+ },
+ {
+  "pr": "https://github.com/Agrim-Intelligence/sigma/pull/380",
+  "title": "test: record phase budget acceptance criteria",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "`evals/phase_context_budget.py`: for each agent (orchestrator, goal slot, research, plan, plan-review, implement, review before and after the PR, retro) resolve the files its skill tells it to read, render the review brief against `examples/hello-sdlc/`, and print words and approximate tokens.",
+    "status": "done",
+    "hunks": [
+     "evals/phase_context_budget.py:1-223",
+     "tests/test_phase_context_budget.py:1-119",
+     "evals/phase_context_budget.json:1-21"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "`evals/phase_context_budget.json` holds the ceiling per agent. The test fails above the ceiling, and fails if a committed ceiling exceeds the measured value by more than 5%, so it can only ratchet down. Reuse the shape and estimator of `evals/skill_budget_waivers.json` and `evals/skill_structure.py`.",
+    "status": "done",
+    "hunks": [
+     "evals/phase_context_budget.json:1-21",
+     "evals/phase_context_budget.py:1-223",
+     "tests/test_phase_context_budget.py:1-119"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Measurement only: it changes no prompt.",
+    "status": "done",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "negative requirement ('changes no prompt'): evidence is absence of skills/ hunks"
+   },
+   {
+    "id": 4,
+    "text": "The printed table is committed with its date and the commit it was measured on.",
+    "status": "done",
+    "hunks": [
+     "evals/phase_context_budget.json:1-21",
+     "evals/phase_context_budget.py:1-223"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "A planted 500-word paragraph in `skills/agrim-loop/references/running.md` fails the test (control, red first).",
+    "status": "done",
+    "hunks": [
+     "tests/test_phase_context_budget.py:1-119",
+     "evals/README.md:16-38"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false,
+  "source": "pool"
+ },
+ {
+  "pr": "https://github.com/epr-ds/nutriplan/pull/759",
+  "title": "feat(mobile): serve cached plans first and refresh them from the network (DPL-404)",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Reads served from cache then refreshed from network",
+    "status": "done",
+    "hunks": [
+     "mobile/shared/src/commonMain/kotlin/com/nutriplan/shared/data/repository/CachedDietaryRepository.kt:19-27",
+     "mobile/shared/src/commonMain/kotlin/com/nutriplan/shared/data/repository/CachedDietaryRepository.kt:37-66",
+     "mobile/shared/src/androidHostTest/kotlin/com/nutriplan/shared/data/repository/CachedDietaryRepositoryTest.kt:213-242"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Create/add-meal write-through to cache",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "no create/add-meal write-through hunk"
+   },
+   {
+    "id": 3,
+    "text": "Errors surfaced as typed results; covered by commonTest",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "typed errors not visible; tests are androidHostTest not commonTest"
+   },
+   {
+    "id": 4,
+    "text": "#89 — `DPL-403`",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "issue reference"
+   },
+   {
+    "id": 5,
+    "text": "#70 — `DPL-102`",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "issue reference"
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false,
+  "source": "pool"
+ },
+ {
+  "pr": "https://github.com/iteam7/gateway7/pull/150",
+  "title": "Add actionlint workflow check and name it in the Definition of Done",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "None: CI workflow and Definition of Done upkeep.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "meta line"
+   },
+   {
+    "id": 2,
+    "text": "AC-01: Pinned actionlint checks `.github/workflows/` on pull requests and main, and a deliberately invalid workflow produces a failing check.",
+    "status": "partial",
+    "hunks": [
+     ".github/workflows/actionlint.yml:1-22"
+    ],
+    "confidence": "medium",
+    "note": "workflow added; 'invalid workflow fails' not visible"
+   },
+   {
+    "id": 3,
+    "text": "AC-02: Third-party actions use full commit SHAs with version comments; each applicable lint, format, type-check, build and test check has an identifiable named step.",
+    "status": "partial",
+    "hunks": [
+     ".github/workflows/python.yml:12-19",
+     ".github/workflows/python.yml:24-33"
+    ],
+    "confidence": "low",
+    "note": "named steps yes; SHA pinning not verified"
+   },
+   {
+    "id": 4,
+    "text": "AC-03: Existing tests for the QR-02 critical modules, process demo and packaging checks remain enabled; any genuinely inapplicable check is explained beside the workflow and reported.",
+    "status": "done",
+    "hunks": [
+     ".github/workflows/python.yml:12-19"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "AC-04: `docs/definition-of-done.md` explicitly requires actionlint and the applicable product checks before merge; no VM deployment job is added to product CI.",
+    "status": "done",
+    "hunks": [
+     "docs/definition-of-done.md:23-29",
+     "AGENTS.md:29-35"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 6,
+    "text": "AC-05: The workflow PR passes its checks, and the latest required runs on main are green before the Customer Review, with links available for the Week 5 report.",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "high",
+    "note": "runtime outcome (checks green), not in diff"
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false,
+  "source": "pool"
+ },
+ {
+  "pr": "https://github.com/nahuel893/agents-system/pull/215",
+  "title": "docs(process): add a definition of done and a release gate with live evals (#214)",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "`AGENTS.md`: a \"Definition of done\" section that every PR meets before merge: offline checks; the live scenarios that cover what the change touched, with a map from area to live test module; docs and the feature page in EN + ES; the commit identity rule.",
+    "status": "done",
+    "hunks": [
+     "AGENTS.md:63-108"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "`AGENTS.md`: a \"Release gate\": the full live suite, the installed-wheel smoke test, the feature page labels refreshed, and an install from the tag afterwards.",
+    "status": "done",
+    "hunks": [
+     "AGENTS.md:63-108",
+     "docs/operations/release-process.md:34-62"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "`docs/operations/release-process.md` and its ES twin: the same gate as numbered steps.",
+    "status": "done",
+    "hunks": [
+     "docs/operations/release-process.md:34-62",
+     "docs/operations_es/release-process.md:35-64"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Both sections exist in `AGENTS.md` and name the exact commands.",
+    "status": "done",
+    "hunks": [
+     "AGENTS.md:63-108"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "The release process (EN + ES) lists the full live suite and the feature-page refresh as steps before tagging.",
+    "status": "done",
+    "hunks": [
+     "docs/operations/release-process.md:34-62",
+     "docs/operations_es/release-process.md:35-64"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false,
+  "source": "pool"
+ },
+ {
+  "pr": "https://github.com/YinceIuCode/assistant_core_lab/pull/26",
+  "title": "17 week 4 t1 implement post v1chat endpoint   doomsdaycome",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Pull latest `main` after Core Setup is merged.",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "process step"
+   },
+   {
+    "id": 2,
+    "text": "Implement `chat(req: ChatRequest, request: Request) -> ChatResponse` in `src/assistant_api/main.py`.",
+    "status": "done",
+    "hunks": [
+     "src/assistant_api/main.py:64-75"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Call `service.handle(Message(text=req.message, session_id=req.session_id))`.",
+    "status": "done",
+    "hunks": [
+     "src/assistant_api/main.py:64-75"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Return `ChatResponse(**resp.model_dump(), request_id=uuid.uuid4().hex[:12])`.",
+    "status": "done",
+    "hunks": [
+     "src/assistant_api/main.py:64-75"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "Run `pytest -q tests/test_api.py -k chat` to verify 200 response and 422 validation errors.",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "an instruction to run tests, not code"
+   },
+   {
+    "id": 6,
+    "text": "**Estimated hours**: 1",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "form field"
+   },
+   {
+    "id": 7,
+    "text": "**Actual hours**:",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "form field"
+   },
+   {
+    "id": 8,
+    "text": "**PR Link**: #<PR-Number>",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "form field"
+   }
+  ],
+  "creep_hunks": [
+   {
+    "hunk": ".github/workflows/ci.yml:7-13",
+    "confidence": "medium",
+    "note": "CI workflow edits not in the ask"
+   },
+   {
+    "hunk": ".github/workflows/ci.yml:22-31",
+    "confidence": "medium",
+    "note": "CI workflow edits not in the ask"
+   },
+   {
+    "hunk": ".github/workflows/ci.yml:56-91",
+    "confidence": "medium",
+    "note": "new CI api-testing job not in the ask"
+   },
+   {
+    "hunk": "src/assistant_api/main.py:77-88",
+    "confidence": "medium",
+    "note": "edits TODO comments of other endpoints"
+   }
+  ],
+  "reviewed_by_human": false,
+  "source": "pool"
+ }
+]

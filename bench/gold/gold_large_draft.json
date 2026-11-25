@@ -1,0 +1,175 @@
+[
+ {
+  "pr": "https://github.com/upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+  "title": "T20 Set up OpenSpec for spec-driven development",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Install OpenSpec (`npm install -g @fission-ai/openspec`) and run `openspec init` in the repository root.",
+    "status": "done",
+    "hunks": [
+     "openspec/config.yaml:1-63"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Commit the generated `openspec/` folder (`specs/` and `changes/`) and the instructions for the AI assistants the team uses.",
+    "status": "partial",
+    "hunks": [
+     "openspec/specs/accounts/spec.md:1-79",
+     "openspec/specs/ideas/spec.md:1-124"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Add a short \"OpenSpec workflow\" section to the README: how to create a change, how to validate it and how to archive it after merging.",
+    "status": "done",
+    "hunks": [
+     "README.md:53-78"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Create a first example change from one of the Sprint 1 user stories (for example US001) so that the team has a reference.",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/daniela-tio/project-relay/pull/48",
+  "title": "chore: sets up Django project with modular apps and enviroment settin\u2026",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Django project created with separate dev and prod settings",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "PostgreSQL database connects",
+    "status": "done",
+    "hunks": [
+     "config/settings.py:1-133",
+     "requirements.txt:1-6"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Project can run locally",
+    "status": "done",
+    "hunks": [
+     "manage.py:1-22",
+     "config/settings.py:1-133"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/NASA-ACROSS/across-data-ingestion/pull/61",
+  "title": "build: adjustments for env vars and image building for deployment",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "env vars (RUNTIME_ENV/APP_ENV)",
+    "status": "done",
+    "hunks": [
+     "across_data_ingestion/core/config.py:27-33",
+     "across_data_ingestion/core/config.py:8-15",
+     "across_data_ingestion/core/enums/environments.py:3-8"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "dockerfile",
+    "status": "done",
+    "hunks": [
+     "Dockerfile:2-15",
+     "Dockerfile:21-30",
+     "Dockerfile:38-71"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "makefile commands",
+    "status": "done",
+    "hunks": [
+     "Makefile:1-21",
+     "Makefile:100-118",
+     "Makefile:128-180",
+     "Makefile:184-231",
+     "Makefile:54-60",
+     "Makefile:79-85"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/EvilBit-Labs/opnDossier/pull/71",
+  "title": "fix(parser): handle comma-separated interface lists as multiple interfaces",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Individual interface validation and reference checking",
+    "status": "done",
+    "hunks": [
+     "internal/validator/opnsense.go:434-457",
+     "internal/model/security.go:1-66",
+     "internal/model/interface_list_test.go:1-162"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Separate hyperlinking for each interface",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Correct interface enumeration in reports",
+    "status": "done",
+    "hunks": [
+     "internal/processor/report.go:631-640",
+     "internal/model/enrichment.go:323-332",
+     "internal/model/enrichment.go:496-505",
+     "internal/processor/analyze.go:53-62"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ }
+]

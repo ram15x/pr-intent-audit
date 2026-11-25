@@ -1,0 +1,331 @@
+{
+ "summary": {
+  "requirements_scored": 46,
+  "abstained": 0,
+  "done_precision": 0.97,
+  "done_recall": 0.821,
+  "false_done_on_notdone": "1/7",
+  "fault_catch_not_done": "19/31",
+  "fault_catch_missing": "15/31",
+  "false_alarm_other_reqs": "1/26",
+  "labels_human_reviewed": false,
+  "fault_catch_not_done_95ci": [
+   0.44,
+   0.76
+  ],
+  "fault_catch_missing_95ci": [
+   0.32,
+   0.65
+  ],
+  "done_recall_95ci": [
+   0.67,
+   0.91
+  ],
+  "confusion_gold_x_pred[done,partial,missing,unclear]": {
+   "done": [
+    32,
+    5,
+    2,
+    0
+   ],
+   "partial": [
+    1,
+    2,
+    1,
+    0
+   ],
+   "missing": [
+    0,
+    0,
+    3,
+    0
+   ]
+  }
+ },
+ "detail": [
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 1,
+   "gold": "done",
+   "pred": "partial"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 4,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 5,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 6,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 3,
+   "gold": "done",
+   "pred": "partial"
+  },
+  {
+   "pr": "cisagov/manage.get.gov/pull/5156",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "cisagov/manage.get.gov/pull/5156",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "pfBlockerNG/pfBlockerNG/pull/672",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "pfBlockerNG/pfBlockerNG/pull/672",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "oddessentials/odd-bot-moltbook/pull/40",
+   "req": 1,
+   "gold": "partial",
+   "pred": "missing"
+  },
+  {
+   "pr": "oddessentials/odd-bot-moltbook/pull/40",
+   "req": 2,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 1,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 3,
+   "gold": "partial",
+   "pred": "partial"
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 1,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 4,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 5,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "epr-ds/nutriplan/pull/759",
+   "req": 1,
+   "gold": "done",
+   "pred": "partial"
+  },
+  {
+   "pr": "epr-ds/nutriplan/pull/759",
+   "req": 2,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 1,
+   "gold": "partial",
+   "pred": "done"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 2,
+   "gold": "partial",
+   "pred": "partial"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 3,
+   "gold": "done",
+   "pred": "partial"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 4,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 4,
+   "gold": "done",
+   "pred": "partial"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 5,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  }
+ ],
+ "variant": "top5_noverify",
+ "llm_calls": {
+  "cache": 107,
+  "net": 0,
+  "fail": 0
+ },
+ "llm_by_provider_this_run": {},
+ "gemini_model": null
+}

@@ -1,0 +1,140 @@
+{
+ "summary": {
+  "requirements_scored": 13,
+  "abstained": 7,
+  "done_precision": 1.0,
+  "done_recall": 1.0,
+  "false_done_on_notdone": "0/1",
+  "fault_catch_not_done": "4/5",
+  "fault_catch_missing": "2/5",
+  "false_alarm_other_reqs": "0/6",
+  "labels_human_reviewed": false,
+  "judge_errors": 7,
+  "judge_error_examples": [
+   "judge error: RuntimeError: all providers failed (last: groq HTTP 413)",
+   "judge error: RuntimeError: all providers failed (last: groq HTTP 429)"
+  ],
+  "fault_catch_not_done_95ci": [
+   0.38,
+   0.96
+  ],
+  "fault_catch_missing_95ci": [
+   0.12,
+   0.77
+  ],
+  "done_recall_95ci": [
+   0.57,
+   1.0
+  ],
+  "confusion_gold_x_pred[done,partial,missing,unclear]": {
+   "done": [
+    5,
+    0,
+    0,
+    4
+   ],
+   "partial": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "missing": [
+    0,
+    0,
+    1,
+    2
+   ]
+  }
+ },
+ "detail": [
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 1,
+   "gold": "done",
+   "pred": "unclear"
+  },
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 2,
+   "gold": "partial",
+   "pred": "unclear"
+  },
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 3,
+   "gold": "done",
+   "pred": "unclear"
+  },
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 4,
+   "gold": "missing",
+   "pred": "unclear"
+  },
+  {
+   "pr": "daniela-tio/project-relay/pull/48",
+   "req": 1,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "daniela-tio/project-relay/pull/48",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "daniela-tio/project-relay/pull/48",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "NASA-ACROSS/across-data-ingestion/pull/61",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "NASA-ACROSS/across-data-ingestion/pull/61",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "NASA-ACROSS/across-data-ingestion/pull/61",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "EvilBit-Labs/opnDossier/pull/71",
+   "req": 1,
+   "gold": "done",
+   "pred": "unclear"
+  },
+  {
+   "pr": "EvilBit-Labs/opnDossier/pull/71",
+   "req": 2,
+   "gold": "missing",
+   "pred": "unclear"
+  },
+  {
+   "pr": "EvilBit-Labs/opnDossier/pull/71",
+   "req": 3,
+   "gold": "done",
+   "pred": "unclear"
+  }
+ ],
+ "variant": "large_all",
+ "llm_calls": {
+  "cache": 0,
+  "net": 17,
+  "fail": 7
+ },
+ "llm_by_provider_this_run": {
+  "groq": 17
+ },
+ "gemini_model": "gemini-3.5-flash"
+}

@@ -1,0 +1,143 @@
+{
+ "n_prs": 233,
+ "labels": [
+  "done",
+  "partial",
+  "missing"
+ ],
+ "cases": {
+  "train": 938,
+  "test": 105,
+  "val": 51
+ },
+ "trained_relevance": {
+  "val": {
+   "n": 51,
+   "acc": 0.725,
+   "macro_f1": 0.704,
+   "macro_f1_95ci": [
+    0.519,
+    0.923
+   ],
+   "confusion[done,partial,missing]": [
+    [
+     21,
+     7,
+     2
+    ],
+    [
+     1,
+     8,
+     1
+    ],
+    [
+     1,
+     2,
+     8
+    ]
+   ]
+  },
+  "test": {
+   "n": 105,
+   "acc": 0.733,
+   "macro_f1": 0.673,
+   "macro_f1_95ci": [
+    0.585,
+    0.755
+   ],
+   "confusion[done,partial,missing]": [
+    [
+     49,
+     6,
+     7
+    ],
+    [
+     6,
+     8,
+     4
+    ],
+    [
+     5,
+     0,
+     20
+    ]
+   ]
+  }
+ },
+ "keyword_overlap": {
+  "val": {
+   "n": 51,
+   "acc": 0.765,
+   "macro_f1": 0.736,
+   "macro_f1_95ci": [
+    0.598,
+    0.867
+   ],
+   "confusion[done,partial,missing]": [
+    [
+     23,
+     3,
+     4
+    ],
+    [
+     2,
+     7,
+     1
+    ],
+    [
+     1,
+     1,
+     9
+    ]
+   ]
+  },
+  "test": {
+   "n": 105,
+   "acc": 0.59,
+   "macro_f1": 0.472,
+   "macro_f1_95ci": [
+    0.378,
+    0.564
+   ],
+   "confusion[done,partial,missing]": [
+    [
+     41,
+     2,
+     19
+    ],
+    [
+     8,
+     2,
+     8
+    ],
+    [
+     5,
+     1,
+     19
+    ]
+   ]
+  }
+ },
+ "majority_class_acc_test": 0.59,
+ "scope_creep_val_test": {
+  "trained_relevance": {
+   "foreign_hunks_flagged": "16/28",
+   "own_hunks_wrongly_flagged": "11/270"
+  },
+  "keyword_overlap": {
+   "foreign_hunks_flagged": "27/28",
+   "own_hunks_wrongly_flagged": "193/270"
+  }
+ },
+ "requirement_level": {
+  "tau": 0.65,
+  "unclear_band": 0.1,
+  "val_pairs": 489,
+  "test_pairs": 467,
+  "test_covered_precision": 0.872,
+  "test_covered_recall": 0.882,
+  "test_f1": 0.877,
+  "test_share_in_unclear_band": 0.113,
+  "keyword_test_f1_at_best_val_tau": 0.809
+ }
+}

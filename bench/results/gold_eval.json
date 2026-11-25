@@ -1,0 +1,352 @@
+{
+ "clean": {
+  "tp": 33,
+  "fp": 5,
+  "fn": 2,
+  "tn": 0,
+  "abstain": 6,
+  "n": 46
+ },
+ "faults": {
+  "n": 32,
+  "caught_not_done": 3,
+  "caught_missing": 0,
+  "other_reqs": 26,
+  "other_flipped": 1
+ },
+ "detail": [
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 4,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 5,
+   "gold": "done",
+   "pred": "missing",
+   "score": 0.46
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 6,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 1,
+   "gold": "done",
+   "pred": "unclear",
+   "score": 0.95
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 2,
+   "gold": "done",
+   "pred": "unclear",
+   "score": 0.92
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.95
+  },
+  {
+   "pr": "cisagov/manage.get.gov/pull/5156",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.97
+  },
+  {
+   "pr": "cisagov/manage.get.gov/pull/5156",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "pfBlockerNG/pfBlockerNG/pull/672",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "pfBlockerNG/pfBlockerNG/pull/672",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "oddessentials/odd-bot-moltbook/pull/40",
+   "req": 1,
+   "gold": "partial",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "oddessentials/odd-bot-moltbook/pull/40",
+   "req": 2,
+   "gold": "missing",
+   "pred": "unclear",
+   "score": 0.66
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 1,
+   "gold": "missing",
+   "pred": "unclear",
+   "score": 0.71
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 3,
+   "gold": "partial",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 2,
+   "gold": "done",
+   "pred": "unclear",
+   "score": 0.66
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 3,
+   "gold": "done",
+   "pred": "missing",
+   "score": 0.44
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 4,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.97
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 5,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.97
+  },
+  {
+   "pr": "epr-ds/nutriplan/pull/759",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "epr-ds/nutriplan/pull/759",
+   "req": 2,
+   "gold": "missing",
+   "pred": "done",
+   "score": 0.95
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 1,
+   "gold": "partial",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 2,
+   "gold": "partial",
+   "pred": "done",
+   "score": 0.93
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 3,
+   "gold": "done",
+   "pred": "unclear",
+   "score": 0.7
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 4,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.93
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 4,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.94
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 5,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.98
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 1,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.96
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 2,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.95
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 3,
+   "gold": "done",
+   "pred": "done",
+   "score": 0.95
+  }
+ ],
+ "summary": {
+  "requirements_scored": 46,
+  "abstained": 6,
+  "done_precision": 0.868,
+  "done_recall": 0.943,
+  "gold_not_done_total": 7,
+  "fault_catch_rate_not_done": "3/32",
+  "fault_catch_rate_missing": "0/32",
+  "false_alarm_other_reqs": "1/26",
+  "labels_human_reviewed": false
+ }
+}

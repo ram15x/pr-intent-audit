@@ -1,0 +1,54 @@
+{
+ "base": "microsoft/codebert-base",
+ "n_prs": 226,
+ "history": [
+  {
+   "epoch": 1,
+   "val": {
+    "auc_within_pr": 0.639,
+    "n_within": 46,
+    "auc": 0.704,
+    "auc_hard_negs_only": 0.67,
+    "acc@0.5": 0.666
+   }
+  },
+  {
+   "epoch": 2,
+   "val": {
+    "auc_within_pr": 0.728,
+    "n_within": 46,
+    "auc": 0.79,
+    "auc_hard_negs_only": 0.659,
+    "acc@0.5": 0.707
+   }
+  },
+  {
+   "epoch": 3,
+   "val": {
+    "auc_within_pr": 0.677,
+    "n_within": 46,
+    "auc": 0.777,
+    "auc_hard_negs_only": 0.655,
+    "acc@0.5": 0.701
+   }
+  }
+ ],
+ "test": {
+  "auc_within_pr": 0.502,
+  "n_within": 136,
+  "auc": 0.801,
+  "auc_hard_negs_only": 0.775,
+  "acc@0.5": 0.726
+ },
+ "test_ci": {
+  "auc_95ci": [
+   0.768,
+   0.845
+  ],
+  "auc_hard_95ci": [
+   0.707,
+   0.82
+  ],
+  "n_repos": 7
+ }
+}

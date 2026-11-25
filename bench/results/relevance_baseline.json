@@ -1,0 +1,13 @@
+{
+ "n_prs": 233,
+ "val": {
+  "n": 576,
+  "auc_all": 0.683,
+  "auc_hard_negs_only": 0.618
+ },
+ "test": {
+  "n": 666,
+  "auc_all": 0.634,
+  "auc_hard_negs_only": 0.616
+ }
+}

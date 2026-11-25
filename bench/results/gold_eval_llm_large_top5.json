@@ -1,0 +1,136 @@
+{
+ "summary": {
+  "requirements_scored": 13,
+  "abstained": 0,
+  "done_precision": 1.0,
+  "done_recall": 0.778,
+  "false_done_on_notdone": "0/4",
+  "fault_catch_not_done": "4/7",
+  "fault_catch_missing": "2/7",
+  "false_alarm_other_reqs": "2/8",
+  "labels_human_reviewed": false,
+  "fault_catch_not_done_95ci": [
+   0.25,
+   0.84
+  ],
+  "fault_catch_missing_95ci": [
+   0.08,
+   0.64
+  ],
+  "done_recall_95ci": [
+   0.45,
+   0.94
+  ],
+  "confusion_gold_x_pred[done,partial,missing,unclear]": {
+   "done": [
+    7,
+    0,
+    2,
+    0
+   ],
+   "partial": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "missing": [
+    0,
+    0,
+    3,
+    0
+   ]
+  }
+ },
+ "detail": [
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 1,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 2,
+   "gold": "partial",
+   "pred": "partial"
+  },
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "req": 4,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "daniela-tio/project-relay/pull/48",
+   "req": 1,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "daniela-tio/project-relay/pull/48",
+   "req": 2,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "daniela-tio/project-relay/pull/48",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "NASA-ACROSS/across-data-ingestion/pull/61",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "NASA-ACROSS/across-data-ingestion/pull/61",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "NASA-ACROSS/across-data-ingestion/pull/61",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "EvilBit-Labs/opnDossier/pull/71",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "EvilBit-Labs/opnDossier/pull/71",
+   "req": 2,
+   "gold": "missing",
+   "pred": "missing"
+  },
+  {
+   "pr": "EvilBit-Labs/opnDossier/pull/71",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  }
+ ],
+ "variant": "large_top5",
+ "llm_calls": {
+  "cache": 4,
+  "net": 24,
+  "fail": 0
+ },
+ "llm_by_provider_this_run": {
+  "gemini": 23,
+  "groq": 1
+ },
+ "gemini_model": "gemini-3.5-flash"
+}
