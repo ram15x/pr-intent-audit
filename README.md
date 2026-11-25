@@ -42,7 +42,7 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/46, so precision must be read against 0.85; judge calls were mostly Groq gpt-oss-120b.
 
-## Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)
+### Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)
 
 | variant | done precision | done recall | abstained | faults no longer 'done' | 95% CI | faults -> 'missing' | false alarms | judge errors | confusion gold x pred [done,partial,missing,unclear] |
 |---|---|---|---|---|---|---|---|---|---|
@@ -71,6 +71,28 @@ gold base rate of 'done' is 39/46, so precision must be read against 0.85; judge
 - **Scope-creep detection is low precision** and has not been validated within a PR.
 
 Design history and every negative result: `docs/DECISIONS.md`.
+
+## Train the models yourself
+
+The trained weights are not in this repo (`models/` is gitignored); the data is mined from public PRs on your own
+machine with your own `GITHUB_TOKEN`. A 4 GB GPU (RTX 3050) is enough. Mining and training are resumable.
+
+```
+pip install -r bench\requirements-train.txt
+python bench\mine.py                 # merged public PRs that close an issue -> bench/data/bundles.jsonl
+python bench\mine_deepen.py          # more PRs from the same repos (hard negatives)
+python bench\mine_commits.py         # commit -> hunk supervision (did not help within-PR, kept for the record)
+python bench\mine_gold.py            # acceptance-criteria PRs for the gold pool
+python bench\train_relevance.py      # CodeBERT cross-encoder -> models/relevance
+python bench\train_verdict.py        # verdict + scope-creep classifiers -> models/verdict.joblib
+```
+
+Without `models/`, `pr-audit run` cannot retrieve hunks.
+
+## License
+
+MIT, see `LICENSE`. Benchmark data is derived from public GitHub PRs; it is mined locally and not redistributed here
+except short requirement excerpts and hunk ids in `bench/gold/`.
 
 ## Reproduce
 

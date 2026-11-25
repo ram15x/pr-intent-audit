@@ -52,7 +52,7 @@ for tag, name in [("large_top5", "large PRs (36-98 hunks): top-5 + verifier"),
         _s = json.loads(p.read_text(encoding="utf-8"))["summary"]
         big.append((name + (f" **(INVALID: {_s['judge_errors']} judge calls failed, HTTP 413/429)**" if _s.get('judge_errors') else ""), _s))
 if big:
-    L += ["", "## Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)", "",
+    L += ["", "### Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)", "",
           "| variant | done precision | done recall | abstained | faults no longer 'done' | 95% CI | faults -> 'missing' | false alarms | judge errors | confusion gold x pred [done,partial,missing,unclear] |",
           "|---|---|---|---|---|---|---|---|---|---|"]
     for n, s in big:

@@ -13,7 +13,7 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/46, so precision must be read against 0.85; judge calls were mostly Groq gpt-oss-120b.
 
-## Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)
+### Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)
 
 | variant | done precision | done recall | abstained | faults no longer 'done' | 95% CI | faults -> 'missing' | false alarms | judge errors | confusion gold x pred [done,partial,missing,unclear] |
 |---|---|---|---|---|---|---|---|---|---|
