@@ -106,10 +106,12 @@ if __name__ == "__main__":
     tag = ("all" if "all" in args else "top5") + ("" if CFG["verify"] else "_noverify")
     LARGE = "large" in args
     LEX = "lexical" in args
+    EXTRA = "extra" in args
     if LEX: tag = "lexical_" + tag
     if LARGE: tag = "large_" + tag
+    if EXTRA: tag = "extra_" + tag
     print("variant:", tag)
-    gold = json.loads((ROOT / ("bench/gold/gold_large_draft.json" if LARGE else "bench/gold/gold_draft.json")).read_text(encoding="utf-8"))
+    gold = json.loads((ROOT / ("bench/gold/gold_large_draft.json" if LARGE else "bench/gold/gold_extra_draft.json" if EXTRA else "bench/gold/gold_draft.json")).read_text(encoding="utf-8"))
     bundles = {b.source: b for b in (PRBundle.model_validate_json(l) for l in
                open(ROOT / "bench/data/bundles.jsonl", encoding="utf-8"))}
     for _l in open(ROOT / ("bench/data/large_pool.jsonl" if LARGE else "bench/data/gold_pool.jsonl"), encoding="utf-8"):

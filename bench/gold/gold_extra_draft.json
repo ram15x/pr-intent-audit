@@ -1,0 +1,317 @@
+[
+ {
+  "pr": "https://github.com/Agrim-Intelligence/sigma/pull/381",
+  "title": "test: record CI repair acceptance criteria",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Research first: how the landing step currently observes and records a red check, and where the review-cycle cap (anti-thrash) already lives so the fix cycle reuses it.",
+    "status": "done",
+    "hunks": [
+     ".sdlc/research/266.md:1-20"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "On a red required check, dispatch the implement phase with the failing check's log excerpt, at most a configured number of cycles (default small), then fall back to today's `failed` record with the check named.",
+    "status": "done",
+    "hunks": [
+     "skills/agrim-loop/references/landing.md:228-252",
+     "skills/agrim-loop/scripts/work.py:399-515",
+     "skills/agrim-loop/scripts/work.py:5383-5393"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Distinguish infrastructure flake (rerun) from a real failure; count every cycle against the budget ceilings; never touch branch protection or the check definitions.",
+    "status": "done",
+    "hunks": [
+     "skills/agrim-loop/scripts/work.py:399-515"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "A planted lint failure on a goal PR is repaired automatically within the cap (control, red first).",
+    "status": "done",
+    "hunks": [
+     "tests/test_work.py:99-180"
+    ],
+    "confidence": "medium",
+    "note": "control tests the dispatch of the repair, not an end-to-end repair"
+   },
+   {
+    "id": 5,
+    "text": "A failure that cannot be repaired within the cap ends as `failed`, naming the check.",
+    "status": "done",
+    "hunks": [
+     "skills/agrim-loop/references/landing.md:228-252",
+     "tests/test_work.py:2829-2842",
+     "tests/test_work.py:3473-3479"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 6,
+    "text": "Cycles appear in the phase cost report.",
+    "status": "partial",
+    "hunks": [
+     "skills/agrim-loop/references/landing.md:228-252"
+    ],
+    "confidence": "medium",
+    "note": "measured via host phase_report; diff shows ci-repair timing kind but no phase_report.py change"
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/boris-heuer/lianiq/pull/44",
+  "title": "docs(sdlc): bind agent and contributor entry points to the Definition of Done",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Add concise English AGENTS/contributor entry pointers to the canonical factory guidance and app-owned native Windows evidence/DoD profile. Preserve the user's Terra/medium requirement, central clarification channel and minimum necessary independent review.",
+    "status": "done",
+    "hunks": [
+     "AGENTS.md:1-50",
+     "CONTRIBUTING.md:59-69"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Document resolved canonical guidance repository/path and app-specific Python/PySide6 scope; no implicit .NET/Blazor conversion or app-platform runtime membership.",
+    "status": "done",
+    "hunks": [
+     "AGENTS.md:1-50"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "If factory.config is needed by the selected harness workflow, use only the published closed schema and validate it. Do not invent native-profile keys or automatically enable hooks, MCP, credentials or system configuration.",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "conditional ('if factory.config is needed'); cannot tell"
+   },
+   {
+    "id": 4,
+    "text": "Provide a minimal PR/work-order evidence checklist covering owner/ACs, exact build/head, local checks, independent review, required CI, real user evidence or justified scope-based N/A, open gaps and post-merge verification.",
+    "status": "partial",
+    "hunks": [
+     ".github/pull_request_template.md:9-25"
+    ],
+    "confidence": "medium",
+    "note": "template lacks an explicit post-merge verification item"
+   },
+   {
+    "id": 5,
+    "text": "The checklist explicitly separates artifact completion, code verification and runtime SystemOK; missing mandatory evidence keeps the relevant work item open.",
+    "status": "done",
+    "hunks": [
+     ".github/pull_request_template.md:9-25",
+     "CONTRIBUTING.md:22-43"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 6,
+    "text": "Demonstrate a reproducible fresh-session walkthrough from repository landing/agent instructions to issue, owner, DoD and evidence path. Resolve contradictory or stale pointers.",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "walkthrough demonstration is process evidence, not in the diff"
+   },
+   {
+    "id": 7,
+    "text": "All new repository/GitHub prose is English; multilingual functional samples stay intact.",
+    "status": "done",
+    "hunks": [
+     "CONTRIBUTING.md:3-20"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/kesamot11/chaosnet/pull/21",
+  "title": "chore: PR template with Definition of Done and issue form",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "PR template: summary, linked issue, decisions, test evidence, risks, AI self-review section, DoD checklist",
+    "status": "done",
+    "hunks": [
+     ".github/pull_request_template.md:1-24"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "one issue form: motivation, acceptance criteria, dependencies, out of scope",
+    "status": "done",
+    "hunks": [
+     ".github/ISSUE_TEMPLATE/task.yml:1-41"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "the next PR after this one uses the template",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "future PR; not about this diff"
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/monicadelaine/capstone-design/pull/31",
+  "title": "Add team Definition of Done",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Half a page at `docs/definition-of-done.md`",
+    "status": "done",
+    "hunks": [
+     "docs/definition-of-done.md:1-26"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Adapted from the course slide: acceptance criteria met, changes merged, tests pass, docs updated, AI use disclosed, demoable",
+    "status": "done",
+    "hunks": [
+     "docs/definition-of-done.md:1-26"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Linked from the README",
+    "status": "done",
+    "hunks": [
+     "README.md:43-49",
+     "docs/README.md:1-6"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/itpd-team-6/sentence-cards-generator-team-6/pull/76",
+  "title": "Add the changelog, the definition of done and the contributing guide",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "AC-01: `CHANGELOG.md` follows Keep a Changelog and has an `[Unreleased]` section with the user-visible changes so far.",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:1-14"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "AC-02: `docs/definition-of-done.md` has one list each for a story, a task and a pull request.",
+    "status": "done",
+    "hunks": [
+     "docs/definition-of-done.md:1-26"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "AC-03: `CONTRIBUTING.md` says how a change gets in (issue, branch, commit message, pull request, review) and links the GitHub project.",
+    "status": "done",
+    "hunks": [
+     "CONTRIBUTING.md:1-49"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "AC-04: The pull request template asks whether the change is user-visible.",
+    "status": "done",
+    "hunks": [
+     ".github/pull_request_template.md:14-26"
+    ],
+    "confidence": "medium",
+    "note": ""
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/lubobali/MissionCopilot-AI/pull/19",
+  "title": "Agile setup: Definition of Done, iteration reviews, README",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Project board with columns Backlog, Ready, In progress, Review, Done, linked to the repo",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "GitHub project board is a repo setting, not in the diff"
+   },
+   {
+    "id": 2,
+    "text": "docs/agile/definition-of-done.md committed through a pull request",
+    "status": "done",
+    "hunks": [
+     "docs/agile/definition-of-done.md:1-23"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "README section \"How this project is run\" links board, iterations and Definition of Done",
+    "status": "done",
+    "hunks": [
+     "README.md:1-42"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "From now on every story is delivered by a PR that closes its issue, with CI green",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "process commitment for future PRs"
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ }
+]
