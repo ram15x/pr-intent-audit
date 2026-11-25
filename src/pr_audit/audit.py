@@ -118,7 +118,7 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
             note = jd.reason + (f" [{jd.downgraded_because}]" if jd.downgraded_because else "")
         results.append(ReqResult(i, t, status, best, ev, note))
 
-    if hunks and m:
+    if hunks and m and clf is not None:
         probs = clf.predict_proba([features(m)])[0]
         labels = list(clf.classes_)
         names = ["done", "partial", "missing"]

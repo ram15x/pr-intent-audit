@@ -79,3 +79,15 @@ Findings:
 - Remaining "misses" are partly harness noise: fault removes only the hunks the gold label points at; duplicate files (gh-factory baseline/ vs .github/) and incomplete gold hunk lists leave the requirement legitimately satisfied. True catch rate is likely underestimated, but we cannot say by how much until labels are reviewed.
 - Judging is mostly Groq gpt-oss-120b (Gemini quota exhausted); cached answers mix providers.
 - Gold labels were written by Claude and the judge is also an LLM: correlated bias is possible. Human review required.
+
+
+## 2026-11-25 (c) — Re-run after gold corrections; lexical-retrieval ablation INVALID
+
+Gold set after docs/GOLD_CHANGES.md: 42 scored requirements, 39 "done" (base rate 0.929), 3 "partial", 0 "missing".
+- ours-only: done precision 0.917 (BELOW the always-"done" base rate), faults 3/32, "missing" 0/32. Within-PR it adds nothing.
+- hybrid top5+verifier: precision 0.966, recall 0.824, faults 21/28, 0 judge errors. all-hunks: 20/26. no-verifier: 19/31.
+  Fault numbers did not change with the label fixes (faults do not depend on the corrected labels).
+- Clean-set metrics are now nearly uninformative (3 not-done items); fault injection is the real evidence.
+- Lexical retrieval run: 33-39 of ~100 judge calls failed with Groq HTTP 429 (free-tier rate/daily limit; Gemini quota
+  also exhausted), so abstentions and "false alarms" are mostly API failures. Result discarded; do not quote.
+  To redo after the quota resets. Lesson: always check `judge_errors` before reading any LLM table (now printed and flagged).

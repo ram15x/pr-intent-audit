@@ -19,7 +19,7 @@ def wilson(k, n, z=1.96):
     return [round(c - h, 2), round(c + h, 2)]
 
 ERRORS = []
-CFG = {"topk": 5, "verify": True}     # set from the command line: [all|top5] [noverify]
+CFG = {"topk": 5, "verify": True}     # set from the command line: [all|top5] [noverify] [lexical] [large]
 
 
 def judge_all(llm, scorer, bundle, texts, only=None):
@@ -105,6 +105,8 @@ if __name__ == "__main__":
     CFG["verify"] = "noverify" not in args
     tag = ("all" if "all" in args else "top5") + ("" if CFG["verify"] else "_noverify")
     LARGE = "large" in args
+    LEX = "lexical" in args
+    if LEX: tag = "lexical_" + tag
     if LARGE: tag = "large_" + tag
     print("variant:", tag)
     gold = json.loads((ROOT / ("bench/gold/gold_large_draft.json" if LARGE else "bench/gold/gold_draft.json")).read_text(encoding="utf-8"))
@@ -114,7 +116,12 @@ if __name__ == "__main__":
         _b = PRBundle.model_validate_json(_l); bundles[_b.source] = _b
     llm = LLM(ROOT / ".cache/llm")
     print("providers:", llm.providers)
-    out = evaluate(llm, load_scorer(ROOT / "models/relevance"), gold, bundles)
+    if LEX:
+        from pr_audit.lexical import lexical_scorer
+        scorer = lexical_scorer()
+    else:
+        scorer = load_scorer(ROOT / "models/relevance")
+    out = evaluate(llm, scorer, gold, bundles)
     out["variant"] = tag; out["llm_calls"] = llm.calls; out["llm_by_provider_this_run"] = llm.by_provider; out["gemini_model"] = llm.gemini_model
     (ROOT / ("bench/results/gold_eval_llm_" + tag + ".json")).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(json.dumps(out["summary"], indent=1), llm.calls, "by provider:", llm.by_provider)

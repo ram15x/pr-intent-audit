@@ -1,0 +1,38 @@
+name: PR Intent Audit
+description: Check whether a pull request did what its description / linked issue asked, with verified evidence.
+inputs:
+  github-token:
+    description: Token with pull-requests write access (usually secrets.GITHUB_TOKEN)
+    required: true
+  gemini-api-key:
+    description: Optional free-tier Gemini key for the judge
+    required: false
+  groq-api-key:
+    description: Optional free-tier Groq key for the judge
+    required: false
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: Install
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+    - name: Audit
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GEMINI_API_KEY: ${{ inputs.gemini-api-key }}
+        GROQ_API_KEY: ${{ inputs.groq-api-key }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+      run: |
+        # PR_URL comes from the event payload via env (never interpolated into the shell command).
+        pr-audit run "$PR_URL" --retrieval lexical --out "$RUNNER_TEMP/pr-audit.md"
+        cat "$RUNNER_TEMP/pr-audit.md" >> "$GITHUB_STEP_SUMMARY"
+    - name: Comment on the PR
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+      run: gh pr comment "$PR_URL" --body-file "$RUNNER_TEMP/pr-audit.md" --edit-last || gh pr comment "$PR_URL" --body-file "$RUNNER_TEMP/pr-audit.md"

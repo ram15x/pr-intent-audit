@@ -1,11 +1,11 @@
 {
  "clean": {
   "tp": 33,
-  "fp": 5,
+  "fp": 3,
   "fn": 2,
   "tn": 0,
-  "abstain": 6,
-  "n": 46
+  "abstain": 4,
+  "n": 42
  },
  "faults": {
   "n": 32,
@@ -128,36 +128,15 @@
    "score": 0.98
   },
   {
-   "pr": "oddessentials/odd-bot-moltbook/pull/40",
-   "req": 1,
-   "gold": "partial",
-   "pred": "done",
-   "score": 0.98
-  },
-  {
-   "pr": "oddessentials/odd-bot-moltbook/pull/40",
-   "req": 2,
-   "gold": "missing",
-   "pred": "unclear",
-   "score": 0.66
-  },
-  {
    "pr": "nanohype/eks-gitops/pull/84",
    "req": 1,
-   "gold": "missing",
-   "pred": "unclear",
-   "score": 0.71
-  },
-  {
-   "pr": "nanohype/eks-gitops/pull/84",
-   "req": 2,
    "gold": "done",
    "pred": "done",
    "score": 0.98
   },
   {
    "pr": "nanohype/eks-gitops/pull/84",
-   "req": 3,
+   "req": 2,
    "gold": "partial",
    "pred": "done",
    "score": 0.98
@@ -247,13 +226,6 @@
    "score": 0.98
   },
   {
-   "pr": "epr-ds/nutriplan/pull/759",
-   "req": 2,
-   "gold": "missing",
-   "pred": "done",
-   "score": 0.95
-  },
-  {
    "pr": "iteam7/gateway7/pull/150",
    "req": 1,
    "gold": "partial",
@@ -339,11 +311,11 @@
   }
  ],
  "summary": {
-  "requirements_scored": 46,
-  "abstained": 6,
-  "done_precision": 0.868,
+  "requirements_scored": 42,
+  "abstained": 4,
+  "done_precision": 0.917,
   "done_recall": 0.943,
-  "gold_not_done_total": 7,
+  "gold_not_done_total": 3,
   "fault_catch_rate_not_done": "3/32",
   "fault_catch_rate_missing": "0/32",
   "false_alarm_other_reqs": "1/26",

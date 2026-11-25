@@ -281,28 +281,28 @@
    {
     "id": 1,
     "text": "`build.rollupOptions.output.manualChunks` to split vendor/route bundles.",
-    "status": "partial",
+    "status": "exclude",
     "hunks": [
      "agent-brief/vite.config.ts:5-93"
     ],
     "confidence": "medium",
-    "note": "CORRECTED: hunk only isolates data/briefs.json via manualChunks; vendor/route splitting not done. Issue lists approaches 'to evaluate, not commit to'."
+    "note": "CORRECTED: hunk only isolates data/briefs.json via manualChunks; vendor/route splitting not done. Issue lists approaches 'to evaluate, not commit to'. | CHANGED 2026-11-25 cross-check: partial -> exclude: issue lists 'possible approaches (to evaluate, not commit to)'; not a requirement. Real acceptance (no chunk-size warning, LCP measured, no regression) was never extracted"
    },
    {
     "id": 2,
     "text": "Route-level dynamic `import()` (wouter lazy routes).",
-    "status": "missing",
+    "status": "exclude",
     "hunks": [],
     "confidence": "medium",
-    "note": "no routing/App file in the diff"
+    "note": "no routing/App file in the diff | CHANGED 2026-11-25 cross-check: missing -> exclude: same: an approach to evaluate, not a requirement"
    },
    {
     "id": 3,
     "text": "Audit heavy deps (the full Radix UI set is pulled in).",
-    "status": "unclear",
+    "status": "exclude",
     "hunks": [],
     "confidence": "low",
-    "note": "manualChunks may group radix; cannot tell"
+    "note": "manualChunks may group radix; cannot tell | CHANGED 2026-11-25 cross-check: unclear -> exclude: same: an approach to evaluate, not a requirement"
    }
   ],
   "creep_hunks": [],
@@ -331,10 +331,10 @@
    {
     "id": 3,
     "text": "A dev/smoke addon profile that installs a minimal set (skip falco/trivy/gpu-operator/neuron/grafana-prometheus for non-prod), and/or",
-    "status": "missing",
+    "status": "exclude",
     "hunks": [],
     "confidence": "medium",
-    "note": "no addon-profile hunk"
+    "note": "no addon-profile hunk | CHANGED 2026-11-25 cross-check: missing -> exclude: one of three 'and/or' fix options; not choosing it is not a gap"
    },
    {
     "id": 4,
@@ -564,10 +564,10 @@
    {
     "id": 2,
     "text": "Create/add-meal write-through to cache",
-    "status": "missing",
+    "status": "unclear",
     "hunks": [],
     "confidence": "medium",
-    "note": "no create/add-meal write-through hunk"
+    "note": "no create/add-meal write-through hunk | CHANGED 2026-11-25 cross-check: missing -> unclear: retrieved hunks show only a doc comment 'Successful writes refresh the cache'; write path not visible in the diff"
    },
    {
     "id": 3,

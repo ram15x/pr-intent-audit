@@ -1,14 +1,16 @@
 {
  "summary": {
-  "requirements_scored": 46,
+  "requirements_scored": 42,
   "abstained": 9,
   "done_precision": 0.963,
   "done_recall": 0.839,
-  "false_done_on_notdone": "1/6",
+  "false_done_on_notdone": "1/2",
   "fault_catch_not_done": "20/26",
   "fault_catch_missing": "16/26",
   "false_alarm_other_reqs": "2/18",
   "labels_human_reviewed": false,
+  "judge_errors": 0,
+  "judge_error_examples": [],
   "fault_catch_not_done_95ci": [
    0.58,
    0.89
@@ -31,13 +33,13 @@
    "partial": [
     1,
     1,
-    1,
+    0,
     1
    ],
    "missing": [
     0,
     0,
-    3,
+    0,
     0
    ]
   }
@@ -140,32 +142,14 @@
    "pred": "done"
   },
   {
-   "pr": "oddessentials/odd-bot-moltbook/pull/40",
-   "req": 1,
-   "gold": "partial",
-   "pred": "missing"
-  },
-  {
-   "pr": "oddessentials/odd-bot-moltbook/pull/40",
-   "req": 2,
-   "gold": "missing",
-   "pred": "missing"
-  },
-  {
    "pr": "nanohype/eks-gitops/pull/84",
    "req": 1,
-   "gold": "missing",
-   "pred": "missing"
-  },
-  {
-   "pr": "nanohype/eks-gitops/pull/84",
-   "req": 2,
    "gold": "done",
    "pred": "done"
   },
   {
    "pr": "nanohype/eks-gitops/pull/84",
-   "req": 3,
+   "req": 2,
    "gold": "partial",
    "pred": "partial"
   },
@@ -240,12 +224,6 @@
    "req": 1,
    "gold": "done",
    "pred": "partial"
-  },
-  {
-   "pr": "epr-ds/nutriplan/pull/759",
-   "req": 2,
-   "gold": "missing",
-   "pred": "missing"
   },
   {
    "pr": "iteam7/gateway7/pull/150",
@@ -323,11 +301,9 @@
  "variant": "all",
  "llm_calls": {
   "cache": 90,
-  "net": 4,
+  "net": 0,
   "fail": 0
  },
- "llm_by_provider_this_run": {
-  "groq": 4
- },
- "gemini_model": "gemini-3.5-flash"
+ "llm_by_provider_this_run": {},
+ "gemini_model": null
 }

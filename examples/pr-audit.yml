@@ -1,0 +1,22 @@
+# Copy to .github/workflows/pr-audit.yml in YOUR repo.
+# Notes:
+#  - Uses `pull_request` (not `pull_request_target`): the audit only reads the diff through the API, it never runs PR code,
+#    but fork PRs get no secrets, so the judge is skipped and the job fails closed (no comment).
+#  - PR text is sent to the judge provider. Free Gemini terms allow Google to train on it: public repos only.
+#  - Retrieval here is lexical word overlap; see docs/RESULTS.md for how it compares with our trained retriever.
+name: PR Intent Audit
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ram15x/pr-intent-audit@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          groq-api-key: ${{ secrets.GROQ_API_KEY }}
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}

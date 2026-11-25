@@ -18,9 +18,9 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         ask_file: Path = typer.Option(None, "--ask-file", help="Text file with the ask (e.g. the prompt you gave an agent)"),
         out: Path = typer.Option(Path("report.md"), "--out"),
         models: Path = typer.Option(ROOT / "models", "--models"),
-        local: bool = typer.Option(False, "--local", help="Use only our local models (no LLM calls; weak at within-PR judging)")):
+        local: bool = typer.Option(False, "--local", help="Use only our local models (no LLM calls; weak at within-PR judging)"),
+        retrieval: str = typer.Option("auto", "--retrieval", help="auto | model | lexical. lexical = word overlap, no model files needed")):
     """Audit one PR against its ask and write a Markdown report."""
-    import joblib
     from .audit import load_scorer, run_audit
     from .ingest import fetch_pr
     from .report import render_markdown
@@ -34,8 +34,21 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         raise typer.Exit(2)
     if not bundle.hunks:
         raise typer.Exit("no auditable hunks in this PR")
-    cfg = json.loads((models / "verdict.json").read_text(encoding="utf-8"))
-    clf = joblib.load(models / "verdict.joblib")
+    have_models = (models / "relevance").exists() and (models / "verdict.joblib").exists()
+    use_lexical = retrieval == "lexical" or (retrieval == "auto" and not have_models)
+    if retrieval == "model" and not have_models:
+        raise typer.BadParameter(f"no trained models in {models}; see README 'Train the models yourself' or use --retrieval lexical")
+    if use_lexical and local:
+        raise typer.BadParameter("--local needs the trained models; train them or drop --local")
+    if use_lexical:
+        from .lexical import lexical_scorer
+        scorer, clf, cfg = lexical_scorer(), None, {"tau": 0.5, "band": 0.10}
+        typer.echo("retrieval: lexical word overlap (no trained models found or --retrieval lexical)")
+    else:
+        cfg = json.loads((models / "verdict.json").read_text(encoding="utf-8"))
+        import joblib
+        clf = joblib.load(models / "verdict.joblib")
+        scorer = load_scorer(models / "relevance")
     typer.echo(f"scoring {len(bundle.hunks)} hunks ...")
     judge, mode = None, "local models only"
     if not local:
@@ -46,9 +59,11 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
             judge = lambda i, t, top: judge_requirement(llm, i, t, top, verify=True)
             mode = f"hybrid (judge providers: {', '.join(llm.providers)}; PR text is sent to them)"
         else:
+            if use_lexical:
+                raise typer.BadParameter("lexical retrieval needs an LLM judge: set GEMINI_API_KEY and/or GROQ_API_KEY")
             typer.echo("no GEMINI_API_KEY / GROQ_API_KEY found: falling back to local models only (weak within-PR)")
-    audit = run_audit(bundle, load_scorer(models / "relevance"), clf, tau=cfg["tau"], band=cfg["band"], judge=judge)
-    out.write_text(render_markdown(audit, f"mode: {mode}; relevance model {models / 'relevance'}"), encoding="utf-8")
+    audit = run_audit(bundle, scorer, clf, tau=cfg["tau"], band=cfg["band"], judge=judge)
+    out.write_text(render_markdown(audit, f"mode: {mode}; retrieval: {'lexical word overlap' if use_lexical else 'trained CodeBERT relevance model'}"), encoding="utf-8")
     typer.echo(f"rank: {audit.rank} ({audit.band}) -> {out}")
 
 
