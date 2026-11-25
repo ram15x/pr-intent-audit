@@ -70,7 +70,11 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
   construction) are the main evidence; they cover omissions, not partial implementations.
 - **Fault injection undercounts.** Removing the hunks a label points at does not always remove the requirement
   (duplicate files, requirements satisfied elsewhere), so catch rates are likely underestimates by an unknown amount.
-- **Requirement splitting is weak.** Checklists work; prose and issue templates produce non-requirements.
+- **Requirement splitting is weak.** Checklists work; prose and issue templates produce non-requirements. Measured on
+  the gold PRs by `bench/eval_splitter.py` (`bench/results/splitter.json`): about 4 in 5 outputs that gold covers are
+  real requirements after the noise rules, up from about 3 in 4 before. That score is in-sample (the rules were written
+  after reading those PRs), so expect worse on new PRs. Lists of "possible approaches" are flagged optional and a
+  missing option is not counted as a gap.
 - **English, public repos only.** Non-English asks are mostly `unclear`. Judging used mostly Groq gpt-oss-120b because
   the Gemini free quota ran out repeatedly.
 - **Scope-creep detection is low precision** and has not been validated within a PR.

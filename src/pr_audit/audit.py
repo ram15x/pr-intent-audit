@@ -27,6 +27,7 @@ class ReqResult:
     score: float
     evidence: list[tuple[str, float, list[str]]] = field(default_factory=list)  # (hunk_id, score, quoted lines)
     note: str = ""
+    optional: bool = False
 
 
 @dataclass
@@ -88,6 +89,8 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
     requirement's status; our relevance model only retrieves the candidate hunks."""
     reqs = [] if req_texts else split_requirements(bundle.ask)
     texts = list(req_texts or []) or [r.text for r in reqs] or [clean_ask(bundle.ask)[:400] or bundle.title]
+    opts = [r.optional for r in reqs] if reqs else []
+    opts += [False] * (len(texts) - len(opts))
     hunks = bundle.hunks
     ht = [hunk_text(h) for h in hunks]
     flat = scorer([(r, h) for r in texts for h in ht]) if hunks else []
@@ -116,7 +119,7 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
             status = jd.verdict.value
             ev = [(hid, row[idx[hid]], quotes_in(hunks[idx[hid]], jd.quotes)) for hid in jd.hunk_ids if hid in idx] if status in ("done", "partial") else []
             note = jd.reason + (f" [{jd.downgraded_because}]" if jd.downgraded_because else "")
-        results.append(ReqResult(i, t, status, best, ev, note))
+        results.append(ReqResult(i, t, status, best, ev, note, optional=opts[i - 1]))
 
     if hunks and m and clf is not None:
         probs = clf.predict_proba([features(m)])[0]
@@ -130,7 +133,7 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
     orphans = orphan_flags(m, tau) if m else []
     creep = [(h.id, round(s, 2)) for h, o, s in zip(hunks, orphans, _best_hunk(m)) if o and is_substantive(h)]
 
-    decided = [r for r in results if r.status != "unclear"]
+    decided = [r for r in results if r.status != "unclear" and not (r.optional and r.status == "missing")]
     low = len(results) > 0 and (len(results) - len(decided)) / len(results) > 0.30
     lines: list[str] = []
     if decided:

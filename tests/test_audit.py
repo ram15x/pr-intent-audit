@@ -50,3 +50,11 @@ def test_judge_quotes_are_shown_only_under_the_hunk_that_contains_them():
     a = run_audit(bundle(), scorer, FakeClf(), tau=0.5, band=0.1, judge=judge)
     ev = {h: q for h, _, q in a.reqs[0].evidence}
     assert ev["a.py:1-3"] == ["def add_login():"] and ev["b.py:1-3"] == []
+
+
+def test_missing_optional_requirement_is_not_counted_against_the_rank():
+    from pr_audit.schemas import PRBundle
+    b = bundle().model_copy(update={"ask": "Approaches to evaluate:\n- We could add login support\n- We could add rate limiting\n"})
+    a = run_audit(b, scorer, FakeClf(), tau=0.5, band=0.1)
+    assert [(r.status, r.optional) for r in a.reqs] == [("done", True), ("missing", True)]
+    assert a.rank == 100 - 5          # only the done one counts; one creep candidate still penalised

@@ -91,3 +91,12 @@ Gold set after docs/GOLD_CHANGES.md: 42 scored requirements, 39 "done" (base rat
 - Lexical retrieval run: 33-39 of ~100 judge calls failed with Groq HTTP 429 (free-tier rate/daily limit; Gemini quota
   also exhausted), so abstentions and "false alarms" are mostly API failures. Result discarded; do not quote.
   To redo after the quota resets. Lesson: always check `judge_errors` before reading any LLM table (now printed and flagged).
+
+## 2026-11-25 (d) — Splitter noise rules (offline, no API)
+
+bench/eval_splitter.py compares splitter output with gold: before, 59/80 matched outputs were real requirements
+(0.738); after dropping process/template noise (checklist boilerplate, issue refs, form fields, "reviewed by"),
+59/73 (0.808), with all 59 gold requirements still produced. IN-SAMPLE: I wrote the rules after reading these PRs, so
+this overstates real-world gains. Added `Requirement.optional` for bullets under "possible approaches / fix options":
+a missing optional requirement no longer lowers the rank. Bug found while testing: noise filtering made single-item
+lists fall back to sentence mode; list structure is now judged before filtering. 31 tests pass.

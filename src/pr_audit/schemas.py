@@ -35,6 +35,7 @@ class Requirement(BaseModel):
     text: str
     source_sentence: str = ""
     unclear: bool = False
+    optional: bool = False       # listed as an option/approach to evaluate: not doing it is not a gap
 
 
 class Judgment(BaseModel):

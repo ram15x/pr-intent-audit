@@ -15,10 +15,10 @@ def render_markdown(a: Audit, run_info: str = "") -> str:
     out += ["## Requirements", "", "| # | Requirement | Verdict | Relevance | Evidence |", "|---|---|---|---|---|"]
     for r in a.reqs:
         ev = "<br>".join(f"`{h}` ({s:.2f})" for h, s, _ in r.evidence) or (r.note or "-")
-        out.append(f"| {r.id} | {r.text[:140].replace('|', '/')} | {ICON[r.status]} | {r.score:.2f} | {ev} |")
+        out.append(f"| {r.id} | {r.text[:140].replace('|', '/')} | {ICON[r.status]}{' (option)' if r.optional else ''} | {r.score:.2f} | {ev} |")
     out += ["", "## Asked vs changed", ""]
     for r in a.reqs:
-        out.append(f"**{r.id}. {ICON[r.status]}** - {r.text[:200]}")
+        out.append(f"**{r.id}. {ICON[r.status]}{' (option: not doing it is not a gap)' if r.optional else ''}** - {r.text[:200]}")
         for h, s, quotes in r.evidence:
             out.append(f"- `{h}` (relevance {s:.2f})")
             out += [f"  - `{q[:120].replace(chr(10), ' / ')}`" for q in quotes]
