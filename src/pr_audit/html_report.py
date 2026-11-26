@@ -171,7 +171,7 @@ h2{font-size:16px;margin:0 0 4px;letter-spacing:.2px}
 <div class="wrap">
   <div class="top">
     <div class="brand"><div class="logo">&#10003;</div>PR Intent Audit</div>
-    <div><button class="btn" id="theme" aria-label="Toggle theme">Theme</button></div>
+    <div style="display:flex;gap:8px"><button class="btn" id="copyc" aria-label="Copy as PR comment">Copy as PR comment</button><button class="btn" id="theme" aria-label="Toggle theme">Theme</button></div>
   </div>
   <div id="app"></div>
   <div class="foot" id="foot"></div>
@@ -226,7 +226,10 @@ function openReq(id,scroll,hunk){
   var counts={done:0,partial:0,missing:0,unclear:0};D.reqs.forEach(function(r){counts[r.status]++});
   var chips=el("div","chips");["done","partial","missing","unclear"].forEach(function(k){chips.appendChild(chip(k,counts[k]+" "+ST[k].toLowerCase()))});
   chips.appendChild(el("span","chip s-unclear",D.hunks.length+" hunks · "+D.creep.length+" unclaimed"));
-  add(right,el("h1",null,D.pr.title||D.pr.source),s,el("span","band "+bandCls(rk),D.band),chips);
+  var nv=D.reqs.filter(function(r){return (r.status==="done"||r.status==="partial")&&r.evidence.length}).length;
+  var summ=el("div","sub",nv+" of "+D.reqs.length+" requirements have a verdict backed by verified diff evidence; "+D.reqs.filter(function(r){return r.status==="unclear"}).length+" could not be decided.");
+  summ.style.marginTop="10px";
+  add(right,el("h1",null,D.pr.title||D.pr.source),s,el("span","band "+bandCls(rk),D.band),chips,summ);
   if(D.low_confidence)right.appendChild(el("div","banner","Low confidence: more than 30% of the requirements could not be decided, so the score covers only part of the ask."));
   D.pr.notes.forEach(function(n){right.appendChild(el("div","banner",n))});
   add(c,ring,right);app.appendChild(c);
@@ -236,6 +239,16 @@ function openReq(id,scroll,hunk){
     var t0=performance.now();(function step(t){var p=Math.min(1,(t-t0)/1100),e=1-Math.pow(1-p,3);b.textContent=Math.round(rk*e);if(p<1)requestAnimationFrame(step)})(t0)
   })});
 })();
+
+document.getElementById("copyc").onclick=function(){
+  var L=["## PR Intent Audit: "+(D.rank==null?"n/a":D.rank+"/100")+" ("+D.band+")","",D.pr.source,"","| # | Requirement | Verdict | Evidence |","|---|---|---|---|"];
+  D.reqs.forEach(function(r){var ev=r.evidence.map(function(e){return "`"+e.hunk+"`"}).join(", ")||"-";L.push("| "+r.id+" | "+r.text.replace(/\|/g,"/").slice(0,140)+" | "+ST[r.status]+(r.optional?" (option)":"")+" | "+ev+" |")});
+  if(D.creep.length){L.push("","Possible scope creep (candidates): "+D.creep.map(function(c){return "`"+c.hunk+"`"}).join(", "))}
+  L.push("","_Evidence lines are verified to exist in the cited hunks. Unclear = not verifiable. This never approves or blocks a merge._");
+  var t=L.join("\n"),b=this;function ok(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy as PR comment"},1400)}
+  try{navigator.clipboard.writeText(t).then(ok,function(){fallback()})}catch(e){fallback()}
+  function fallback(){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){b.textContent="Copy failed"}document.body.removeChild(ta)}
+};
 
 /* ---------- how the score was computed ---------- */
 (function(){

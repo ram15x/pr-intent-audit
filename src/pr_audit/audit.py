@@ -89,6 +89,13 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
     requirement's status; our relevance model only retrieves the candidate hunks."""
     reqs = [] if req_texts else split_requirements(bundle.ask)
     texts = list(req_texts or []) or [r.text for r in reqs] or [clean_ask(bundle.ask)[:400] or bundle.title]
+    thin = None
+    if not reqs and not req_texts:
+        thin = "The ask has no list or recognisable requirement sentences, so the whole ask is treated as one requirement. The score only says whether something in the diff matches it."
+    elif len(texts) == 1 and len(texts[0]) < 60:
+        thin = "The ask is a single short line, so this audit checks one vague requirement. Give the agent or the PR a list of concrete requirements for a meaningful score."
+    if thin and thin not in bundle.notes:
+        bundle = bundle.model_copy(update={"notes": bundle.notes + [thin]})
     opts = [r.optional for r in reqs] if reqs else []
     opts += [False] * (len(texts) - len(opts))
     hunks = bundle.hunks
@@ -134,7 +141,8 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
         pr_probs, pr_verdict = {}, "unclear"
 
     orphans = orphan_flags(m, tau) if m else []
-    creep = [(h.id, round(s, 2)) for h, o, s in zip(hunks, orphans, _best_hunk(m)) if o and is_substantive(h)]
+    cited = {hid for r in results for hid, _s, _q in r.evidence}      # a hunk a verdict cites as verified evidence is claimed, whatever its score
+    creep = [(h.id, round(s, 2)) for h, o, s in zip(hunks, orphans, _best_hunk(m)) if o and is_substantive(h) and h.id not in cited]
 
     decided = [r for r in results if r.status != "unclear" and not (r.optional and r.status == "missing")]
     low = len(results) > 0 and (len(results) - len(decided)) / len(results) > 0.30

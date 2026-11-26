@@ -133,3 +133,8 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 - Why: on large PRs the judge sees only the top-5 hunks, and retrieval hits the right hunk in the top 5 about 80% of the time there (n=20). When pass 1 does not give a verified "done", `--escalate` shows the top 12 (max 2 calls per requirement). Pass 2 replaces pass 1 only if it is a verified done/partial.
 - Risk it must be tested for: more chances to find a "done" could raise false "done" verdicts. The fault-injection protocol (`python bench\eval_gold_llm.py lexical escalate`, and `large lexical escalate`) measures exactly that; it is NOT adopted until judge_errors = 0 and fault catch / false-done do not get worse than the same run without `escalate`.
 - `pr-audit local` audits a git range or the working tree against an ask file, for work that never went through a PR.
+
+## 2026-11-26 (j) — Bug found by the new whole-pipeline test: cited hunks were also listed as scope creep
+
+- The golden pipeline test showed a hunk that a verdict cites as verified evidence could still be flagged as "possible scope creep" (creep used only the relevance score threshold) and cost 5 points. Fixed: a hunk cited as evidence by any requirement is never creep. The demo report moved from 55 to 65 for this reason (two cited hunks no longer counted). Offline scope-creep precision numbers (`bench/eval_creep.py`) were computed from scores only and are unaffected.
+- Added: thin-ask warning (a one-line or list-less ask is flagged on the report), a one-line "N of M requirements have verified evidence" summary, and a "Copy as PR comment" button in the HTML report.
