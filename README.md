@@ -140,7 +140,8 @@ Design history and every negative result: `docs/DECISIONS.md`.
 
 `action.yml` + `examples/pr-audit.yml` run the audit on each PR and comment the report. It needs no model files
 (lexical retrieval) but needs a free Groq or Gemini key as a repo secret. **It has not been run on a live PR yet.**
-Fork PRs get no secrets, so they are skipped.
+Each run also uploads the full HTML report (score breakdown + evidence viewer) as a workflow artifact named
+`pr-intent-audit-report`. Fork PRs get no secrets, so they are skipped.
 
 ## Train the models yourself
 

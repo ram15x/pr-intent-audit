@@ -28,7 +28,7 @@ runs:
         PR_URL: ${{ github.event.pull_request.html_url }}
       run: |
         # PR_URL comes from the event payload via env (never interpolated into the shell command).
-        pr-audit run "$PR_URL" --retrieval lexical --out "$RUNNER_TEMP/pr-audit.md"
+        pr-audit run "$PR_URL" --retrieval lexical --out "$RUNNER_TEMP/pr-audit.md" --html "$RUNNER_TEMP/pr-audit.html"
         cat "$RUNNER_TEMP/pr-audit.md" >> "$GITHUB_STEP_SUMMARY"
     - name: Comment on the PR
       shell: bash
@@ -36,3 +36,9 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
         PR_URL: ${{ github.event.pull_request.html_url }}
       run: gh pr comment "$PR_URL" --body-file "$RUNNER_TEMP/pr-audit.md" --edit-last || gh pr comment "$PR_URL" --body-file "$RUNNER_TEMP/pr-audit.md"
+    - name: Upload the HTML report
+      uses: actions/upload-artifact@v4
+      with:
+        name: pr-intent-audit-report
+        path: ${{ runner.temp }}/pr-audit.html
+        if-no-files-found: warn
