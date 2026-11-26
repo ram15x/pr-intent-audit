@@ -144,3 +144,9 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 - Audit: 14/26 gold repos permissive, 12 not (none / NOASSERTION / GPL-3.0). The demo report had been built from a repo with no license (it embeds diff lines), so it was regenerated from an MIT repo; the hand-label comparison notes still appear. New demo: 4/4 requirements DONE, one of them (#4) on weak evidence where the hand label is UNCLEAR, 3 scope-creep candidates (-15).
 - `bench/mine_large.py` now skips repos without a permissive license (cached in `bench/data/license_cache.json`) and takes a time budget via MINE_SECONDS.
 - Owner decision (2026-11-26): keep the 12 non-permissive repos' short requirement excerpts in `bench/gold/*.json`. Residual risk is low, not zero: the excerpts are short and carry no code.
+
+## 2026-11-26 (l) — Large-PR gold 7 -> 9 PRs (permissive licenses only); retrieval re-read again
+
+- Added reduct-grafana/13 (MIT) and kadai/1329 (Apache-2.0), 9 requirements, Claude draft, unreviewed. Not used: concourse/9218 (env-form fields), jni-rs/596 (generic PR checklist), Wahllokalsystem/1794 (German refactor list; non-English).
+- Large-PR sample is now n=28. Lexical large-PR hit@5 moved 0.80 -> 0.71 (random 0.26), BM25 0.45 -> 0.46, lexical+identifiers 0.80 -> 0.71, BM25+identifiers 0.75 -> 0.68. Ordering unchanged: lexical-based variants best, plain BM25 worst. The 0.80 figure in entry (g) was a small-sample high; the better estimate is about 0.7.
+- CodeBERT rows are dropped again (gold set changed, no torch here). Re-run `python bench\eval_retrieval.py` once labelling stops, so it is done once.

@@ -540,5 +540,175 @@
   "creep_hunks": [],
   "reviewed_by_human": false,
   "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/reductstore/reduct-grafana/pull/13",
+  "title": "Add support for when condition in queries",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Define syntax for the `WHEN` clause (e.g., label=value, JSONPath, etc.)",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "a design/syntax item: the diff passes a JSON condition through (When field) but does not define a new syntax"
+   },
+   {
+    "id": 2,
+    "text": "Apply the condition at the API request or client side",
+    "status": "done",
+    "hunks": [
+     "pkg/plugin/datasource.go:113-120",
+     "pkg/plugin/datasource.go:298-306",
+     "src/datasource.ts:23-45"
+    ],
+    "confidence": "high",
+    "note": "WithWhen(qm.When) on the API request; the query sends options.when"
+   },
+   {
+    "id": 3,
+    "text": "Ensure it works in conjunction with time filtering and label selectors",
+    "status": "done",
+    "hunks": [
+     "pkg/plugin/datasource.go:113-120",
+     "pkg/plugin/datasource_test.go:2-195"
+    ],
+    "confidence": "low",
+    "note": "tests combine When with time ranges and labels; behaviour itself not verifiable from the diff"
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "MIT"
+ },
+ {
+  "pr": "https://github.com/kadai-io/kadai/pull/1329",
+  "title": "Closes #1286 - Allow querying `proxyAccessId`",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "`TaskHistoryEvent`",
+    "status": "done",
+    "hunks": [
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:56-62",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:78-84",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:132-141",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:220-229",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:330-341",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:438-449",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/TaskHistoryQueryImpl.java:595-605",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQuery.java:83-96",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQuery.java:232-246",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQuery.java:433-447",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryColumnName.java:29-35",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryMapper.java:48-54",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryMapper.java:71-77",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryMapper.java:131-137",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryMapper.java:154-160",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryMapper.java:191-197",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQueryMapper.java:214-220"
+    ],
+    "confidence": "high",
+    "note": "proxyAccessId added to Task history query, mapper, column names"
+   },
+   {
+    "id": 2,
+    "text": "`WorkbasketHistoryEvent`",
+    "status": "done",
+    "hunks": [
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/WorkbasketHistoryQueryImpl.java:54-60",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/WorkbasketHistoryQueryImpl.java:71-77",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/WorkbasketHistoryQueryImpl.java:111-120",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/WorkbasketHistoryQueryImpl.java:175-184",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/WorkbasketHistoryQueryImpl.java:257-268",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/WorkbasketHistoryQueryImpl.java:373-384",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQuery.java:69-82",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQuery.java:190-204",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryColumnName.java:27-33",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryMapper.java:40-46",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryMapper.java:57-63",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryMapper.java:103-109",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryMapper.java:120-126",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryMapper.java:146-152",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQueryMapper.java:163-169"
+    ],
+    "confidence": "high",
+    "note": "same for Workbasket history"
+   },
+   {
+    "id": 3,
+    "text": "`ClassificationHistoryEvent`",
+    "status": "done",
+    "hunks": [
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/ClassificationHistoryQueryImpl.java:52-58",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/ClassificationHistoryQueryImpl.java:74-80",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/ClassificationHistoryQueryImpl.java:122-133",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/ClassificationHistoryQueryImpl.java:240-251",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/ClassificationHistoryQueryImpl.java:517-526",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/ClassificationHistoryQueryImpl.java:605-614",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQuery.java:62-75",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQuery.java:187-202",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryColumnName.java:26-32",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryMapper.java:39-45",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryMapper.java:62-68",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryMapper.java:120-126",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryMapper.java:143-149",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryMapper.java:175-181",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQueryMapper.java:198-204"
+    ],
+    "confidence": "high",
+    "note": "same for Classification history"
+   },
+   {
+    "id": 4,
+    "text": "Made field `proxyAccessId` queryable in Java-API (Service-Layer) for all listed entities",
+    "status": "done",
+    "hunks": [
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQuery.java:62-75",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/classification/ClassificationHistoryQuery.java:187-202",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQuery.java:83-96",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQuery.java:232-246",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/task/TaskHistoryQuery.java:433-447",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQuery.java:69-82",
+     "history/kadai-simplehistory-provider/src/main/java/io/kadai/simplehistory/impl/workbasket/WorkbasketHistoryQuery.java:190-204"
+    ],
+    "confidence": "high",
+    "note": "query interfaces expose the new filter for all three"
+   },
+   {
+    "id": 5,
+    "text": "Made field `proxyAccessId` queryable in REST-API for all listed entities",
+    "status": "partial",
+    "hunks": [
+     "history/kadai-simplehistory-rest-spring/src/main/java/io/kadai/simplehistory/rest/TaskHistoryQueryFilterParameter.java:60-82",
+     "history/kadai-simplehistory-rest-spring/src/main/java/io/kadai/simplehistory/rest/TaskHistoryQueryFilterParameter.java:476-489",
+     "history/kadai-simplehistory-rest-spring/src/main/java/io/kadai/simplehistory/rest/TaskHistoryQueryFilterParameter.java:620-629",
+     "history/kadai-simplehistory-rest-spring/src/main/java/io/kadai/simplehistory/rest/models/TaskHistoryEventRepresentationModel.java:59-70",
+     "history/kadai-simplehistory-rest-spring/src/main/java/io/kadai/simplehistory/rest/models/TaskHistoryEventRepresentationModel.java:212-225",
+     "history/kadai-simplehistory-rest-spring/src/main/java/io/kadai/simplehistory/rest/models/TaskHistoryEventRepresentationModel.java:388-395"
+    ],
+    "confidence": "medium",
+    "note": "REST filter/model changes exist only for Task history; no hunk touches Workbasket or Classification REST"
+   },
+   {
+    "id": 6,
+    "text": "Added tests",
+    "status": "done",
+    "hunks": [
+     "history/kadai-simplehistory-provider/src/test/java/acceptance/query/QueryClassificationHistoryAccTest.java:181-190",
+     "history/kadai-simplehistory-provider/src/test/java/acceptance/query/QueryClassificationHistoryAccTest.java:296-305",
+     "history/kadai-simplehistory-provider/src/test/java/acceptance/query/QueryTaskHistoryAccTest.java:217-225",
+     "history/kadai-simplehistory-provider/src/test/java/acceptance/query/QueryTaskHistoryAccTest.java:315-323",
+     "history/kadai-simplehistory-provider/src/test/java/acceptance/query/QueryWorkbasketHistoryAccTest.java:182-191",
+     "history/kadai-simplehistory-provider/src/test/java/acceptance/query/QueryWorkbasketHistoryAccTest.java:378-387",
+     "history/kadai-simplehistory-rest-spring/src/test/java/io/kadai/simplehistory/rest/TaskHistoryEventControllerIntTest.java:139-178"
+    ],
+    "confidence": "high",
+    "note": "acceptance and controller tests added"
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "Apache-2.0"
  }
 ]
