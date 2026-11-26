@@ -68,6 +68,10 @@ penalty), a map of which hunks back which requirement, and for every verdict the
   verifier is not statistically established (intervals overlap). Retrieval's accuracy benefit over showing all hunks is
   also not established on small PRs; on large PRs it is needed to fit the free-tier token limit (the all-hunks run hit
   HTTP 413/429 on Groq), which is a cost argument, not an accuracy one.
+- **Scope-creep flags are low precision.** On the 14-PR gold set (40 non-test/doc hunks, 7 labelled creep, base rate 0.17),
+  flagging at the default threshold (0.5) gives precision 0.25 and recall 1.0; a stricter 0.2 gives 0.42 and 0.71
+  (`bench/eval_creep.py`). With 7 positives and the threshold looked at on the same data, treat these as a rough
+  guide: the flags are candidates for a human to look at, not findings.
 - **The gold set is tiny and single-annotator.** 14 PRs plus 4 large PRs (the large set is not reviewed by the owner).
   Labels were drafted by Claude; the owner approved the 14-PR draft unchanged, and a later cross-check by Claude
   still found 5 wrong labels (docs/GOLD_CHANGES.md), which shows how weak "approved" is. The judge is also an LLM, so

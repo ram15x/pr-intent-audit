@@ -1,0 +1,36 @@
+{
+ "hunks": 40,
+ "creep": 7,
+ "thresholds": {
+  "0.2": {
+   "flagged": 12,
+   "true_creep": 5,
+   "precision": 0.42,
+   "recall": 0.71
+  },
+  "0.3": {
+   "flagged": 23,
+   "true_creep": 6,
+   "precision": 0.26,
+   "recall": 0.86
+  },
+  "0.4": {
+   "flagged": 25,
+   "true_creep": 6,
+   "precision": 0.24,
+   "recall": 0.86
+  },
+  "0.5": {
+   "flagged": 28,
+   "true_creep": 7,
+   "precision": 0.25,
+   "recall": 1.0
+  },
+  "0.6": {
+   "flagged": 30,
+   "true_creep": 7,
+   "precision": 0.23,
+   "recall": 1.0
+  }
+ }
+}
