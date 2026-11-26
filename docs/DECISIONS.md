@@ -186,3 +186,11 @@ The last mining run kept 14 PRs; 13 were MaibornWolff/codecharta (BSD-3), whose 
   - Some of the gold labels are generous (nutriplan R1 rests on a doc-comment hunk plus a test). Review before treating these as judge errors.
   - Not examined further: how many of the 7 unclear are verifier rejections vs judge uncertainty.
 - Still to measure: `--escalate`, naive baseline, partial-fault variant, large-PR runs.
+
+## (q) Judge quota is the bottleneck: what the free tiers allow, and what the wrapper now does
+
+- Groq free plan, `openai/gpt-oss-120b` (read Nov 2026 from Groq's published limits as quoted by third-party pages; the console shows the real numbers for the account): 30 requests/min, 1,000 requests/day, 8K tokens/min, 200K tokens/day, per organisation and per model, so extra keys do not help. The 200K/day cap matches the observation that one full evaluation uses a day's quota.
+- Alternatives checked: Cerebras' free 1M tokens/day tier ended in July 2026 (current offer needs a payment method and a $5 credit that expires), OpenRouter free models are 50 requests/day. Neither fits a free-only rule. Other Groq models have their own daily caps, but mixing judge models inside one table would make it incomparable, so not done.
+- The invalid naive run (`judge_errors` 7, HTTP 429) was a quota problem. Successful calls are cached on disk, so a rerun only pays for the uncached ones.
+- Wrapper changes: reports the provider-measured tokens of each run (`groq_tokens` in the printed call counts), and a 429 that names a per-day cap now stops retrying for that provider instead of retrying 6 times with waits of up to a minute per call.
+- Run order that spends the least: `eval_naive.py` (rerun, only the failed calls), then `eval_gold_llm.py lexical escalate` (the first pass is cached from the lexical run, so only the wider second pass is new), then `eval_partial.py`, then large-PR runs one per day.
