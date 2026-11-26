@@ -39,6 +39,7 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 | hybrid: our top-5 hunks + LLM judge + our verifier | 0.966 | 0.824 | 5 | 21/28 | 0.57-0.87 | 15/28 | 1/19 | 0 |
 | hybrid ablation: judge sees all hunks (no retrieval) | 0.963 | 0.839 | 9 | 20/26 | 0.58-0.89 | 16/26 | 2/18 | 0 |
 | hybrid ablation: no verifier | 0.97 | 0.821 | 0 | 19/31 | 0.44-0.76 | 15/31 | 1/26 | 0 |
+| hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.963 | 0.812 | 7 | 18/26 | 0.50-0.83 | 10/26 | 1/22 | 0 |
 
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge calls were mostly Groq gpt-oss-120b.
@@ -51,19 +52,19 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 | large PRs: judge sees all hunks (prompt is length-capped) **(INVALID: 7 judge calls failed, HTTP 413/429)** | 1.0 | 1.0 | 7 | 4/5 | 0.38-0.96 | 2/5 | 0/6 | 7 | {'done': [5, 0, 0, 4], 'partial': [0, 0, 0, 1], 'missing': [0, 0, 1, 2]} |
 | large PRs: top-5, no verifier | 1.0 | 0.778 | 0 | 4/7 | 0.25-0.84 | 2/7 | 2/8 | n/a | {'done': [7, 0, 2, 0], 'partial': [0, 1, 0, 0], 'missing': [0, 0, 3, 0]} |
 
-### Retrieval only: is the right hunk in the top k? (91 gold requirements, 28 PRs; no LLM involved)
+### Retrieval only: is the right hunk in the top k? (124 gold requirements, 35 PRs; no LLM involved)
 
 | retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks |
 |---|---|---|---|---|
-| lexical (IDF overlap) | 0.505 | 0.813 | 0.901 [0.82, 0.95] | 0.714 |
-| lexical, full hunk text | 0.538 | 0.857 | 0.879 [0.8, 0.93] | 0.607 |
-| bm25 | 0.56 | 0.78 | 0.824 [0.73, 0.89] | 0.464 |
-| bm25, full hunk text | 0.582 | 0.824 | 0.879 [0.8, 0.93] | 0.607 |
-| fusion lexical+bm25 | 0.527 | 0.813 | 0.879 [0.8, 0.93] | 0.643 |
-| bm25 + named identifiers/paths (full text) | 0.648 | 0.835 | 0.901 [0.82, 0.95] | 0.679 |
-| lexical + named identifiers/paths | 0.593 | 0.824 | 0.901 [0.82, 0.95] | 0.714 |
+| lexical (IDF overlap) | 0.54 | 0.806 | 0.879 [0.81, 0.93] | 0.77 |
+| lexical, full hunk text | 0.556 | 0.839 | 0.863 [0.79, 0.91] | 0.721 |
+| bm25 | 0.589 | 0.774 | 0.815 [0.74, 0.87] | 0.639 |
+| bm25, full hunk text | 0.597 | 0.798 | 0.847 [0.77, 0.9] | 0.689 |
+| fusion lexical+bm25 | 0.556 | 0.806 | 0.871 [0.8, 0.92] | 0.754 |
+| bm25 + named identifiers/paths (full text) | 0.653 | 0.806 | 0.863 [0.79, 0.91] | 0.721 |
+| lexical + named identifiers/paths | 0.605 | 0.815 | 0.879 [0.81, 0.93] | 0.77 |
 
-Random ranking would reach hit@5 = 0.724 overall (most gold PRs are small) and 0.26 on the large ones, so only the large-PR column discriminates, and with n=28 one requirement is 4 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.
+Random ranking would reach hit@5 = 0.58 overall (most gold PRs are small) and 0.219 on the large ones, so only the large-PR column discriminates, and with n=61 one requirement is 2 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.
 <!-- RESULTS:END -->
 
 ## Example report
@@ -94,6 +95,18 @@ pr-audit local prompt.txt --base main~3 --head HEAD --retrieval lexical --html r
 
 `--head ''` audits the uncommitted working tree against `--base`. It uses plain `git diff` (refs are validated; no shell)
 and the same retrieval, judge and verifier as a PR audit. Nothing leaves your machine except the hunks sent to the judge.
+
+## Web app
+
+```
+pr-audit serve
+```
+
+Opens a local app (http://127.0.0.1:8765): paste a PR URL or pick local commits, add the ask, and watch each requirement resolve live (status, reason, cited hunks, judge tokens used). The finished audit opens as the full evidence report in the same page, with Markdown/JSON downloads, a history of past runs, and the saved example report. Runs are stored under `.pr-audit/` (gitignored).
+
+- Standard library only; binds to 127.0.0.1; API calls need the session cookie and a local Host header, so other websites cannot drive your API keys. One audit at a time, to protect the free-tier quota.
+- Same pipeline as the CLI (`pipeline.py`): lexical retrieval, LLM judge, verifier. "Wider search" is the experimental `--escalate`; "Show unchanged context" is an untested option (see docs/DECISIONS.md t).
+- Checked by 56 Python tests (lifecycle, auth, one-at-a-time, local-repo run with a stub judge) and a headless-DOM UI smoke test (`node tests/ui/smoke.js`, needs `npm install jsdom`). The visual design has not been checked in a real browser by the author yet: if something looks off, open an issue.
 
 ## HTML report
 

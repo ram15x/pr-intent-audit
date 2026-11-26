@@ -217,3 +217,10 @@ After the miner fix (it now remembers finished search pages) three runs kept 0, 
 ## (t) Correction: the judge can be given unchanged context lines; opt-in `context` flag added (untested)
 
 Entry (p) said the diff-only view could not be fixed offline because bundles hold no unchanged lines. That was wrong: every hunk (4,549 of 4,549 checked) carries `text` with the surrounding context lines; the judge prompt just never used it. Added `context=True` to `hunk_view`/`build_prompt`/`judge_requirement` and an `eval_gold_llm.py ... context` flag. Default stays off, so existing prompts, caches and results are unchanged (the cache replay still reproduces the lexical run). Hypothesis to test when quota allows: for requirements like nutriplan R1 the context shows the surrounding code the doc comment describes, so false "missing" may drop. It also adds tokens per prompt, and the verifier already accepts quotes from the hunk text. Not claimed to help until measured: `python bench\eval_gold_llm.py lexical context`.
+
+## (u) Local web app
+
+`pr-audit serve`: stdlib HTTP server + one HTML file, no new dependencies, so installation stays `pip install -e .`. Reuses the HTML report as the result view (iframe, sandboxed without same-origin, so report content cannot call the API). The pipeline setup moved from the CLI into `pipeline.py` so both entry points run identical code; `run_audit` got an optional progress callback.
+- Security: local-only bind; session cookie (HttpOnly, SameSite=Strict) plus Host check against CSRF and DNS rebinding; JSON-only POSTs; run ids validated (no path traversal); one audit at a time.
+- Verification done: 56 Python tests, headless-DOM UI smoke test (13 checks). Not done: a visual check in a real browser. File URLs were refused by the browser tool and the sandbox declined starting a local server for it, so the layout has only been reviewed from code. Treat visual polish as unverified until someone opens it.
+- Not built: cancelling a running audit, multi-user use, authentication beyond the local cookie.
