@@ -53,3 +53,26 @@ def test_ambiguous_file_citation_resolves_only_via_a_real_quote():
     assert j.verdict == Verdict.done and j.hunk_ids == ["f.yml:20-25"]
     bad = lambda p: json.dumps({"verdict": "done", "hunk_ids": ["f.yml"], "quotes": ["+ invented line"], "reason": "x"})
     assert judge_requirement(bad, 1, "add placeholder", [h1, h2]).verdict == Verdict.unclear
+
+
+def test_escalation_looks_wider_only_after_a_miss_and_never_accepts_unverified():
+    import json
+    from pr_audit.judge import judge_with_escalation
+    from pr_audit.schemas import Hunk, Verdict
+    hs = [Hunk(id=f"f{i}.py:1-2", file=f"f{i}.py", start=1, end=2, added=[f"line {i}"], text=f"+line {i}") for i in range(8)]
+    calls = []
+
+    def llm(prompt):
+        calls.append(prompt)
+        if "[f7.py:1-2]" in prompt:   # the real implementation is only in the 8th-ranked hunk
+            return json.dumps({"verdict": "done", "hunk_ids": ["f7.py:1-2"], "quotes": ["line 7"], "reason": "found"})
+        return json.dumps({"verdict": "missing", "hunk_ids": [], "quotes": [], "reason": "no"})
+    j = judge_with_escalation(llm, 1, "do 7", hs, first_k=5, wide_k=8)
+    assert j.verdict == Verdict.done and len(calls) == 2 and j.reason.startswith("[found on wider look]")
+    # a verified done on pass 1 costs one call
+    calls.clear()
+    ok = lambda p: (calls.append(p), json.dumps({"verdict": "done", "hunk_ids": ["f0.py:1-2"], "quotes": ["line 0"], "reason": "x"}))[1]
+    assert judge_with_escalation(ok, 1, "do 0", hs).verdict == Verdict.done and len(calls) == 1
+    # pass 2 with an invented quote must not replace pass 1
+    bad = lambda p: json.dumps({"verdict": "done", "hunk_ids": ["f7.py:1-2"], "quotes": ["invented"], "reason": "x"}) if "f7.py" in p else json.dumps({"verdict": "missing", "hunk_ids": [], "quotes": [], "reason": "no"})
+    assert judge_with_escalation(bad, 1, "do 7", hs, first_k=5, wide_k=8).verdict == Verdict.missing

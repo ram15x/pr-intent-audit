@@ -58,3 +58,19 @@ def test_missing_optional_requirement_is_not_counted_against_the_rank():
     a = run_audit(b, scorer, FakeClf(), tau=0.5, band=0.1)
     assert [(r.status, r.optional) for r in a.reqs] == [("done", True), ("missing", True)]
     assert a.rank == 100 - 5          # only the done one counts; one creep candidate still penalised
+
+
+def test_wide_judge_receives_the_ranked_list():
+    from pr_audit.audit import run_audit
+    from pr_audit.lexical import lexical_scorer
+    from pr_audit.schemas import Hunk, Judgment, PRBundle, Verdict
+    hs = [Hunk(id=f"f{i}.py:1-2", file=f"f{i}.py", start=1, end=2, added=[f"token{i} login"], text=f"+token{i} login") for i in range(15)]
+    b = PRBundle(source="x", ask="- add a login function", hunks=hs)
+    seen = []
+
+    def judge(i, t, ranked):
+        seen.append(len(ranked))
+        return Judgment(req_id=i, verdict=Verdict.missing, reason="n")
+    judge.wants_wide = True
+    run_audit(b, lexical_scorer(), None, judge=judge, topk=5, wide_k=12)
+    assert seen == [12]

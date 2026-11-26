@@ -20,7 +20,8 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         html: Path = typer.Option(None, "--html", help="Also write a self-contained HTML report (score breakdown + evidence viewer)"),
         models: Path = typer.Option(ROOT / "models", "--models"),
         local: bool = typer.Option(False, "--local", help="Use only our local models (no LLM calls; weak at within-PR judging)"),
-        retrieval: str = typer.Option("auto", "--retrieval", help="auto | model | lexical. lexical = word overlap, no model files needed")):
+        retrieval: str = typer.Option("auto", "--retrieval", help="auto | model | lexical. lexical = word overlap, no model files needed"),
+        escalate: bool = typer.Option(False, "--escalate", help="Experimental: when the top-5 hunks do not give a verified 'done', look at the top 12 (max 2 judge calls per requirement)")):
     """Audit one PR against its ask and write a Markdown report."""
     from .audit import load_scorer, run_audit
     from .ingest import fetch_pr
@@ -35,7 +36,7 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         raise typer.Exit(2)
     if not bundle.hunks:
         raise typer.Exit("no auditable hunks in this PR")
-    _audit_and_write(bundle, models, local, retrieval, out, html)
+    _audit_and_write(bundle, models, local, retrieval, out, html, escalate)
 
 @app.command("local")
 def local_cmd(ask_file: Path = typer.Argument(..., help="Text file with the ask (the prompt you gave the agent, a spec or an issue)"),
@@ -60,7 +61,7 @@ def local_cmd(ask_file: Path = typer.Argument(..., help="Text file with the ask 
     _audit_and_write(bundle, models, local, retrieval, out, html)
 
 
-def _audit_and_write(bundle, models: Path, local: bool, retrieval: str, out: Path, html: Path | None) -> None:
+def _audit_and_write(bundle, models: Path, local: bool, retrieval: str, out: Path, html: Path | None, escalate: bool = False) -> None:
     from .audit import load_scorer, run_audit
     from .report import render_markdown
     have_models = (models / "relevance").exists() and (models / "verdict.joblib").exists()
@@ -85,7 +86,12 @@ def _audit_and_write(bundle, models: Path, local: bool, retrieval: str, out: Pat
         from .judge import judge_requirement
         llm = LLM(ROOT / ".cache/llm")
         if llm.providers:
-            judge = lambda i, t, top: judge_requirement(llm, i, t, top, verify=True)
+            if escalate:
+                from .judge import judge_with_escalation
+                judge = lambda i, t, ranked: judge_with_escalation(llm, i, t, ranked)
+                judge.wants_wide = True
+            else:
+                judge = lambda i, t, top: judge_requirement(llm, i, t, top, verify=True)
             mode = f"hybrid (judge providers: {', '.join(llm.providers)}; PR text is sent to them)"
         else:
             if use_lexical:

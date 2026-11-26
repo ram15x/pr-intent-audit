@@ -127,3 +127,9 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 
 - Of 34 cached judgments reachable with lexical top-5 prompts (63 more prompts were not cached), the verifier downgraded 5 "done" verdicts to unclear. Inspection: in 4 the quoted lines do not exist anywhere in the PR (invented or truncated by the judge), so the downgrade was correct; in 1 the judge cited a file path that matched several hunks. Fix: a bare file path is now resolved to the hunks of that file that contain a quoted line (no quote, no resolution). Now 4 downgrades; verdicts and prompts are unchanged, so the cache stays valid. Small sample, so no rate is claimed.
 - Splitter: added rules for definition-of-done template items, short environment key/values (`**Python version**: 3.6.2`), "please run/update..." instructions, and `### 🪜 How to reproduce` style headings (emoji broke the heading match). Gold requirements still produced 72/72; precision on gold-covered outputs 72/86 (0.84), in-sample.
+
+## 2026-11-26 (i) — Escalating judge (experimental, off by default) and local audits
+
+- Why: on large PRs the judge sees only the top-5 hunks, and retrieval hits the right hunk in the top 5 about 80% of the time there (n=20). When pass 1 does not give a verified "done", `--escalate` shows the top 12 (max 2 calls per requirement). Pass 2 replaces pass 1 only if it is a verified done/partial.
+- Risk it must be tested for: more chances to find a "done" could raise false "done" verdicts. The fault-injection protocol (`python bench\eval_gold_llm.py lexical escalate`, and `large lexical escalate`) measures exactly that; it is NOT adopted until judge_errors = 0 and fault catch / false-done do not get worse than the same run without `escalate`.
+- `pr-audit local` audits a git range or the working tree against an ask file, for work that never went through a PR.

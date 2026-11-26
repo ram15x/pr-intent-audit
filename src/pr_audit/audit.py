@@ -84,7 +84,7 @@ def _evidence(hunk: Hunk, req: str, n: int = 3) -> list[str]:
 
 
 def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: float = 0.10,
-              req_texts: list[str] | None = None, judge=None, topk: int = 5) -> Audit:
+              req_texts: list[str] | None = None, judge=None, topk: int = 5, wide_k: int = 12) -> Audit:
     """judge: optional callable (req_id, text, top_hunks) -> Judgment (already verified). When given it decides each
     requirement's status; our relevance model only retrieves the candidate hunks."""
     reqs = [] if req_texts else split_requirements(bundle.ask)
@@ -114,7 +114,10 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
             note = ""
         if judge is not None:
             top = [hunks[j] for j in sorted(range(n), key=lambda j: -row[j])[:topk]]
-            jd = judge(i, t, top)
+            if getattr(judge, "wants_wide", False):
+                jd = judge(i, t, [hunks[j] for j in sorted(range(n), key=lambda j: -row[j])[:wide_k]])    # ranked list; judge picks its own first_k
+            else:
+                jd = judge(i, t, top)
             idx = {h.id: j for j, h in enumerate(hunks)}
             status = jd.verdict.value
             ev = [(hid, row[idx[hid]], quotes_in(hunks[idx[hid]], jd.quotes)) for hid in jd.hunk_ids if hid in idx] if status in ("done", "partial") else []

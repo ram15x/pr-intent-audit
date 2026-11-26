@@ -83,3 +83,17 @@ def judge_requirement(llm, req_id: int, req: str, hunks: list[Hunk], verify: boo
     except Exception as e:      # model error / bad JSON / timeout -> unclear, never a silent pass
         return Judgment(req_id=req_id, verdict=Verdict.unclear, reason=f"judge error: {type(e).__name__}: {str(e)[:160]}")
     return verify_judgment(j, hunks) if verify else j
+
+
+def judge_with_escalation(llm, req_id: int, req: str, ranked: list[Hunk], first_k: int = 5, wide_k: int = 12,
+                          verify: bool = True) -> Judgment:
+    """Look wider only when the first look did not find it. Pass 1: top `first_k` hunks. If that does not give a
+    verified 'done' and more candidates exist, pass 2 shows the top `wide_k`. A pass-2 verdict replaces pass 1 only if it
+    is a verified done/partial; otherwise pass 1 stands. At most 2 calls per requirement. Default off; see DECISIONS."""
+    j1 = judge_requirement(llm, req_id, req, ranked[:first_k], verify=verify)
+    if j1.verdict == Verdict.done or len(ranked) <= first_k or j1.reason.startswith("judge error"):
+        return j1
+    j2 = judge_requirement(llm, req_id, req, ranked[:wide_k], verify=verify)
+    if j2.verdict in (Verdict.done, Verdict.partial) and not j2.downgraded_because:
+        return j2.model_copy(update={"reason": ("[found on wider look] " + j2.reason)[:300]})
+    return j1

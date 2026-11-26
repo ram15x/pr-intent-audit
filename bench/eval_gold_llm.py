@@ -19,7 +19,7 @@ def wilson(k, n, z=1.96):
     return [round(c - h, 2), round(c + h, 2)]
 
 ERRORS = []
-CFG = {"topk": 5, "verify": True}     # set from the command line: [all|top5] [noverify] [lexical] [large]
+CFG = {"topk": 5, "verify": True, "escalate": False}     # set from the command line: [all|top5] [noverify] [lexical] [large]
 
 
 def judge_all(llm, scorer, bundle, texts, only=None):
@@ -30,8 +30,12 @@ def judge_all(llm, scorer, bundle, texts, only=None):
         if only is not None and i not in only:
             continue
         sc = scorer([(t, h) for h in ht])
-        top = [bundle.hunks[j] for j in sorted(range(n), key=lambda j: -sc[j])[:CFG["topk"]]]
-        jd = judge_requirement(llm, i, t, top, verify=CFG["verify"])
+        ranked = [bundle.hunks[j] for j in sorted(range(n), key=lambda j: -sc[j])]
+        if CFG["escalate"]:
+            from pr_audit.judge import judge_with_escalation
+            jd = judge_with_escalation(llm, i, t, ranked, verify=CFG["verify"])
+        else:
+            jd = judge_requirement(llm, i, t, ranked[:CFG["topk"]], verify=CFG["verify"])
         if jd.reason.startswith("judge error"):
             ERRORS.append(jd.reason)
         out[i] = jd.verdict.value
@@ -103,10 +107,12 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     CFG["topk"] = 99 if "all" in args else 5
     CFG["verify"] = "noverify" not in args
+    CFG["escalate"] = "escalate" in args
     tag = ("all" if "all" in args else "top5") + ("" if CFG["verify"] else "_noverify")
     LARGE = "large" in args
     LEX = "lexical" in args
     EXTRA = "extra" in args
+    if CFG["escalate"]: tag = "escalate_" + tag
     if LEX: tag = "lexical_" + tag
     if LARGE: tag = "large_" + tag
     if EXTRA: tag = "extra_" + tag
