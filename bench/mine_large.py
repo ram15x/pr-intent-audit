@@ -19,8 +19,8 @@ if REJ.exists(): seen |= set(REJ.read_text(encoding="utf-8").split())
 BASE = 'is:pr is:merged linked:issue comments:<15 '
 QS = [BASE + f'language:{lang} "{kw}" created:{win}'
       for win in ("2025-03-01..2025-08-31", "2025-09-01..2026-02-28", "2026-03-01..2026-10-30")
-      for lang in ("python", "typescript", "go", "javascript", "java", "rust")
-      for kw in ("acceptance criteria", "- [ ]")]
+      for lang in ("python", "typescript", "go", "javascript", "java", "rust", "csharp", "ruby", "php", "kotlin")
+      for kw in ("acceptance criteria", "- [ ]", "definition of done", "requirements")]
 t0, kept = time.time(), 0
 with httpx.Client(timeout=30) as c:
     for q in QS:
