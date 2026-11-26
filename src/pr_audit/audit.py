@@ -84,7 +84,7 @@ def _evidence(hunk: Hunk, req: str, n: int = 3) -> list[str]:
 
 
 def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: float = 0.10,
-              req_texts: list[str] | None = None, judge=None, topk: int = 5, wide_k: int = 12) -> Audit:
+              req_texts: list[str] | None = None, judge=None, topk: int = 5, wide_k: int = 12, progress=None) -> Audit:
     """judge: optional callable (req_id, text, top_hunks) -> Judgment (already verified). When given it decides each
     requirement's status; our relevance model only retrieves the candidate hunks."""
     reqs = [] if req_texts else split_requirements(bundle.ask)
@@ -105,6 +105,7 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
     m = [flat[i * n:(i + 1) * n] for i in range(len(texts))]
 
     results: list[ReqResult] = []
+    if progress: progress({"stage": "start", "n": len(texts), "hunks": n})
     for i, (t, row) in enumerate(zip(texts, m), 1):
         best = max(row) if row else 0.0
         status = "done" if best >= tau + band else "missing" if best < tau - band else "unclear"
@@ -130,6 +131,8 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
             ev = [(hid, row[idx[hid]], quotes_in(hunks[idx[hid]], jd.quotes)) for hid in jd.hunk_ids if hid in idx] if status in ("done", "partial") else []
             note = jd.reason + (f" [{jd.downgraded_because}]" if jd.downgraded_because else "")
         results.append(ReqResult(i, t, status, best, ev, note, optional=opts[i - 1]))
+        if progress: progress({"stage": "requirement", "i": i, "n": len(texts), "text": t, "status": status, "note": note[:300],
+                               "evidence": [hid for hid, _s, _q in ev], "optional": opts[i - 1]})
 
     if hunks and m and clf is not None:
         probs = clf.predict_proba([features(m)])[0]

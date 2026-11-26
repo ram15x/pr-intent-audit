@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR Intent Audit</title>
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#14171c;--mute:#5b6572;--line:#e3e7ec;--soft:#eef1f5;--done:#127a4a;--done-bg:#e3f5ec;--part:#9a5b00;--part-bg:#fdf0d8;--miss:#b3261e;--miss-bg:#fde6e4;--unc:#4d5a6b;--unc-bg:#e9edf2;--acc:#2f5bea;--acc2:#8a5cf6;--shadow:0 1px 2px rgba(20,23,28,.05),0 8px 28px rgba(20,23,28,.07);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+:root[data-theme=dark]{--bg:#0e1116;--panel:#161b22;--ink:#e8ecf1;--mute:#98a3b3;--line:#262e39;--soft:#1d242e;--done:#4cd694;--done-bg:#12301f;--part:#f0b44c;--part-bg:#38290e;--miss:#ff8a80;--miss-bg:#3b1a18;--unc:#9fb0c4;--unc-bg:#212a35;--acc:#7b9bff;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.4)}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100%}
+@media(max-width:860px){.app{grid-template-columns:1fr}.side{position:sticky;top:0;z-index:5;flex-direction:row!important;align-items:center;overflow-x:auto;padding:10px 12px!important}.side .foot,.side .brand small{display:none}.side nav{flex-direction:row!important}}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+@media(max-width:860px){.side{height:auto}}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;padding:0 6px}
+.brand small{display:block;font-weight:500;color:var(--mute);font-size:11.5px;letter-spacing:0}
+.logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#fff;box-shadow:0 4px 14px rgba(47,91,234,.35)}
+.side nav{display:flex;flex-direction:column;gap:4px}
+.nav{display:flex;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:9px 12px;border-radius:10px;color:var(--mute);font-weight:550;position:relative;transition:.15s;white-space:nowrap}
+.nav:hover{background:var(--soft);color:var(--ink);transform:translateX(2px)}
+.nav.on{background:var(--soft);color:var(--ink)}.nav.on::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--acc)}
+.nav svg{width:18px;height:18px;flex:none}.nav .n{margin-left:auto;font-size:11.5px;background:var(--soft);padding:1px 8px;border-radius:99px}
+.side .foot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);padding:6px 10px;border:1px solid var(--line);border-radius:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}.dot.ok{background:var(--done);box-shadow:0 0 0 3px var(--done-bg)}.dot.bad{background:var(--miss);box-shadow:0 0 0 3px var(--miss-bg)}
+main{padding:34px clamp(16px,4vw,48px) 80px;max-width:1080px;width:100%;margin:0 auto}
+.view{display:none}.view.on{display:block;animation:in .38s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1{font-size:30px;letter-spacing:-.5px;line-height:1.2;margin:0 0 8px}h2{font-size:17px;margin:0 0 4px}
+.lead{color:var(--mute);margin:0 0 24px;max-width:640px}.sub{color:var(--mute);font-size:13px;margin:0 0 12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.pad{padding:22px 24px}
+.tabs{display:inline-flex;background:var(--soft);padding:4px;border-radius:12px;gap:4px;margin-bottom:18px}
+.tab{border:0;background:none;padding:7px 16px;border-radius:9px;font-weight:600;color:var(--mute);transition:.15s}.tab.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+label{display:block;font-weight:600;font-size:13px;margin:0 0 6px}label span{font-weight:450;color:var(--mute)}
+.field{margin-bottom:16px}
+input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px 13px;outline:none;transition:.15s}
+input[type=text]:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(47,91,234,.14);background:var(--panel)}
+textarea{min-height:150px;resize:vertical;font-family:var(--sans)}.row2{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}@media(max-width:700px){.row2{grid-template-columns:1fr}}
+.hint{display:flex;justify-content:space-between;color:var(--mute);font-size:12px;margin-top:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 18px}@media(max-width:700px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:11px 13px;cursor:pointer;transition:.15s;background:var(--bg)}
+.opt:hover{border-color:var(--acc);transform:translateY(-1px)}.opt input{margin-top:4px;accent-color:var(--acc)}.opt b{display:block;font-size:13.5px}.opt span{color:var(--mute);font-size:12.5px}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:8px 14px;font-weight:600;font-size:13.5px;transition:.15s;display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--acc);transform:translateY(-1px);box-shadow:var(--shadow)}.btn:active{transform:none}
+.btn.primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:0;padding:11px 22px;font-size:15px;box-shadow:0 6px 18px rgba(47,91,234,.35);position:relative;overflow:hidden}
+.btn.primary:hover{box-shadow:0 10px 26px rgba(47,91,234,.45);filter:brightness(1.05)}.btn.primary[disabled]{opacity:.55;pointer-events:none}
+.btn.danger:hover{border-color:var(--miss);color:var(--miss)}.btn svg{width:16px;height:16px}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rp .6s linear;pointer-events:none}@keyframes rp{to{transform:scale(4);opacity:0}}
+.kbd{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;color:var(--mute)}
+.note{font-size:12.5px;color:var(--mute);display:flex;gap:8px;align-items:flex-start}.note svg{width:15px;height:15px;flex:none;margin-top:2px}
+.err{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--miss-bg);color:var(--miss);font-size:13.5px;display:none}.err.on{display:block;animation:in .25s}
+/* run view */
+.steps{display:flex;gap:6px;margin:6px 0 22px;flex-wrap:wrap}
+.step{flex:1;min-width:130px;padding:11px 14px;border-radius:12px;background:var(--soft);color:var(--mute);font-weight:600;font-size:13px;display:flex;align-items:center;gap:10px;transition:.3s;position:relative;overflow:hidden}
+.step i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--panel);font-style:normal;font-size:12px;flex:none}
+.step.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}.step.on i{background:var(--acc);color:#fff}
+.step.on::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:40%;background:linear-gradient(90deg,var(--acc),var(--acc2));animation:slide 1.4s ease-in-out infinite}@keyframes slide{0%{left:-40%}100%{left:100%}}
+.step.ok{color:var(--done);background:var(--done-bg)}.step.ok i{background:var(--done);color:#fff}
+.rq{display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:start;padding:14px 18px;border-top:1px solid var(--line);animation:in .4s cubic-bezier(.2,.8,.2,1) both}.rq:first-child{border-top:0}
+.rq .no{width:28px;height:28px;border-radius:9px;background:var(--soft);display:grid;place-items:center;font-weight:700;font-size:12.5px;color:var(--mute)}
+.rq .t{font-weight:550}.rq .why{color:var(--mute);font-size:13px;margin-top:3px}.rq .ev{font-family:var(--mono);font-size:11.5px;color:var(--acc);margin-top:5px;word-break:break-all}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:99px;font-size:12.5px;font-weight:650}
+.s-done{color:var(--done);background:var(--done-bg)}.s-partial{color:var(--part);background:var(--part-bg)}.s-missing{color:var(--miss);background:var(--miss-bg)}.s-unclear{color:var(--unc);background:var(--unc-bg)}
+.sk{height:62px;margin:0;background:linear-gradient(90deg,var(--soft) 25%,var(--bg) 37%,var(--soft) 63%);background-size:400% 100%;animation:sh 1.4s infinite;border-top:1px solid var(--line)}@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.meta{display:flex;gap:18px;color:var(--mute);font-size:13px;margin:0 0 14px;flex-wrap:wrap}.meta b{color:var(--ink)}
+/* result */
+.rhead{display:flex;align-items:center;gap:18px;margin-bottom:16px;flex-wrap:wrap}
+.rhead .info{flex:1;min-width:240px}.rhead h1{font-size:22px;margin:0}.rhead .src{color:var(--mute);font-size:13px;word-break:break-all}
+.mini{position:relative;width:64px;height:64px;flex:none}.mini svg{transform:rotate(-90deg)}.mini b{position:absolute;inset:0;display:grid;place-items:center;font-size:19px;letter-spacing:-.5px}
+.mini circle.bar{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+iframe.rep{width:100%;height:calc(100vh - 210px);min-height:560px;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow)}
+/* history */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.h{padding:16px 18px;display:flex;gap:14px;align-items:center;cursor:pointer;transition:.18s;position:relative}
+.h:hover{transform:translateY(-3px);border-color:var(--acc)}.h .x{position:absolute;top:8px;right:10px;border:0;background:none;color:var(--mute);opacity:0;font-size:18px;transition:.15s}.h:hover .x{opacity:1}.h .x:hover{color:var(--miss)}
+.h .tt{font-weight:620;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.h .sm{color:var(--mute);font-size:12.5px;margin-top:4px}
+.tag{font-size:11px;padding:1px 8px;border-radius:99px;background:var(--soft);color:var(--mute);margin-right:4px}
+.empty{text-align:center;color:var(--mute);padding:56px 20px}.empty svg{width:44px;height:44px;opacity:.5;margin-bottom:8px}
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.about .card{padding:18px 20px}.about p{color:var(--mute);margin:6px 0 0;font-size:13.5px}
+.toast{position:fixed;right:22px;bottom:22px;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:550;font-size:13.5px;transform:translateY(20px);opacity:0;transition:.3s;z-index:20;max-width:360px}.toast.on{transform:none;opacity:1}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><div class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div>PR Intent Audit<small>did the work match the ask?</small></div></div>
+  <nav>
+    <button class="nav on" data-v="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New audit</button>
+    <button class="nav" data-v="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History<span class="n" id="hcount">0</span></button>
+    <button class="nav" data-v="demo" id="navDemo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9z"/></svg>Example report</button>
+    <button class="nav" data-v="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>How it works</button>
+  </nav>
+  <div class="foot">
+    <div class="pill"><span class="dot" id="dJudge"></span><span id="tJudge">checking judge...</span></div>
+    <button class="btn" id="theme" style="justify-content:center">Toggle theme</button>
+  </div>
+</aside>
+<main>
+  <!-- NEW -->
+  <section class="view on" id="v-new">
+    <h1>Did the work match the ask?</h1>
+    <p class="lead">Give it a pull request (or local commits) and what was asked. It checks each requirement against the diff and shows the exact lines that back every verdict.</p>
+    <div class="card pad">
+      <div class="tabs"><button class="tab on" data-m="pr">GitHub PR</button><button class="tab" data-m="local">Local commits</button></div>
+      <div id="f-pr" class="field"><label for="url">Pull request URL</label><input type="text" id="url" placeholder="https://github.com/owner/repo/pull/123" autocomplete="off" spellcheck="false"></div>
+      <div id="f-local" class="field row2" style="display:none">
+        <div><label for="repo">Repository folder</label><input type="text" id="repo" placeholder="C:\\Users\\you\\project" spellcheck="false"></div>
+        <div><label for="base">Base ref</label><input type="text" id="base" placeholder="HEAD~1" spellcheck="false"></div>
+        <div><label for="head">Head ref <span>(empty = working tree)</span></label><input type="text" id="head" placeholder="HEAD" spellcheck="false"></div>
+      </div>
+      <div class="field"><label for="ask">The ask <span id="askhint">(optional for a PR: empty uses the PR description)</span></label>
+        <textarea id="ask" placeholder="Paste the prompt you gave the agent, the issue, or the acceptance criteria.&#10;&#10;- Add retry with backoff to the fetch client&#10;- Return a typed error on timeout&#10;- Add tests for both"></textarea>
+        <div class="hint"><span>One requirement per line works best. Bullet lists and checklists are split automatically.</span><span id="cnt">0 chars</span></div></div>
+      <div class="opts">
+        <label class="opt"><input type="checkbox" id="esc"><div><b>Wider search</b><span>Experimental. If the top 5 hunks give no verified "done", look at the top 12 (up to 2 judge calls per requirement).</span></div></label>
+        <label class="opt"><input type="checkbox" id="ctx"><div><b>Show unchanged context</b><span>Experimental, not yet measured. Gives the judge the lines around each change.</span></div></label>
+      </div>
+      <div class="actions"><button class="btn primary" id="run">Run audit</button><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span>
+        <div class="note" style="margin-left:auto;max-width:360px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span id="priv">The PR text is sent to the free-tier LLM judge you configured. Nothing else leaves your machine.</span></div></div>
+      <div class="err" id="err"></div>
+    </div>
+  </section>
+  <!-- RUN -->
+  <section class="view" id="v-run">
+    <h1 id="rtitle">Auditing...</h1>
+    <p class="lead" id="rsub">Each requirement is matched to diff hunks, judged, and then checked: every cited line must exist in the diff.</p>
+    <div class="steps" id="steps"></div>
+    <div class="meta"><span>Elapsed <b id="el">0s</b></span><span>Requirements <b id="rc">-</b></span><span>Judge tokens <b id="tk">-</b></span></div>
+    <div class="card" id="rlist"></div>
+    <div class="err" id="rerr"></div>
+    <div class="actions" style="margin-top:16px"><button class="btn" id="back" style="display:none">Back to the form</button></div>
+  </section>
+  <!-- RESULT -->
+  <section class="view" id="v-result">
+    <div class="rhead"><div class="mini" id="rmini"></div><div class="info"><h1 id="ttl"></h1><div class="src" id="srcl"></div></div></div>
+    <div class="toolbar" id="rtools"></div>
+    <iframe class="rep" id="frame" sandbox="allow-scripts allow-popups allow-downloads" title="Evidence report"></iframe>
+  </section>
+  <!-- HISTORY -->
+  <section class="view" id="v-history"><h1>History</h1><p class="lead">Finished audits are stored on this machine only.</p><div class="grid" id="hgrid"></div></section>
+  <!-- ABOUT -->
+  <section class="view" id="v-about"><h1>How it works</h1><p class="lead">A requirement-by-requirement check, with evidence you can verify.</p>
+    <div class="about">
+      <div class="card"><h2>1. Split</h2><p>The ask is split into requirements by rules, not a model. Checklists work best; free-form prose gives weaker splits.</p></div>
+      <div class="card"><h2>2. Retrieve</h2><p>Word-overlap ranking finds the diff hunks that could address each requirement (a trained model is optional).</p></div>
+      <div class="card"><h2>3. Judge</h2><p>A free-tier LLM reads the top hunks and answers done / partial / missing / unclear, citing hunks and quoting lines.</p></div>
+      <div class="card"><h2>4. Verify</h2><p>Plain code checks every cited hunk and quote really exists in the diff. Anything unverifiable becomes "unclear".</p></div>
+    </div>
+    <h2 style="margin-top:28px">What to keep in mind</h2>
+    <div class="about">
+      <div class="card"><h2>It reads diffs, not behaviour</h2><p>"Done" means the diff plausibly implements it. It does not run your code or tests.</p></div>
+      <div class="card"><h2>Measured on a small, single-annotator set</h2><p>The labels behind the published numbers are not independently reviewed. See docs/RESULTS.md for the figures and their intervals.</p></div>
+      <div class="card"><h2>Free-tier quota</h2><p>Groq's free plan allows about 200K tokens a day. One audit is typically a few thousand. Cached answers are reused.</p></div>
+      <div class="card"><h2>Privacy</h2><p>Only the PR text and diff hunks go to the judge provider you configured. Runs are saved under .pr-audit/ here.</p></div>
+    </div>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const MOCK=location.protocol==="file:"||/[?&]mock/.test(location.search);
+const DEMO_URL=MOCK?"../../../docs/demo_report.html":"/demo";
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let mode="pr",job=null,timer=null,tick=null,view="new",status={providers:[],runs:0},cur=null;
+/* ---------- mock backend (file:// preview) ---------- */
+const mockRuns=[{id:"m1",created:Date.now()/1000-3600,title:"Add retry with backoff to the fetch client",source:"https://github.com/acme/api/pull/412",rank:86,band:"Good",mode:"pr",escalate:false,tokens:5120,requirements:5},{id:"m2",created:Date.now()/1000-86400*2,title:"Dark mode and theme tokens",source:"https://github.com/acme/web/pull/88",rank:61,band:"Partial",mode:"pr",escalate:true,tokens:9300,requirements:6},{id:"m3",created:Date.now()/1000-86400*6,title:"Local commits: pagination refactor",source:"local",rank:34,band:"Weak",mode:"local",escalate:false,tokens:3100,requirements:4}];
+const mockEv=[{stage:"fetch",msg:"Fetching the pull request"},{stage:"setup",msg:"57 hunks to search"},{stage:"start",n:5,hunks:57},
+ {stage:"requirement",i:1,n:5,text:"Add retry with exponential backoff to the fetch client",status:"done",note:"The client wraps requests in a retry loop with delay doubling.",evidence:["src/client.ts:40-72"]},
+ {stage:"requirement",i:2,n:5,text:"Return a typed TimeoutError after the last attempt",status:"done",note:"A TimeoutError class is thrown when attempts are exhausted.",evidence:["src/errors.ts:1-18"]},
+ {stage:"requirement",i:3,n:5,text:"Make the maximum attempts configurable",status:"partial",note:"A maxAttempts option exists but the default is not documented.",evidence:["src/client.ts:12-30"]},
+ {stage:"requirement",i:4,n:5,text:"Add tests for success after one retry",status:"done",note:"Test covers a 503 followed by a 200.",evidence:["test/client.test.ts:88-120"]},
+ {stage:"requirement",i:5,n:5,text:"Document the behaviour in the README",status:"missing",note:"No README or docs change in the diff.",evidence:[]},
+ {stage:"usage",calls:{groq_tokens:5120}}];
+async function api(path,opt){
+  if(MOCK)return mockApi(path,opt);
+  const r=await fetch(path,{credentials:"same-origin",...(opt||{}),headers:{"Content-Type":"application/json"}});
+  let j={};try{j=await r.json()}catch(e){}
+  if(!r.ok)throw Object.assign(new Error(j.error||("HTTP "+r.status)),{code:r.status});
+  return j;
+}
+let mockJob=null;
+async function mockApi(path,opt){
+  await new Promise(r=>setTimeout(r,120));
+  if(path==="/api/status")return {providers:["groq"],trained_models:false,runs:mockRuns.length,demo:true,busy:false};
+  if(path==="/api/runs")return mockRuns;
+  if(path==="/api/audit"){mockJob={t0:Date.now()};return {job:"mock"}}
+  if(path.startsWith("/api/jobs/")){const n=Math.min(mockEv.length,Math.floor((Date.now()-mockJob.t0)/700)),since=+(path.split("since=")[1]||0);
+    const done=n>=mockEv.length;return {id:"mock",state:done?"done":"running",events:mockEv.slice(since,n).map(e=>({...e,t:((Date.now()-mockJob.t0)/1000).toFixed(1)})),next:n,run_id:done?"mock":null,error:null,tokens:done?5120:0}}
+  if(path.startsWith("/api/runs/")&&(opt||{}).method==="DELETE"){const i=mockRuns.findIndex(r=>path.includes(r.id));if(i>=0)mockRuns.splice(i,1);return {ok:true}}
+  if(path.startsWith("/api/runs/")){const r=mockRuns.find(r=>path.includes(r.id))||mockRuns[0];return {...r,data:{}}}
+  return {};
+}
+/* ---------- ui helpers ---------- */
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2600)}
+function show(v){view=v;$$(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));$$(".nav").forEach(n=>n.classList.toggle("on",n.dataset.v===v||(v==="result"&&n.dataset.v==="history")||(v==="run"&&n.dataset.v==="new")))}
+function ago(ts){const s=Date.now()/1000-ts;if(s<90)return "just now";if(s<5400)return Math.round(s/60)+" min ago";if(s<129600)return Math.round(s/3600)+" h ago";return Math.round(s/86400)+" days ago"}
+function col(r){return r==null?"var(--unc)":r>=80?"var(--done)":r>=50?"var(--part)":"var(--miss)"}
+function ring(el,rank,size){const R=size/2-6,C=2*Math.PI*R;el.innerHTML=`<svg width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${R}" fill="none" stroke="var(--soft)" stroke-width="6"/><circle class="bar" cx="${size/2}" cy="${size/2}" r="${R}" fill="none" stroke="${col(rank)}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg><b style="color:${col(rank)}">${rank==null?"-":rank}</b>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{el.querySelector(".bar").style.strokeDashoffset=rank==null?C:C*(1-rank/100)}))}
+document.addEventListener("click",e=>{const b=e.target.closest(".btn.primary");if(!b)return;const r=document.createElement("span"),d=Math.max(b.clientWidth,b.clientHeight),x=b.getBoundingClientRect();r.className="ripple";r.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-x.left-d/2}px;top:${e.clientY-x.top-d/2}px`;b.appendChild(r);setTimeout(()=>r.remove(),600)});
+/* ---------- theme ---------- */
+function setTheme(t){document.documentElement.dataset.theme=t;store.set("pa-theme",t)}
+setTheme(store.get("pa-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));
+$("#theme").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+/* ---------- nav ---------- */
+$$(".nav").forEach(n=>n.onclick=()=>{const v=n.dataset.v;if(v==="demo")return openDemo();if(v==="history")loadHistory();show(v==="new"&&job&&job.running?"run":v)});
+$$(".tab").forEach(t=>t.onclick=()=>{mode=t.dataset.m;$$(".tab").forEach(x=>x.classList.toggle("on",x===t));$("#f-pr").style.display=mode==="pr"?"":"none";$("#f-local").style.display=mode==="local"?"grid":"none";
+  $("#askhint").textContent=mode==="pr"?"(optional for a PR: empty uses the PR description)":"(required: what was this work supposed to do?)"});
+$("#ask").addEventListener("input",()=>$("#cnt").textContent=$("#ask").value.length.toLocaleString()+" chars");
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"&&view==="new")startRun()});
+$("#run").onclick=startRun;$("#back").onclick=()=>show("new");
+/* ---------- status ---------- */
+async function loadStatus(){try{status=await api("/api/status");const ok=status.providers.length>0;$("#dJudge").className="dot "+(ok?"ok":"bad");
+  $("#tJudge").textContent=ok?"Judge: "+status.providers.join(" + "):"No LLM key found";
+  $("#priv").textContent=ok?"The PR text and diff hunks are sent to "+status.providers.join(" / ")+" (free tier). Nothing else leaves your machine.":"Add GROQ_API_KEY or GEMINI_API_KEY to .env: the judge needs one.";
+  $("#hcount").textContent=status.runs;$("#navDemo").style.display=status.demo?"":"none"}catch(e){$("#tJudge").textContent="server not reachable"}}
+/* ---------- run ---------- */
+const STEPS=["Fetch the diff","Search hunks","Judge and verify","Score"];
+function setSteps(n){$("#steps").innerHTML=STEPS.map((s,i)=>`<div class="step ${i<n?"ok":i===n?"on":""}"><i>${i<n?"&#10003;":i+1}</i>${s}</div>`).join("")}
+function row(r,delay){const d=document.createElement("div");d.className="rq";d.style.animationDelay=delay+"ms";
+  d.innerHTML=`<div class="no">${r.i}</div><div><div class="t">${esc(r.text)}</div>${r.note?`<div class="why">${esc(r.note)}</div>`:""}${(r.evidence||[]).length?`<div class="ev">${r.evidence.map(esc).join(" &middot; ")}</div>`:""}</div><span class="chip s-${r.status}">${r.status}${r.optional?" (optional)":""}</span>`;return d}
+async function startRun(){
+  const err=$("#err");err.classList.remove("on");
+  const body={mode,url:$("#url").value,ask:$("#ask").value,repo:$("#repo").value,base:$("#base").value,head:$("#head").value,escalate:$("#esc").checked,context:$("#ctx").checked};
+  $("#run").disabled=true;
+  try{const r=await api("/api/audit",{method:"POST",body:JSON.stringify(body)});job={id:r.job,since:0,n:0,done:0,running:true,t0:Date.now()};beginRun(body)}
+  catch(e){err.textContent=e.message;err.classList.add("on")}
+  finally{$("#run").disabled=false}
+}
+function beginRun(b){show("run");$("#rtitle").textContent=b.mode==="pr"?b.url.replace("https://github.com/",""):"Local commits";setSteps(0);$("#rlist").innerHTML="";$("#rerr").classList.remove("on");$("#back").style.display="none";$("#rc").textContent="-";$("#tk").textContent="-";
+  clearInterval(tick);tick=setInterval(()=>$("#el").textContent=Math.round((Date.now()-job.t0)/1000)+"s",500);poll()}
+async function poll(){
+  try{const j=await api(`/api/jobs/${job.id}?since=${job.since}`);job.since=j.next;
+    for(const e of j.events){
+      if(e.stage==="fetch")setSteps(0);else if(e.stage==="setup")setSteps(1);
+      else if(e.stage==="start"){job.n=e.n;setSteps(2);$("#rc").textContent="0 / "+e.n;$("#rlist").innerHTML=Array.from({length:Math.min(e.n,8)},()=>'<div class="sk"></div>').join("")}
+      else if(e.stage==="requirement"){if(job.done===0)$("#rlist").innerHTML="";job.done++;$("#rc").textContent=job.done+" / "+job.n;$("#rlist").appendChild(row(e,0));
+        const sk=document.createElement("div");}
+      else if(e.stage==="usage"){$("#tk").textContent=(e.calls.groq_tokens||0).toLocaleString()}}
+    if(j.state==="done"){job.running=false;clearInterval(tick);setSteps(4);await loadStatus();return setTimeout(()=>openRun(j.run_id),700)}
+    if(j.state==="error"){job.running=false;clearInterval(tick);const x=$("#rerr");x.textContent=j.error;x.classList.add("on");$("#back").style.display="";return}
+  }catch(e){job.running=false;clearInterval(tick);const x=$("#rerr");x.textContent="Lost contact with the app: "+e.message;x.classList.add("on");$("#back").style.display="";return}
+  setTimeout(poll,650)
+}
+/* ---------- result ---------- */
+async function openRun(id){
+  let r;try{r=await api("/api/runs/"+id+"/data")}catch(e){return toast(e.message)}
+  cur=r;show("result");$("#ttl").textContent=r.title;const s=$("#srcl");s.innerHTML=/^https?:/.test(r.source)?`<a href="${esc(r.source)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(r.source)}</a>`:esc(r.source);
+  ring($("#rmini"),r.rank,64);
+  const base="/api/runs/"+id;
+  $("#rtools").innerHTML=`<a class="btn" target="_blank" href="${MOCK?DEMO_URL:base+"/report.html"}">Open full screen</a><a class="btn" href="${base}/report.md">Markdown</a><a class="btn" href="${base}/report.json">JSON</a><button class="btn" id="again">Audit another</button><button class="btn danger" id="del">Delete</button>`;
+  $("#again").onclick=()=>show("new");$("#del").onclick=async()=>{if(!confirm("Delete this audit from history?"))return;await api(base,{method:"DELETE"});toast("Deleted");await loadStatus();loadHistory();show("history")};
+  $("#frame").src=MOCK?DEMO_URL:base+"/report.html";
+}
+function openDemo(){cur=null;show("result");$("#ttl").textContent="Example report";$("#srcl").textContent="A saved audit of an MIT-licensed repository, built from stored judge answers (no live LLM calls).";ring($("#rmini"),85,64);
+  $("#rtools").innerHTML=`<a class="btn" target="_blank" href="${DEMO_URL}">Open full screen</a><button class="btn" id="again">Audit your own PR</button>`;$("#again").onclick=()=>show("new");$("#frame").src=DEMO_URL}
+/* ---------- history ---------- */
+async function loadHistory(){
+  let runs=[];try{runs=await api("/api/runs")}catch(e){}
+  $("#hcount").textContent=runs.length;const g=$("#hgrid");
+  if(!runs.length){g.innerHTML='<div class="card empty" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>No audits yet. Run one and it will show up here.</div></div>';return}
+  g.innerHTML="";runs.forEach((r,i)=>{const d=document.createElement("div");d.className="card h";d.style.animation=`in .4s ${i*40}ms both`;
+    d.innerHTML=`<div class="mini"></div><div style="min-width:0"><div class="tt">${esc(r.title)}</div><div class="sm"><span class="tag">${r.mode==="pr"?"PR":"local"}</span>${r.escalate?'<span class="tag">wider</span>':""}${r.requirements} requirements &middot; ${ago(r.created)}</div></div><button class="x" title="Delete">&times;</button>`;
+    ring(d.querySelector(".mini"),r.rank,64);d.onclick=()=>openRun(r.id);
+    d.querySelector(".x").onclick=async ev=>{ev.stopPropagation();if(!confirm("Delete this audit?"))return;await api("/api/runs/"+r.id,{method:"DELETE"});await loadStatus();loadHistory()};g.appendChild(d)})}
+setSteps(0);loadStatus();loadHistory();
+if(MOCK){$("#url").value="https://github.com/acme/api/pull/412";$("#ask").value="- Add retry with exponential backoff to the fetch client\n- Return a typed TimeoutError after the last attempt\n- Make the maximum attempts configurable\n- Add tests for success after one retry\n- Document the behaviour in the README";$("#cnt").textContent=$("#ask").value.length+" chars";
+  const q=location.search;if(/view=run/.test(q))startRun();if(/view=history/.test(q)){show("history")}if(/view=result/.test(q))setTimeout(()=>openRun("m1"),300);if(/view=about/.test(q))show("about")}
+</script>
+</body>
+</html>

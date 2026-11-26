@@ -61,51 +61,33 @@ def local_cmd(ask_file: Path = typer.Argument(..., help="Text file with the ask 
     _audit_and_write(bundle, models, local, retrieval, out, html)
 
 
+@app.command("serve")
+def serve_cmd(port: int = typer.Option(8765, "--port"),
+              data_dir: Path = typer.Option(Path(".pr-audit"), "--data-dir", help="Where finished audits are stored"),
+              models: Path = typer.Option(ROOT / "models", "--models"),
+              no_browser: bool = typer.Option(False, "--no-browser")):
+    """Open the local web app (paste a PR URL or local commits, watch the audit, open the evidence report)."""
+    from .server import serve
+    load_env(ROOT / ".env")
+    serve(ROOT, data_dir, models, port, open_browser=not no_browser)
+
+
 def _audit_and_write(bundle, models: Path, local: bool, retrieval: str, out: Path, html: Path | None, escalate: bool = False) -> None:
-    from .audit import load_scorer, run_audit
+    from .audit import run_audit
+    from .pipeline import make_pipeline
     from .report import render_markdown
-    have_models = (models / "relevance").exists() and (models / "verdict.joblib").exists()
-    use_lexical = retrieval == "lexical" or (retrieval == "auto" and not have_models)
-    if retrieval == "model" and not have_models:
-        raise typer.BadParameter(f"no trained models in {models}; see README 'Train the models yourself' or use --retrieval lexical")
-    if use_lexical and local:
-        raise typer.BadParameter("--local needs the trained models; train them or drop --local")
-    if use_lexical:
-        from .lexical import lexical_scorer
-        scorer, clf, cfg = lexical_scorer(), None, {"tau": 0.5, "band": 0.10}
-        typer.echo("retrieval: lexical word overlap (no trained models found or --retrieval lexical)")
-    else:
-        cfg = json.loads((models / "verdict.json").read_text(encoding="utf-8"))
-        import joblib
-        clf = joblib.load(models / "verdict.joblib")
-        scorer = load_scorer(models / "relevance")
+    try:
+        pl = make_pipeline(ROOT, models, local, retrieval, escalate, log=typer.echo)
+    except ValueError as e:
+        raise typer.BadParameter(str(e))
     typer.echo(f"scoring {len(bundle.hunks)} hunks ...")
-    judge, mode = None, "local models only"
-    if not local:
-        from .llm import LLM
-        from .judge import judge_requirement
-        llm = LLM(ROOT / ".cache/llm")
-        if llm.providers:
-            if escalate:
-                from .judge import judge_with_escalation
-                judge = lambda i, t, ranked: judge_with_escalation(llm, i, t, ranked)
-                judge.wants_wide = True
-            else:
-                judge = lambda i, t, top: judge_requirement(llm, i, t, top, verify=True)
-            mode = f"hybrid (judge providers: {', '.join(llm.providers)}; PR text is sent to them)"
-        else:
-            if use_lexical:
-                raise typer.BadParameter("lexical retrieval needs an LLM judge: set GEMINI_API_KEY and/or GROQ_API_KEY")
-            typer.echo("no GEMINI_API_KEY / GROQ_API_KEY found: falling back to local models only (weak within-PR)")
-    audit = run_audit(bundle, scorer, clf, tau=cfg["tau"], band=cfg["band"], judge=judge)
-    info = f"mode: {mode}; retrieval: {'lexical word overlap' if use_lexical else 'trained CodeBERT relevance model'}"
-    out.write_text(render_markdown(audit, info), encoding="utf-8")
+    audit = run_audit(bundle, pl.scorer, pl.clf, tau=pl.cfg["tau"], band=pl.cfg["band"], judge=pl.judge)
+    out.write_text(render_markdown(audit, pl.info), encoding="utf-8")
     if html:
         from .html_report import render_html
-        html.write_text(render_html(audit, info), encoding="utf-8")
+        html.write_text(render_html(audit, pl.info), encoding="utf-8")
         typer.echo(f"html: {html}")
     typer.echo(f"rank: {audit.rank} ({audit.band}) -> {out}")
-
 
 
 if __name__ == "__main__":

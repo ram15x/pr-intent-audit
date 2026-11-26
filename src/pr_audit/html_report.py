@@ -48,10 +48,13 @@ def build_data(a: Audit, run_info: str = "") -> dict:
     )
 
 
+def render_from_data(data: dict, title: str) -> str:
+    blob = json.dumps(data, ensure_ascii=True).replace("</", "<\\/").replace("<!--", "<\\!--")
+    return TEMPLATE.replace("__TITLE__", title.replace("<", "&lt;").replace(">", "&gt;")).replace("__DATA__", blob)
+
+
 def render_html(a: Audit, run_info: str = "") -> str:
-    data = json.dumps(build_data(a, run_info), ensure_ascii=True).replace("</", "<\\/").replace("<!--", "<\\!--")
-    title = (a.bundle.title or a.bundle.source).replace("<", "&lt;").replace(">", "&gt;")
-    return TEMPLATE.replace("__TITLE__", title).replace("__DATA__", data)
+    return render_from_data(build_data(a, run_info), a.bundle.title or a.bundle.source)
 
 
 TEMPLATE = r"""<!DOCTYPE html>

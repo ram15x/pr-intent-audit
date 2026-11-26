@@ -17,3 +17,5 @@ models/
 report.md
 report*.md
 report*.html
+
+.pr-audit/
