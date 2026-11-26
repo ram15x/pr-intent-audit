@@ -67,6 +67,13 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 Random ranking would reach hit@5 = 0.838 overall (most gold PRs are small) and 0.256 on the large ones, so only the large-PR column discriminates, and with n=10 a difference of one or two requirements is noise. No gold PR was in the CodeBERT training set (gold PRs were held out). Reading: our trained retriever is not better than word-overlap or BM25 on its own; the CodeBERT+lexical fusion is nominally best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result. Boosting BM25 / word overlap with identifiers the requirement names verbatim (backticked names, file paths, snake_case/camelCase; fixed weights chosen before looking at the results) raised hit@1 from 0.66 to 0.73 and 0.59 to 0.67 with no loss at hit@5; that is about 5 of 73 requirements and does not help on large PRs, so it is a candidate, not an established gain.
 <!-- RESULTS:END -->
 
+## Cost of one audit
+
+One judge call per requirement. On the 24 gold PRs (median 3 requirements, max 7) an audit is about 4K input tokens
+at the median and 14K at the maximum (estimated as characters / 4; `bench/cost_per_pr.py`). At the Groq free tier's
+roughly 8K tokens per minute that is under a minute for a typical PR and about two minutes for the largest here.
+PRs with long asks (dozens of requirements) will take proportionally longer and can hit the daily limit.
+
 ## HTML report
 
 `pr-audit run <PR_URL> --retrieval lexical --html report.html` also writes one self-contained HTML file: the score, a

@@ -1,0 +1,180 @@
+{
+ "prs": 24,
+ "calls_median": 3.0,
+ "calls_max": 7,
+ "est_tokens_median": 4002,
+ "est_tokens_max": 14378,
+ "minutes_at_8k_tpm_median": 0.5,
+ "minutes_at_8k_tpm_max": 1.8,
+ "note": "input tokens only (chars/4); Groq free tier is about 8K tokens/minute; output tokens add a little",
+ "rows": [
+  {
+   "pr": "https://github.com/CanastaWiki/Canasta-CLI/pull/924",
+   "hunks": 8,
+   "requirements": 6,
+   "calls": 6,
+   "est_tokens": 8908
+  },
+  {
+   "pr": "https://github.com/aganezov/ont_qc_mcp/pull/135",
+   "hunks": 4,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 1321
+  },
+  {
+   "pr": "https://github.com/cisagov/manage.get.gov/pull/5156",
+   "hunks": 5,
+   "requirements": 2,
+   "calls": 2,
+   "est_tokens": 1590
+  },
+  {
+   "pr": "https://github.com/pfBlockerNG/pfBlockerNG/pull/672",
+   "hunks": 4,
+   "requirements": 2,
+   "calls": 2,
+   "est_tokens": 3457
+  },
+  {
+   "pr": "https://github.com/jt-mchorse/chunking-strategies-lab/pull/97",
+   "hunks": 4,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 4926
+  },
+  {
+   "pr": "https://github.com/oddessentials/odd-bot-moltbook/pull/40",
+   "hunks": 4,
+   "requirements": 0,
+   "calls": 0,
+   "est_tokens": 0
+  },
+  {
+   "pr": "https://github.com/nanohype/eks-gitops/pull/84",
+   "hunks": 4,
+   "requirements": 2,
+   "calls": 2,
+   "est_tokens": 1342
+  },
+  {
+   "pr": "https://github.com/adamsuk/gh-factory/pull/10",
+   "hunks": 4,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 1769
+  },
+  {
+   "pr": "https://github.com/ztrange/veri/pull/2693",
+   "hunks": 6,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 5540
+  },
+  {
+   "pr": "https://github.com/Agrim-Intelligence/sigma/pull/380",
+   "hunks": 7,
+   "requirements": 5,
+   "calls": 5,
+   "est_tokens": 11631
+  },
+  {
+   "pr": "https://github.com/epr-ds/nutriplan/pull/759",
+   "hunks": 4,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 3611
+  },
+  {
+   "pr": "https://github.com/iteam7/gateway7/pull/150",
+   "hunks": 7,
+   "requirements": 5,
+   "calls": 5,
+   "est_tokens": 4485
+  },
+  {
+   "pr": "https://github.com/nahuel893/agents-system/pull/215",
+   "hunks": 5,
+   "requirements": 5,
+   "calls": 5,
+   "est_tokens": 9423
+  },
+  {
+   "pr": "https://github.com/YinceIuCode/assistant_core_lab/pull/26",
+   "hunks": 5,
+   "requirements": 4,
+   "calls": 4,
+   "est_tokens": 3247
+  },
+  {
+   "pr": "https://github.com/Agrim-Intelligence/sigma/pull/381",
+   "hunks": 9,
+   "requirements": 6,
+   "calls": 6,
+   "est_tokens": 14378
+  },
+  {
+   "pr": "https://github.com/boris-heuer/lianiq/pull/44",
+   "hunks": 5,
+   "requirements": 7,
+   "calls": 7,
+   "est_tokens": 12691
+  },
+  {
+   "pr": "https://github.com/kesamot11/chaosnet/pull/21",
+   "hunks": 3,
+   "requirements": 2,
+   "calls": 2,
+   "est_tokens": 1699
+  },
+  {
+   "pr": "https://github.com/monicadelaine/capstone-design/pull/31",
+   "hunks": 3,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 3542
+  },
+  {
+   "pr": "https://github.com/itpd-team-6/sentence-cards-generator-team-6/pull/76",
+   "hunks": 4,
+   "requirements": 4,
+   "calls": 4,
+   "est_tokens": 7104
+  },
+  {
+   "pr": "https://github.com/lubobali/MissionCopilot-AI/pull/19",
+   "hunks": 3,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 3932
+  },
+  {
+   "pr": "https://github.com/upm-agile-team2/upm-entrepreneurship-platform/pull/32",
+   "hunks": 36,
+   "requirements": 4,
+   "calls": 4,
+   "est_tokens": 13555
+  },
+  {
+   "pr": "https://github.com/daniela-tio/project-relay/pull/48",
+   "hunks": 39,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 4073
+  },
+  {
+   "pr": "https://github.com/NASA-ACROSS/across-data-ingestion/pull/61",
+   "hunks": 40,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 2168
+  },
+  {
+   "pr": "https://github.com/EvilBit-Labs/opnDossier/pull/71",
+   "hunks": 98,
+   "requirements": 3,
+   "calls": 3,
+   "est_tokens": 10480
+  }
+ ]
+}
