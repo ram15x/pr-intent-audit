@@ -51,6 +51,13 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 | large PRs: top-5, no verifier | 1.0 | 0.778 | 0 | 4/7 | 0.25-0.84 | 2/7 | 2/8 | n/a | {'done': [7, 0, 2, 0], 'partial': [0, 1, 0, 0], 'missing': [0, 0, 3, 0]} |
 <!-- RESULTS:END -->
 
+## HTML report
+
+`pr-audit run <PR_URL> --retrieval lexical --html report.html` also writes one self-contained HTML file: the score, a
+step-by-step breakdown of how it was computed (done = 1, partial = 0.5, missing = 0, minus a capped scope-creep
+penalty), a map of which hunks back which requirement, and for every verdict the exact diff lines the judge quoted
+(verified to exist in the hunk). No network, no external assets; PR text is rendered as text, never as HTML.
+
 ## Where it fails (read this before trusting a number)
 
 - **Our trained models cannot judge a requirement inside one PR.** The relevance model learned to tell whether a hunk

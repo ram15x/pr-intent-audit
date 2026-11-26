@@ -1,0 +1,387 @@
+"""Self-contained HTML report: score, how the score was computed, and the evidence behind every verdict.
+
+One file, no network, no external assets. All PR-derived text is inserted with textContent (never innerHTML), so a
+hostile PR cannot inject script into the report.
+"""
+from __future__ import annotations
+import json
+from .audit import Audit
+from .inject import is_substantive
+
+MAX_HUNK_CHARS = 6000
+MAX_TOTAL_CHARS = 1_500_000
+POINTS = {"done": 1.0, "partial": 0.5, "missing": 0.0}
+
+
+def build_data(a: Audit, run_info: str = "") -> dict:
+    b = a.bundle
+    claimed: dict[str, list[int]] = {}
+    for r in a.reqs:
+        for hid, _s, _q in r.evidence:
+            claimed.setdefault(hid, []).append(r.id)
+    creep_ids = {h for h, _ in a.creep}
+    budget, hunks = MAX_TOTAL_CHARS, []
+    for h in b.hunks:
+        text = h.text or "\n".join([f"+{l}" for l in h.added] + [f"-{l}" for l in h.removed])
+        cut = len(text) > MAX_HUNK_CHARS or len(text) > budget
+        text = text[:min(MAX_HUNK_CHARS, max(budget, 0))]
+        budget -= len(text)
+        hunks.append(dict(id=h.id, file=h.file, start=h.start, end=h.end, text=text, truncated=cut,
+                          n_add=len(h.added), n_del=len(h.removed), claimed_by=claimed.get(h.id, []),
+                          creep=h.id in creep_ids, substantive=is_substantive(h)))
+    decided = [r for r in a.reqs if r.status != "unclear" and not (r.optional and r.status == "missing")]
+    excluded = [r for r in a.reqs if r not in decided]
+    cov = (sum(POINTS[r.status] for r in decided) / len(decided)) if decided else None
+    creep_pen = min(5 * len(a.creep), 20) if decided else 0
+    return dict(
+        pr=dict(source=b.source, title=b.title, ask_source=b.ask_source, notes=b.notes),
+        run_info=run_info, rank=a.rank, band=a.band, low_confidence=a.low_confidence,
+        breakdown=dict(
+            decided=[dict(id=r.id, text=r.text[:160], status=r.status, points=POINTS[r.status], optional=r.optional) for r in decided],
+            excluded=[dict(id=r.id, text=r.text[:160], status=r.status, optional=r.optional) for r in excluded],
+            coverage=cov, creep_count=len(a.creep), creep_penalty=creep_pen, lines=a.rank_lines),
+        reqs=[dict(id=r.id, text=r.text, status=r.status, optional=r.optional, relevance=round(r.score, 3), note=r.note,
+                   evidence=[dict(hunk=h, relevance=round(s, 3), quotes=q) for h, s, q in r.evidence]) for r in a.reqs],
+        hunks=hunks,
+        creep=[dict(hunk=h, relevance=s) for h, s in a.creep],
+        pr_probs=a.pr_probs,
+    )
+
+
+def render_html(a: Audit, run_info: str = "") -> str:
+    data = json.dumps(build_data(a, run_info), ensure_ascii=True).replace("</", "<\\/").replace("<!--", "<\\!--")
+    title = (a.bundle.title or a.bundle.source).replace("<", "&lt;").replace(">", "&gt;")
+    return TEMPLATE.replace("__TITLE__", title).replace("__DATA__", data)
+
+
+TEMPLATE = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR Intent Audit: __TITLE__</title>
+<style>
+:root{
+  --bg:#f6f7f9;--panel:#fff;--ink:#14171c;--mute:#5b6572;--line:#e3e7ec;--soft:#eef1f5;
+  --done:#127a4a;--done-bg:#e3f5ec;--part:#9a5b00;--part-bg:#fdf0d8;--miss:#b3261e;--miss-bg:#fde6e4;--unc:#4d5a6b;--unc-bg:#e9edf2;
+  --acc:#2f5bea;--hit:#fff3b0;--add:#e6f6ea;--del:#fdeaea;--shadow:0 1px 2px rgba(20,23,28,.05),0 6px 24px rgba(20,23,28,.06);
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+:root[data-theme=dark]{
+  --bg:#0e1116;--panel:#161b22;--ink:#e8ecf1;--mute:#98a3b3;--line:#262e39;--soft:#1d242e;
+  --done:#4cd694;--done-bg:#12301f;--part:#f0b44c;--part-bg:#38290e;--miss:#ff8a80;--miss-bg:#3b1a18;--unc:#9fb0c4;--unc-bg:#212a35;
+  --acc:#7b9bff;--hit:#5a4c00;--add:#12301f;--del:#3b1a18;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:.2px}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--acc),#8a5cf6);display:grid;place-items:center;color:#fff;font-size:15px}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 12px;font-size:13px;transition:.15s}
+.btn:hover{border-color:var(--acc);transform:translateY(-1px);box-shadow:var(--shadow)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.hero{display:grid;grid-template-columns:200px 1fr;gap:28px;padding:26px 28px;align-items:center}
+@media(max-width:720px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.ring{position:relative;width:168px;height:168px}
+.ring svg{transform:rotate(-90deg)}
+.ring .trk{stroke:var(--soft)}
+.ring .bar{stroke-linecap:round;transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1)}
+.ring .num{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .num b{font-size:44px;line-height:1;letter-spacing:-1px}
+.ring .num span{font-size:12px;color:var(--mute);margin-top:4px}
+h1{font-size:21px;line-height:1.3;margin:0 0 6px}
+.src{color:var(--mute);font-size:13px;word-break:break-all}
+.src a{color:var(--acc);text-decoration:none}.src a:hover{text-decoration:underline}
+.band{display:inline-block;margin:12px 0 4px;font-weight:650;padding:4px 12px;border-radius:99px;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:600;border:1px solid transparent}
+.s-done{color:var(--done);background:var(--done-bg)}.s-partial{color:var(--part);background:var(--part-bg)}
+.s-missing{color:var(--miss);background:var(--miss-bg)}.s-unclear{color:var(--unc);background:var(--unc-bg)}
+.banner{margin-top:14px;padding:10px 14px;border-radius:12px;background:var(--part-bg);color:var(--part);font-size:13.5px}
+section{margin-top:26px}
+h2{font-size:16px;margin:0 0 4px;letter-spacing:.2px}
+.sub{color:var(--mute);font-size:13px;margin:0 0 12px}
+.pad{padding:18px 20px}
+.calc .row{display:grid;grid-template-columns:28px 1fr 130px 52px;gap:12px;align-items:center;padding:8px 10px;border-radius:10px;cursor:default;transition:background .12s}
+.calc .row:hover,.calc .row.hl{background:var(--soft)}
+.calc .row .n{color:var(--mute);font-variant-numeric:tabular-nums}
+.calc .row .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meter{height:8px;border-radius:99px;background:var(--soft);overflow:hidden}
+.meter i{display:block;height:100%;width:0;border-radius:99px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.sum{display:flex;flex-wrap:wrap;gap:8px 22px;border-top:1px dashed var(--line);margin-top:10px;padding:14px 10px 2px;font-variant-numeric:tabular-nums}
+.sum div b{display:block;font-size:20px}.sum div span{color:var(--mute);font-size:12.5px}
+.excl{margin-top:10px;color:var(--mute);font-size:13px;padding:0 10px}
+.map{display:flex;gap:3px;height:46px;padding:0}
+.blk{flex:1 1 0;min-width:10px;border-radius:5px;position:relative;cursor:pointer;transition:transform .15s,filter .15s,outline-color .15s;outline:2px solid transparent;background:var(--unc-bg)}
+.blk:hover{transform:translateY(-3px);filter:brightness(1.06)}
+.blk.hl{outline-color:var(--acc)}
+.blk.done{background:var(--done)}.blk.partial{background:var(--part)}.blk.creep{background:repeating-linear-gradient(45deg,var(--part),var(--part) 5px,transparent 5px,transparent 9px);border:1px solid var(--part)}
+.blk.other{background:var(--unc-bg);border:1px solid var(--line)}.blk.missing{background:var(--miss)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;color:var(--mute);font-size:12.5px;margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.tip{position:fixed;z-index:50;pointer-events:none;background:#111827;color:#f3f4f6;font-size:12px;padding:7px 10px;border-radius:8px;max-width:340px;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;box-shadow:0 6px 20px rgba(0,0,0,.3);white-space:pre-line}
+.tip.on{opacity:1;transform:none}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.tools input{flex:1;min-width:180px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:10px;font:inherit}
+.tools input:focus{outline:2px solid var(--acc);outline-offset:1px}
+.f{border:1px solid var(--line);background:var(--panel);padding:5px 12px;border-radius:99px;font-size:13px;transition:.15s}
+.f:hover{border-color:var(--acc)}.f.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.req{margin-bottom:10px;overflow:hidden;transition:box-shadow .15s,border-color .15s,transform .15s}
+.req:hover{border-color:var(--acc)}
+.req.hl{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.req>header{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:12px;align-items:center;padding:14px 16px;cursor:pointer;user-select:none}
+.req>header .id{width:26px;height:26px;border-radius:8px;background:var(--soft);display:grid;place-items:center;font-size:12.5px;font-weight:650;color:var(--mute)}
+.req>header .tx{min-width:0}
+.req>header .tx p{margin:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.req.open>header .tx p{-webkit-line-clamp:unset;display:block}
+.rel{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
+.rel .meter{width:64px}
+.car{transition:transform .2s;color:var(--mute)}
+.req.open .car{transform:rotate(90deg)}
+.body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.req.open .body{grid-template-rows:1fr}
+.body>div{overflow:hidden}
+.inner{padding:2px 16px 16px;border-top:1px solid var(--line)}
+.why{margin:12px 0;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:14px}
+.why b{font-weight:650}
+.ver{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 10px;font-size:12.5px}
+.ok{color:var(--done)}.bad{color:var(--miss)}
+.ev{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ev>.eh{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--soft);font-family:var(--mono);font-size:12.5px}
+.ev .eh .m{color:var(--mute)}
+.code{font:12.5px/1.5 var(--mono);overflow:auto;max-height:340px;margin:0;background:var(--panel)}
+.code .ln{display:grid;grid-template-columns:46px 16px 1fr;white-space:pre}
+.code .ln .lno{color:var(--mute);text-align:right;padding-right:8px;user-select:none;opacity:.7}
+.code .ln .tx{padding-right:12px}
+.code .a{background:var(--add)}.code .d{background:var(--del)}.code .h{background:var(--soft);color:var(--mute)}
+.code .ln.hit{background:var(--hit);box-shadow:inset 3px 0 0 var(--part)}
+.more{display:block;width:100%;padding:7px;border:0;border-top:1px solid var(--line);background:var(--soft);color:var(--acc);font-size:12.5px}
+.none{color:var(--mute);font-size:13.5px;padding:8px 2px}
+.creepl .it{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden;background:var(--panel)}
+.notes li{margin:6px 0;color:var(--mute);font-size:13.5px}
+.foot{margin-top:34px;color:var(--mute);font-size:12.5px;text-align:center}
+.fade{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.fade.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.fade{opacity:1;transform:none}}
+@media print{.tools,.btn,.tip{display:none!important}.body{grid-template-rows:1fr!important}.fade{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><div class="logo">&#10003;</div>PR Intent Audit</div>
+    <div><button class="btn" id="theme" aria-label="Toggle theme">Theme</button></div>
+  </div>
+  <div id="app"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<div class="tip" id="tip" role="tooltip"></div>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(function(){
+"use strict";
+var D=JSON.parse(document.getElementById("data").textContent);
+var ST={done:"Done",partial:"Partial",missing:"Missing",unclear:"Unclear"};
+var IC={done:"✓",partial:"◐",missing:"✗",unclear:"?"};
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function add(p){for(var i=1;i<arguments.length;i++){if(arguments[i])p.appendChild(arguments[i])}return p}
+function chip(status,label){return el("span","chip s-"+status,IC[status]+" "+(label||ST[status]))}
+var hunkById={};D.hunks.forEach(function(h){hunkById[h.id]=h});
+var reqById={};D.reqs.forEach(function(r){reqById[r.id]=r});
+var rowEls={},blkEls={},reqEls={};
+var tip=document.getElementById("tip");
+function showTip(e,t){tip.textContent=t;tip.classList.add("on");var x=Math.min(e.clientX+14,innerWidth-360),y=e.clientY+16;tip.style.left=Math.max(8,x)+"px";tip.style.top=y+"px"}
+function hideTip(){tip.classList.remove("on")}
+var root=document.documentElement;
+try{var th=localStorage.getItem("pra-theme");if(th)root.dataset.theme=th;else if(matchMedia("(prefers-color-scheme: dark)").matches)root.dataset.theme="dark"}catch(e){}
+document.getElementById("theme").onclick=function(){var n=root.dataset.theme==="dark"?"light":"dark";root.dataset.theme=n;try{localStorage.setItem("pra-theme",n)}catch(e){}};
+var app=document.getElementById("app");
+var colour={done:"var(--done)",partial:"var(--part)",missing:"var(--miss)",unclear:"var(--unc)"};
+function bandCls(r){return r==null?"s-unclear":r>=70?"s-done":r>=40?"s-partial":"s-missing"}
+
+function hl(id,on,skipRow,skipCard){
+  if(!skipRow&&rowEls[id])rowEls[id].classList.toggle("hl",on);
+  if(!skipCard&&reqEls[id])reqEls[id].classList.toggle("hl",on);
+  D.hunks.forEach(function(h){if(h.claimed_by.indexOf(id)>=0&&blkEls[h.id])blkEls[h.id].classList.toggle("hl",on)});
+}
+function openReq(id,scroll,hunk){
+  var c=reqEls[id];if(!c)return;c.hidden=false;c.classList.add("open");c.querySelector("header").setAttribute("aria-expanded","true");
+  if(scroll){var t=null;if(hunk){var all=c.querySelectorAll("[data-hunk]");for(var i=0;i<all.length;i++){if(all[i].dataset.hunk===hunk){t=all[i];break}}}
+    (t||c).scrollIntoView({behavior:"smooth",block:"center"})}
+}
+
+/* ---------- hero ---------- */
+(function(){
+  var c=el("div","card hero fade");
+  var rk=D.rank,ring=el("div","ring"),C=2*Math.PI*70;
+  ring.innerHTML='<svg width="168" height="168" viewBox="0 0 168 168"><circle class="trk" cx="84" cy="84" r="70" fill="none" stroke-width="12"/><circle class="bar" cx="84" cy="84" r="70" fill="none" stroke-width="12" stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'"/></svg>';
+  var bar=ring.querySelector(".bar");
+  bar.style.stroke=rk==null?"var(--unc)":rk>=70?"var(--done)":rk>=40?"var(--part)":"var(--miss)";
+  var num=el("div","num"),b=el("b",null,rk==null?"n/a":"0");add(num,b,el("span",null,rk==null?"no decided requirements":"out of 100"));ring.appendChild(num);
+  var right=el("div");
+  var s=el("div","src");
+  if(/^https:\/\/github\.com\//.test(D.pr.source)){var a=el("a",null,D.pr.source);a.href=D.pr.source;a.target="_blank";a.rel="noopener noreferrer";s.appendChild(a)}else s.textContent=D.pr.source;
+  s.appendChild(document.createTextNode("  ·  ask from: "+D.pr.ask_source));
+  var counts={done:0,partial:0,missing:0,unclear:0};D.reqs.forEach(function(r){counts[r.status]++});
+  var chips=el("div","chips");["done","partial","missing","unclear"].forEach(function(k){chips.appendChild(chip(k,counts[k]+" "+ST[k].toLowerCase()))});
+  chips.appendChild(el("span","chip s-unclear",D.hunks.length+" hunks · "+D.creep.length+" unclaimed"));
+  add(right,el("h1",null,D.pr.title||D.pr.source),s,el("span","band "+bandCls(rk),D.band),chips);
+  if(D.low_confidence)right.appendChild(el("div","banner","Low confidence: more than 30% of the requirements could not be decided, so the score covers only part of the ask."));
+  D.pr.notes.forEach(function(n){right.appendChild(el("div","banner",n))});
+  add(c,ring,right);app.appendChild(c);
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    if(rk==null)return;
+    bar.style.strokeDashoffset=C*(1-rk/100);
+    var t0=performance.now();(function step(t){var p=Math.min(1,(t-t0)/1100),e=1-Math.pow(1-p,3);b.textContent=Math.round(rk*e);if(p<1)requestAnimationFrame(step)})(t0)
+  })});
+})();
+
+/* ---------- how the score was computed ---------- */
+(function(){
+  var B=D.breakdown,sec=el("section","fade");
+  add(sec,el("h2",null,"How this score was computed"),el("p","sub","Every decided requirement earns points: done = 1, partial = 0.5, missing = 0. The score is the average, minus a small penalty for unclaimed code. Nothing else enters. Hover a row to see where it lives in the diff."));
+  var card=el("div","card pad calc");
+  if(!B.decided.length)card.appendChild(el("div","none","No requirement could be decided, so there is no score."));
+  B.decided.forEach(function(r){
+    var row=el("div","row");rowEls[r.id]=row;
+    var m=el("div","meter"),i=el("i");i.style.background=colour[r.status];i.dataset.w=(r.points*100)+"%";m.appendChild(i);
+    var t=el("div","t",r.text);t.title=r.text;
+    var pts=el("div",null,"+"+r.points.toFixed(1));pts.style.textAlign="right";pts.style.fontVariantNumeric="tabular-nums";pts.style.fontWeight="650";
+    add(row,el("div","n","#"+r.id),t,m,pts);
+    row.addEventListener("mouseenter",function(){hl(r.id,true,true,false)});row.addEventListener("mouseleave",function(){hl(r.id,false,true,false)});
+    row.addEventListener("click",function(){openReq(r.id,true)});row.style.cursor="pointer";
+    card.appendChild(row)});
+  if(B.coverage!=null){
+    var sum=el("div","sum"),mk=function(v,l){var d=el("div");add(d,el("b",null,String(v)),el("span",null,l));return d};
+    add(sum,mk(B.decided.length,"decided requirements"),mk((B.coverage*B.decided.length).toFixed(1)+" / "+B.decided.length,"points earned"),
+      mk(Math.round(B.coverage*100),"coverage × 100"),mk(B.creep_penalty?"−"+B.creep_penalty:"0","scope-creep penalty ("+B.creep_count+" hunk"+(B.creep_count===1?"":"s")+" × 5, max 20)"),mk(D.rank,"final score"));
+    card.appendChild(sum)}
+  if(B.excluded.length){
+    var ex=el("div","excl");
+    ex.textContent="Not counted ("+B.excluded.length+"): "+B.excluded.map(function(r){return "#"+r.id+(r.optional&&r.status==="missing"?" (option, not done)":" ("+r.status+")")}).join(", ")+". Unclear means the evidence could not be verified, so the tool does not guess.";
+    card.appendChild(ex)}
+  sec.appendChild(card);app.appendChild(sec);
+  setTimeout(function(){card.querySelectorAll(".meter i").forEach(function(i){i.style.width=i.dataset.w})},350);
+})();
+
+/* ---------- diff map ---------- */
+(function(){
+  var sec=el("section","fade");
+  add(sec,el("h2",null,"Where the evidence lives"),el("p","sub","Each block is one changed hunk, wider = more lines. Hover to see which requirement claims it; click to jump to the evidence."));
+  var card=el("div","card pad"),map=el("div","map");
+  D.hunks.forEach(function(h){
+    var rank={done:3,partial:2,missing:1,unclear:0},best=null;
+    h.claimed_by.forEach(function(id){var r=reqById[id];if(r&&(best==null||rank[r.status]>rank[best]))best=r.status});
+    var cls=best?best:(h.creep?"creep":"other");
+    var bl=el("div","blk "+cls);bl.style.flexGrow=Math.max(1,Math.sqrt(h.n_add+h.n_del));bl.tabIndex=0;blkEls[h.id]=bl;
+    var label=h.file+" ("+h.n_add+" added, "+h.n_del+" removed)\n"+(h.claimed_by.length?"Claimed by requirement "+h.claimed_by.map(function(i){return "#"+i}).join(", "):h.creep?"Not claimed by any requirement: scope-creep candidate":"Not claimed (test, doc or config)");
+    bl.addEventListener("mousemove",function(e){showTip(e,label)});
+    bl.addEventListener("mouseenter",function(){h.claimed_by.forEach(function(i){hl(i,true,false,false)})});
+    bl.addEventListener("mouseleave",function(){hideTip();h.claimed_by.forEach(function(i){hl(i,false,false,false)})});
+    bl.addEventListener("click",function(){if(h.claimed_by.length)openReq(h.claimed_by[0],true,h.id);else{var c=document.getElementById("creep");if(c)c.scrollIntoView({block:"start"})}});
+    map.appendChild(bl)});
+  card.appendChild(map);
+  var lg=el("div","legend"),L=function(c,t){var s=el("span");var i=el("i");i.className="blk "+c;s.appendChild(i);s.appendChild(document.createTextNode(t));return s};
+  add(lg,L("done","cited for a done requirement"),L("partial","cited for a partial one"),L("creep","unclaimed code (candidate scope creep)"),L("other","unclaimed test / doc / config"));
+  card.appendChild(lg);sec.appendChild(card);app.appendChild(sec);
+})();
+
+/* ---------- requirements ---------- */
+function codeBlock(hunk,quotes,full){
+  var pre=el("div","code"),lines=hunk.text.split("\n"),a=0,b=0,out=[];
+  var qs=(quotes||[]).map(function(q){return q.trim()}).filter(function(q){return q.length>=4});
+  lines.forEach(function(l){
+    var m=/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(l);
+    if(m){a=+m[1];b=+m[2];out.push({k:"h",t:l,n:""});return}
+    var c=l.charAt(0),body=l.slice(1);
+    if(c==="+"){out.push({k:"a",t:body,n:b,hit:qs.some(function(q){var s=body.trim();return s===q||(q.length>=8&&s.indexOf(q)>=0)||(s.length>=8&&q.indexOf(s)>=0)})});b++}
+    else if(c==="-"){out.push({k:"d",t:body,n:a});a++}
+    else{out.push({k:"c",t:c===" "?body:l,n:b});a++;b++}
+  });
+  var LIMIT=60,show=full?out:out.slice(0,LIMIT);
+  show.forEach(function(o){
+    var ln=el("div","ln "+o.k+(o.hit?" hit":""));
+    add(ln,el("span","lno",String(o.n)),el("span",null,o.k==="a"?"+":o.k==="d"?"−":""),el("span","tx",o.t||" "));
+    if(o.hit)ln.title="Quoted by the judge; verified to exist in this hunk";
+    pre.appendChild(ln)});
+  var wrap=el("div");wrap.appendChild(pre);
+  if(out.length>LIMIT&&!full){var mb=el("button","more","Show all "+out.length+" lines");mb.onclick=function(){wrap.replaceWith(codeBlock(hunk,quotes,true))};wrap.appendChild(mb)}
+  if(hunk.truncated)wrap.appendChild(el("div","none","Hunk shortened in this report (size cap)."));
+  return wrap}
+function evidenceBlock(e){
+  var h=hunkById[e.hunk];var box=el("div","ev");box.dataset.hunk=e.hunk;
+  var hd=el("div","eh"),l=el("span",null,e.hunk),m=el("span","m",(h?h.n_add+" added, "+h.n_del+" removed · ":"")+(e.quotes&&e.quotes.length?"relevance ":"best relevance to any requirement ")+e.relevance.toFixed(2));
+  var cp=el("button","btn","Copy id");cp.onclick=function(ev){ev.stopPropagation();try{navigator.clipboard.writeText(e.hunk);cp.textContent="Copied"}catch(x){cp.textContent="Press Ctrl+C"}setTimeout(function(){cp.textContent="Copy id"},1200)};
+  add(hd,l,m,cp);box.appendChild(hd);
+  box.appendChild(h?codeBlock(h,e.quotes):el("div","none","Hunk not available in this report."));
+  return box}
+function buildReq(r){
+  var card=el("article","card req fade");card.id="req-"+r.id;reqEls[r.id]=card;
+  var hd=el("header");hd.tabIndex=0;hd.setAttribute("role","button");hd.setAttribute("aria-expanded","false");
+  var tx=el("div","tx");tx.appendChild(el("p",null,r.text));
+  var rel=el("div","rel");var m=el("div","meter"),i=el("i");i.style.width=Math.round(Math.min(1,r.relevance)*100)+"%";i.style.background="var(--acc)";m.appendChild(i);add(rel,m,el("span",null,r.relevance.toFixed(2)));rel.title="Retrieval relevance of the best hunk (ranking signal only, not the verdict)";
+  add(hd,el("div","id",String(r.id)),tx,rel,chip(r.status,ST[r.status]+(r.optional?" (option)":"")),el("span","car","▶"));
+  var body=el("div","body"),wrap=el("div"),inner=el("div","inner");
+  if(r.note){var w=el("div","why");add(w,el("b",null,"Why: "),document.createTextNode(r.note));inner.appendChild(w)}
+  var ver=el("div","ver");
+  if(r.evidence.length){var nq=r.evidence.reduce(function(s,e){return s+e.quotes.length},0);
+    ver.appendChild(el("span","ok","✓ Verified: "+r.evidence.length+" cited hunk"+(r.evidence.length>1?"s":"")+" exist in the diff, "+nq+" quoted line"+(nq===1?"":"s")+" found in them"))}
+  else if(r.status==="done"||r.status==="partial")ver.appendChild(el("span","bad","✗ No verifiable evidence"));
+  else if(r.status==="unclear")ver.appendChild(el("span",null,"Unclear: the tool could not verify a verdict and does not guess. Not counted in the score."));
+  else ver.appendChild(el("span",null,"No hunk in this PR was judged to implement this requirement."));
+  inner.appendChild(ver);
+  r.evidence.forEach(function(e){inner.appendChild(evidenceBlock(e))});
+  wrap.appendChild(inner);body.appendChild(wrap);add(card,hd,body);
+  function tog(){var o=card.classList.toggle("open");hd.setAttribute("aria-expanded",o)}
+  hd.onclick=tog;hd.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}};
+  card.addEventListener("mouseenter",function(){hl(r.id,true,false,true)});card.addEventListener("mouseleave",function(){hl(r.id,false,false,true)});
+  return card}
+(function(){
+  var sec=el("section","fade");sec.id="reqs";
+  add(sec,el("h2",null,"Requirements and their evidence"),el("p","sub","Open a requirement to see the exact diff lines behind its verdict. Highlighted lines are the ones the judge quoted; the verifier checked each quote exists in the cited hunk."));
+  var tools=el("div","tools"),inp=el("input");inp.placeholder="Search requirements…";inp.setAttribute("aria-label","Search requirements");
+  tools.appendChild(inp);
+  var cur="all",fs={};
+  ["all","done","partial","missing","unclear"].forEach(function(k){var n=k==="all"?D.reqs.length:D.reqs.filter(function(r){return r.status===k}).length;if(k!=="all"&&!n)return;
+    var bt=el("button","f"+(k==="all"?" on":""),(k==="all"?"All":ST[k])+" "+n);fs[k]=bt;bt.onclick=function(){cur=k;Object.keys(fs).forEach(function(x){fs[x].classList.toggle("on",x===k)});apply()};tools.appendChild(bt)});
+  var ea=el("button","btn","Expand all"),ca=el("button","btn","Collapse all");
+  ea.onclick=function(){Object.keys(reqEls).forEach(function(k){reqEls[k].classList.add("open")})};ca.onclick=function(){Object.keys(reqEls).forEach(function(k){reqEls[k].classList.remove("open")})};
+  add(tools,ea,ca);sec.appendChild(tools);
+  var list=el("div");D.reqs.forEach(function(r){list.appendChild(buildReq(r))});sec.appendChild(list);
+  var empty=el("div","none","No requirement matches.");empty.hidden=true;sec.appendChild(empty);
+  function apply(){var q=inp.value.trim().toLowerCase(),n=0;D.reqs.forEach(function(r){var ok=(cur==="all"||r.status===cur)&&(!q||r.text.toLowerCase().indexOf(q)>=0);reqEls[r.id].hidden=!ok;if(ok)n++});empty.hidden=n>0}
+  inp.oninput=apply;app.appendChild(sec);
+  var first=D.reqs.filter(function(r){return r.status!=="done"})[0]||D.reqs[0];if(first&&reqEls[first.id])first&&reqEls[first.id].classList.add("open");
+})();
+
+/* ---------- scope creep ---------- */
+(function(){
+  var sec=el("section","fade");sec.id="creep";
+  add(sec,el("h2",null,"Possible scope creep"),el("p","sub","Hunks (not tests or docs) that no requirement claims. These are candidates, not findings: precision is low, so a human should look."));
+  if(!D.creep.length)sec.appendChild(el("div","card pad none","None flagged."));
+  else{var l=el("div","creepl");D.creep.forEach(function(c){var it=el("div","it"),e=evidenceBlock({hunk:c.hunk,relevance:c.relevance,quotes:[]});e.style.margin="0";e.style.border="0";it.appendChild(e);l.appendChild(it)});sec.appendChild(l)}
+  app.appendChild(sec);
+})();
+
+/* ---------- limits ---------- */
+(function(){
+  var sec=el("section","fade"),card=el("div","card pad");
+  add(sec,el("h2",null,"What this report can and cannot tell you"));
+  var ul=el("ul","notes");
+  ["Evidence is extractive: every line shown exists in the cited hunk, and the verifier turns any verdict whose hunk ids or quotes do not exist into Unclear.",
+   "The verdict itself comes from an LLM judge that sees only the top-ranked hunks per requirement, so a requirement implemented elsewhere can read as Missing. Treat Missing as a prompt to look, not a proof.",
+   "The benchmark behind this tool is small and labelled by one person; see docs/RESULTS.md for numbers and intervals.",
+   "This tool never approves or blocks a merge."].forEach(function(t){ul.appendChild(el("li",null,t))});
+  card.appendChild(ul);sec.appendChild(card);app.appendChild(sec);
+})();
+document.getElementById("foot").textContent=D.run_info||"";
+
+/* ---------- reveal on scroll ---------- */
+var io="IntersectionObserver" in window?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.04}):null;
+document.querySelectorAll(".fade").forEach(function(n,i){if(io){n.style.transitionDelay=Math.min(i,6)*40+"ms";io.observe(n)}else n.classList.add("in")});
+})();
+</script>
+</body>
+</html>
+"""

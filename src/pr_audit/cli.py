@@ -17,6 +17,7 @@ def main() -> None:
 def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         ask_file: Path = typer.Option(None, "--ask-file", help="Text file with the ask (e.g. the prompt you gave an agent)"),
         out: Path = typer.Option(Path("report.md"), "--out"),
+        html: Path = typer.Option(None, "--html", help="Also write a self-contained HTML report (score breakdown + evidence viewer)"),
         models: Path = typer.Option(ROOT / "models", "--models"),
         local: bool = typer.Option(False, "--local", help="Use only our local models (no LLM calls; weak at within-PR judging)"),
         retrieval: str = typer.Option("auto", "--retrieval", help="auto | model | lexical. lexical = word overlap, no model files needed")):
@@ -63,7 +64,12 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
                 raise typer.BadParameter("lexical retrieval needs an LLM judge: set GEMINI_API_KEY and/or GROQ_API_KEY")
             typer.echo("no GEMINI_API_KEY / GROQ_API_KEY found: falling back to local models only (weak within-PR)")
     audit = run_audit(bundle, scorer, clf, tau=cfg["tau"], band=cfg["band"], judge=judge)
-    out.write_text(render_markdown(audit, f"mode: {mode}; retrieval: {'lexical word overlap' if use_lexical else 'trained CodeBERT relevance model'}"), encoding="utf-8")
+    info = f"mode: {mode}; retrieval: {'lexical word overlap' if use_lexical else 'trained CodeBERT relevance model'}"
+    out.write_text(render_markdown(audit, info), encoding="utf-8")
+    if html:
+        from .html_report import render_html
+        html.write_text(render_html(audit, info), encoding="utf-8")
+        typer.echo(f"html: {html}")
     typer.echo(f"rank: {audit.rank} ({audit.band}) -> {out}")
 
 
