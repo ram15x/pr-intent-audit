@@ -19,3 +19,4 @@ report*.md
 report*.html
 
 .pr-audit/
+bench/gold/REVIEW_LOCAL.md
