@@ -15,7 +15,8 @@ pr-audit run https://github.com/ztrange/veri/pull/2693 --out report.md
 
 1. **Ingest** the PR through the GitHub API; PR and issue text is treated as untrusted data.
 2. **Split** the ask into requirements (rule-based; weak on free-form prose, see below).
-3. **Retrieve** candidate hunks per requirement with a CodeBERT cross-encoder we trained (`bench/train_relevance.py`).
+3. **Retrieve** candidate hunks per requirement. The default is IDF word overlap (no model files). A CodeBERT cross-encoder
+   we trained (`bench/train_relevance.py`) is optional and measured no better (see the retrieval table below).
 4. **Judge** each requirement on its top-5 hunks with an LLM (Gemini / Groq free tiers), JSON-only, temperature 0.
 5. **Verify** deterministically: every cited hunk must exist and every quoted line must appear in it. Otherwise the
    verdict is downgraded to `unclear`. Evidence in the report is therefore real diff text.
@@ -54,13 +55,15 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 
 | retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks |
 |---|---|---|---|---|
-| lexical (IDF overlap) | 0.53 | 0.855 | 0.94 [0.87, 0.97] | 0.8 |
+| lexical (IDF overlap) | 0.518 | 0.855 | 0.94 [0.87, 0.97] | 0.8 |
 | lexical, full hunk text | 0.566 | 0.904 | 0.928 [0.85, 0.97] | 0.7 |
 | bm25 | 0.59 | 0.807 | 0.855 [0.76, 0.92] | 0.45 |
 | bm25, full hunk text | 0.627 | 0.88 | 0.916 [0.84, 0.96] | 0.65 |
 | fusion lexical+bm25 | 0.566 | 0.843 | 0.916 [0.84, 0.96] | 0.7 |
 | bm25 + named identifiers/paths (full text) | 0.699 | 0.892 | 0.94 [0.87, 0.97] | 0.75 |
-| lexical + named identifiers/paths | 0.614 | 0.867 | 0.94 [0.87, 0.97] | 0.8 |
+| lexical + named identifiers/paths | 0.602 | 0.867 | 0.94 [0.87, 0.97] | 0.8 |
+| CodeBERT cross-encoder (ours) | 0.53 | 0.759 | 0.892 [0.81, 0.94] | 0.6 |
+| fusion CodeBERT+lexical | 0.554 | 0.855 | 0.952 [0.88, 0.98] | 0.8 |
 
 Random ranking would reach hit@5 = 0.752 overall (most gold PRs are small) and 0.191 on the large ones, so only the large-PR column discriminates, and with n=20 one requirement is 5 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.
 <!-- RESULTS:END -->

@@ -116,3 +116,9 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 - With the large-PR sample doubled (n=10 -> 20), the earlier reading changed: plain BM25 on large PRs is the worst (hit@5 0.45 vs 0.80 for lexical; random 0.19), and BM25+identifiers (0.75) / lexical+identifiers (0.80) are close to lexical. The earlier "BM25+identifiers 0.60 vs BM25 0.50 vs lexical 0.70" ordering was noise, which is why single-digit-n comparisons were labelled hypotheses.
 - CodeBERT rows were dropped from `retrieval.json` because the gold set changed and this machine has no torch; the owner needs to re-run `python bench\eval_retrieval.py` for them. Earlier CodeBERT numbers (n=73) are in entry (e).
 - Lexical stays the default. No retrieval change is adopted.
+
+## 2026-11-26 (g) — CodeBERT re-measured on the larger gold set: no better than word overlap
+
+- Same 83 requirements (20 on large PRs). CodeBERT alone: hit@1 0.53, hit@3 0.76, hit@5 0.89, large-PR hit@5 0.60. Lexical: 0.52 / 0.85 / 0.94 / 0.80. Fusion CodeBERT+lexical: 0.55 / 0.85 / 0.95 / 0.80, i.e. equal to lexical on large PRs.
+- The "CodeBERT+lexical fusion looks best" reading in entry (e) (hit@5 0.97, large 0.80 on n=10) did not hold up on the larger sample. It was noise.
+- Conclusion: the trained retriever has no demonstrated advantage over word overlap and is worse on its own. Lexical stays the default; CodeBERT stays an optional, documented negative result. No further model training.
