@@ -161,3 +161,10 @@ Causes seen in the misses:
 - **Docs/instruction files outranking code** in repos that ship many markdown instruction files (opnDossier, upm-entrepreneurship-platform).
 
 Decision: no retrieval change. A path-type prior (down-weight docs/SQL data) would fit these 8 cases but I have no held-out large PRs to check it against, so it would be tuned on the test set. Revisit when the large gold set is bigger. The escalating judge (top-12) is the existing mitigation and is still unmeasured, pending Groq quota.
+
+## (n) Large-PR gold 11 PRs / 47 requirements; retrieval re-read at n=40 large-PR requirements
+
+Added gauss-quad/141 (Apache-2.0, 7 requirements) and StudyConnect-ZHAW/Backend/109 (MIT, 5 requirements); Claude drafts, unreviewed. Four StudyConnect requirements are plain "done"; R1, R2 and R4 are low confidence (vague wording, or the DTO exposes a User object rather than a bare id).
+- Retrieval (n=103 requirements, 40 on large PRs, random 0.23 on large): lexical 0.72, lexical+identifiers 0.72, BM25+identifiers 0.72, fusion 0.70, BM25 full text 0.68, lexical full text 0.65, BM25 0.57.
+- What changed: at n=28 plain BM25 was clearly worst (0.46) and lexical-based variants led. At n=40 the best variants tie at 0.72 and BM25 on full text (0.68) is close. The earlier ordering claim "lexical beats BM25" is weaker than I said; differences of 0.04 on n=40 are about one or two requirements.
+- Decision unchanged: lexical stays the default (simplest, no dependency, tied for best), but no variant is shown to be better. CodeBERT rows are still missing (no torch here).

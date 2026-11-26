@@ -710,5 +710,177 @@
   "reviewed_by_human": false,
   "labeled_by": "claude",
   "license": "Apache-2.0"
+ },
+ {
+  "pr": "https://github.com/DomiDre/gauss-quad/pull/141",
+  "title": "Create version 0.3.0",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "Apache-2.0",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Sorting the nodes and weights in increasing order by the nodes",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:2-33",
+     "src/chebyshev/mod.rs:219-290",
+     "src/hermite/mod.rs:79-104",
+     "src/jacobi/mod.rs:137-157",
+     "src/laguerre/mod.rs:99-112",
+     "src/legendre/mod.rs:160-202"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "No longer allocating any memory in `Simpson` or `Midpoint`.",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:2-33",
+     "src/midpoint/mod.rs:36-71",
+     "src/simpson/mod.rs:29-63"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Quadrature rules can now accept a degree of 1 (#115). As a result all rule constructors take the degree as a `NonZeroUsize`.",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:2-33",
+     "src/chebyshev/mod.rs:4-15",
+     "src/hermite/mod.rs:24-30",
+     "src/jacobi/mod.rs:22-32",
+     "src/laguerre/mod.rs:5-29",
+     "src/legendre/mod.rs:32-38"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "The rules that take an extra parameter have the same requirements on that parameter. As a result they take a newtype",
+    "status": "done",
+    "hunks": [
+     "src/data_api.rs:9-184",
+     "src/data_api.rs:641-728",
+     "src/jacobi/mod.rs:22-32",
+     "src/laguerre/mod.rs:5-29"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "The above two points mean that all constructors just return the rule itself, no `Result` or `Option`.",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:2-33",
+     "src/chebyshev/mod.rs:19-48",
+     "src/legendre/mod.rs:41-75"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 6,
+    "text": "The quadrature rules that store data on the heap now do so in a boxed slice instead of a `Vec`, this shrinks their stack size without trade-offs.",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:2-33",
+     "src/chebyshev/mod.rs:19-48",
+     "src/hermite/mod.rs:32-55",
+     "src/laguerre/mod.rs:32-55",
+     "src/legendre/mod.rs:41-75"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 7,
+    "text": "Add the trapezoidal rule.",
+    "status": "done",
+    "hunks": [
+     "CHANGELOG.md:2-33",
+     "src/lib.rs:10-43",
+     "src/trapezoid/mod.rs:1-147"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "pr": "https://github.com/StudyConnect-ZHAW/Backend/pull/109",
+  "title": "Fix/#107 hotfix groups post comments",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "MIT",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Ensure consistent use of datetime format (preferably with the \"Z\" suffix for UTC).",
+    "status": "done",
+    "hunks": [
+     "StudyConnect.Data/ModelMapper.cs:48-70",
+     "StudyConnect.Data/Repositories/CommentRepository.cs:244-251"
+    ],
+    "note": "ToUniversalTime only seen on group/comment mapping",
+    "confidence": "low"
+   },
+   {
+    "id": 2,
+    "text": "Handle incorrect response types in group and post endpoints.",
+    "status": "done",
+    "hunks": [
+     "StudyConnect.API/Controllers/Group/GroupController.cs:63-79",
+     "StudyConnect.API/Controllers/Group/GroupController.cs:88-99",
+     "StudyConnect.API/Controllers/Group/GroupController.cs:126-141",
+     "StudyConnect.API/Controllers/Group/GroupController.cs:151-164"
+    ],
+    "note": "vague requirement",
+    "confidence": "low"
+   },
+   {
+    "id": 3,
+    "text": "Add validation for content length during Comment and Post creation.",
+    "status": "done",
+    "hunks": [
+     "StudyConnect.API/Dtos/Requests/Forum/CommentCreateDto.cs:16-21",
+     "StudyConnect.API/Dtos/Requests/Forum/PostCreateDto.cs:11-17",
+     "StudyConnect.API/Dtos/Requests/Forum/PostCreateDto.cs:23-29"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Include the user ID in Post and Comment DTOs.",
+    "status": "done",
+    "hunks": [
+     "StudyConnect.API/Dtos/Responses/Forum/CommentsReadDto.cs:31-37",
+     "StudyConnect.API/Dtos/Responses/Forum/PostReadDto.cs:50-55"
+    ],
+    "note": "DTO exposes a User object, not a bare id",
+    "confidence": "low"
+   },
+   {
+    "id": 5,
+    "text": "Return owner information in the Group GET endpoints.",
+    "status": "done",
+    "hunks": [
+     "StudyConnect.API/Dtos/Responses/Group/GroupReadDto.cs:13-35",
+     "StudyConnect.Data/ModelMapper.cs:48-70",
+     "StudyConnect.Data/Repositories/GroupRepository.cs:19-48",
+     "StudyConnect.Data/Repositories/GroupRepository.cs:135-149",
+     "StudyConnect.Data/Repositories/GroupRepository.cs:212-231"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ]
  }
 ]
