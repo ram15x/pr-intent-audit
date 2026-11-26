@@ -64,3 +64,12 @@ Acceptance:
     assert [(x.text, x.optional) for x in r] == [("Split the vendor bundle with manualChunks", True),
                                                ("Lazy-load routes", True),
                                                ("The build no longer warns about chunk size", False)]
+
+
+def test_emoji_heading_repro_steps_and_template_noise_are_dropped():
+    from pr_audit.requirements import split_requirements
+    txt = ("### 🪜 How to reproduce\n1. Go to the page\n2. Hover over the button\n### Expected behaviour\n- The icon should lighten when hovered\n"
+           "- **Python version**: 3.6.2\n- **Testing**: Relevant tests have passed.\n- Please run the following to update the config:\n- **Fix**: add the cache layer")
+    got = [r.text for r in split_requirements(txt)]
+    assert "**Fix**: add the cache layer" in got
+    assert not any("Go to" in t or "Hover over" in t or "Python version" in t or "Relevant tests" in t or "Please run" in t for t in got)

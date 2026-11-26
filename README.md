@@ -114,8 +114,9 @@ penalty), a map of which hunks back which requirement, and for every verdict the
   (duplicate files, requirements satisfied elsewhere), so catch rates are likely underestimates by an unknown amount.
 - **Requirement splitting is weak.** Checklists work; prose and issue templates produce non-requirements. Measured on
   the gold PRs by `bench/eval_splitter.py` (`bench/results/splitter.json`): about 4 in 5 outputs that gold covers are
-  real requirements after the noise rules, up from about 3 in 4 before. That score is in-sample (the rules were written
-  after reading those PRs), so expect worse on new PRs. Lists of "possible approaches" are flagged optional and a
+  real requirements after the noise rules (72 of 86 outputs), up from about 3 in 4 before. That score is in-sample (the rules,
+  including the later ones for definition-of-done templates, environment key/values and emoji "How to reproduce" headings,
+  were written after reading those PRs), so expect worse on new PRs. Lists of "possible approaches" are flagged optional and a
   missing option is not counted as a gap.
 - **English, public repos only.** Non-English asks are mostly `unclear`. Judging used mostly Groq gpt-oss-120b because
   the Gemini free quota ran out repeatedly.

@@ -40,3 +40,16 @@ def test_bracketed_and_file_only_ids_and_trailing_comma():
     assert judge_requirement(byfile, 1, "add login", H).verdict == Verdict.done
     fake = lambda p: json.dumps({"verdict": "done", "hunk_ids": ["nope.py"], "quotes": ["return True"], "reason": "x"})
     assert judge_requirement(fake, 1, "add login", H).verdict == Verdict.unclear
+
+
+def test_ambiguous_file_citation_resolves_only_via_a_real_quote():
+    import json
+    from pr_audit.judge import judge_requirement
+    from pr_audit.schemas import Hunk, Verdict
+    h1 = Hunk(id="f.yml:1-5", file="f.yml", start=1, end=5, added=["alpha: 1"], text="+alpha: 1")
+    h2 = Hunk(id="f.yml:20-25", file="f.yml", start=20, end=25, added=["placeholder: |"], text="+placeholder: |")
+    ok = lambda p: json.dumps({"verdict": "done", "hunk_ids": ["f.yml"], "quotes": ["+ placeholder: |"], "reason": "x"})
+    j = judge_requirement(ok, 1, "add placeholder", [h1, h2])
+    assert j.verdict == Verdict.done and j.hunk_ids == ["f.yml:20-25"]
+    bad = lambda p: json.dumps({"verdict": "done", "hunk_ids": ["f.yml"], "quotes": ["+ invented line"], "reason": "x"})
+    assert judge_requirement(bad, 1, "add placeholder", [h1, h2]).verdict == Verdict.unclear

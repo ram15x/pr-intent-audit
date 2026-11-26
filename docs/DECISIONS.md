@@ -122,3 +122,8 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 - Same 83 requirements (20 on large PRs). CodeBERT alone: hit@1 0.53, hit@3 0.76, hit@5 0.89, large-PR hit@5 0.60. Lexical: 0.52 / 0.85 / 0.94 / 0.80. Fusion CodeBERT+lexical: 0.55 / 0.85 / 0.95 / 0.80, i.e. equal to lexical on large PRs.
 - The "CodeBERT+lexical fusion looks best" reading in entry (e) (hit@5 0.97, large 0.80 on n=10) did not hold up on the larger sample. It was noise.
 - Conclusion: the trained retriever has no demonstrated advantage over word overlap and is worse on its own. Lexical stays the default; CodeBERT stays an optional, documented negative result. No further model training.
+
+## 2026-11-26 (h) — Verifier audit on cached judgments; splitter noise rules
+
+- Of 34 cached judgments reachable with lexical top-5 prompts (63 more prompts were not cached), the verifier downgraded 5 "done" verdicts to unclear. Inspection: in 4 the quoted lines do not exist anywhere in the PR (invented or truncated by the judge), so the downgrade was correct; in 1 the judge cited a file path that matched several hunks. Fix: a bare file path is now resolved to the hunks of that file that contain a quoted line (no quote, no resolution). Now 4 downgrades; verdicts and prompts are unchanged, so the cache stays valid. Small sample, so no rate is claimed.
+- Splitter: added rules for definition-of-done template items, short environment key/values (`**Python version**: 3.6.2`), "please run/update..." instructions, and `### 🪜 How to reproduce` style headings (emoji broke the heading match). Gold requirements still produced 72/72; precision on gold-covered outputs 72/86 (0.84), in-sample.

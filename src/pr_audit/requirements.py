@@ -10,7 +10,7 @@ from .schemas import Requirement
 # Sections that describe the reporter's setup, not the ask.
 SKIP_HEADINGS = re.compile(
     r"^(environment|env|system info|versions?|logs?|stack ?trace|traceback|screenshots?|"
-    r"additional context|checklist before|reproduc\w*|steps to reproduce|"
+    r"additional context|checklist before|reproduc\w*|steps to reproduce|how to reproduce|"
     r"os|platform|configuration|labels?)\b", re.I)
 CHECKBOX = re.compile(r"^\s*[-*]\s*\[( |x|X)\]\s+(.*\S)")
 BULLET = re.compile(r"^\s*(?:[-*]|\d+[.)])\s+(.*\S)")
@@ -26,6 +26,10 @@ NOISE = re.compile(
     r"|#\d+\b|[A-Z][A-Z0-9]+-\d+\b.{0,25}$"
     r"|\*\*(?:estimated|actual)\s+hours|\*\*(?:pr link|epic|track|sprint|estimate)\b"
     r"|pull (?:the )?latest\b"
+    r"|\*\*[^*\n]{1,30}\*\*\s*:\s*v?[\w.+-]{1,20}$"                       # '**Python version**: 3.6.2' (environment key/value)
+    r"|\*\*(?:code completion|testing|peer review|documentation|deployment readiness)\*\*\s*:"   # definition-of-done template
+    r"|please (?:run|update|install|note|see)\b"                                # instructions to the reader, not code requirements
+    r"|(?:the )?(?:pr|pull request|changes?) (?:is|are) (?:tagged|compliant)\b|(?:the )?(?:charm )?style guide was\b|(?:the )?contributing guide was\b"
     r"|bug fix \(|new feature \(|breaking change \(|reviewer has tested|all new and existing tests)", re.I)
 REVIEWED_BY = re.compile(r"\b(?:reviewed|approved) by\b", re.I)
 # A plain line that introduces alternatives: bullets under it are options, not obligations.
@@ -50,7 +54,8 @@ def clean_ask(text: str) -> str:
             continue
         m = re.match(r"^#{1,6}\s*(.+)", line)
         if m:
-            skipping = bool(SKIP_HEADINGS.match(m.group(1).strip()))
+            skipping = bool(SKIP_HEADINGS.match(re.sub(r"^[^\w]+", "", m.group(1)).strip()))   # '### 🪜 How to reproduce'
+
             if not skipping:
                 out.append(line)
             continue

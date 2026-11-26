@@ -52,16 +52,25 @@ def build_prompt(req: str, hunks: list[Hunk], per_hunk: int = 3500, total: int =
     return PROMPT.format(req=req.strip()[:600], hunks=body)
 
 
-def _resolve_ids(ids: list[str], hunks: list[Hunk]) -> list[str]:
+def _resolve_ids(ids: list[str], hunks: list[Hunk], quotes: list[str] | None = None) -> list[str]:
+    """Map what the model cited onto real hunk ids. A bare file path that matches several hunks is resolved to the
+    hunks of that file that actually contain one of the quoted lines (never guessed without a quote)."""
+    from .verify import quotes_in
     known, out = {h.id for h in hunks}, []
     for raw in ids:
         s = raw.strip().strip("[]").strip()
         if s in known:
             out.append(s)
             continue
-        by_file = [h.id for h in hunks if s and (h.file == s or s.endswith(h.file) or h.file.endswith(s))]
-        out.append(by_file[0] if len(by_file) == 1 else s)      # ambiguous/unknown stays as-is and fails verification
-    return out
+        by_file = [h for h in hunks if s and (h.file == s or s.endswith(h.file) or h.file.endswith(s))]
+        if len(by_file) == 1:
+            out.append(by_file[0].id)
+        elif len(by_file) > 1 and quotes:
+            hit = [h.id for h in by_file if quotes_in(h, quotes)]
+            out.extend(hit or [s])
+        else:
+            out.append(s)                 # ambiguous/unknown stays as-is and fails verification
+    return list(dict.fromkeys(out))
 
 
 def judge_requirement(llm, req_id: int, req: str, hunks: list[Hunk], verify: bool = True) -> Judgment:
@@ -69,7 +78,7 @@ def judge_requirement(llm, req_id: int, req: str, hunks: list[Hunk], verify: boo
         raw = llm(build_prompt(req, hunks))
         d = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
         j = Judgment(req_id=req_id, verdict=Verdict(d.get("verdict", "unclear")),
-                     hunk_ids=_resolve_ids([str(x) for x in d.get("hunk_ids", [])][:5], hunks),
+                     hunk_ids=_resolve_ids([str(x) for x in d.get("hunk_ids", [])][:5], hunks, [str(x) for x in d.get("quotes", [])][:5]),
                      quotes=[str(x) for x in d.get("quotes", [])][:5], reason=str(d.get("reason", ""))[:300])
     except Exception as e:      # model error / bad JSON / timeout -> unclear, never a silent pass
         return Judgment(req_id=req_id, verdict=Verdict.unclear, reason=f"judge error: {type(e).__name__}: {str(e)[:160]}")

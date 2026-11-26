@@ -1,9 +1,9 @@
 {
- "out": 75,
- "matched": 73,
- "real": 59,
- "gold_real": 59,
- "kept": 59,
- "precision_on_matched": 0.808,
+ "out": 88,
+ "matched": 86,
+ "real": 72,
+ "gold_real": 72,
+ "kept": 72,
+ "precision_on_matched": 0.837,
  "note": "in-sample: noise rules were written after reading these gold PRs; not a held-out score"
 }
