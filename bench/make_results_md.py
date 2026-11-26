@@ -66,16 +66,17 @@ rp = R / "retrieval.json"
 if rp.exists():
     _r = json.loads(rp.read_text(encoding="utf-8"))
     L += ["", f"### Retrieval only: is the right hunk in the top k? ({_r['n_requirements']} gold requirements, {_r['n_prs']} PRs; no LLM involved)", "",
-          "| retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks (n=10) |", "|---|---|---|---|---|"]
+          "| retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks |", "|---|---|---|---|---|"]
     for name, v in _r["variants"].items():
         big = v.get("hit@5_big_prs", {})
         L.append(f"| {name} | {v['hit@1']['value']} | {v['hit@3']['value']} | {v['hit@5']['value']} {v['hit@5']['ci']} | {big.get('value', 'n/a')} |")
     _v = next(iter(_r["variants"].values()))
+    _nb = _v["hit@5_big_prs"]["n"]
     L += ["", f"Random ranking would reach hit@5 = {_v['hit@5']['random_baseline']} overall (most gold PRs are small) and "
-          f"{_v['hit@5_big_prs']['random_baseline']} on the large ones, so only the large-PR column discriminates, and with n=10 a "
-          "difference of one or two requirements is noise. No gold PR was in the CodeBERT training set (gold PRs were held out). "
-          "Reading: our trained retriever is not better than word-overlap or BM25 on its own; the CodeBERT+lexical fusion is nominally "
-          "best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result. Boosting BM25 / word overlap with identifiers the requirement names verbatim (backticked names, file paths, snake_case/camelCase; fixed weights chosen before looking at the results) raised hit@1 from 0.66 to 0.73 and 0.59 to 0.67 with no loss at hit@5; that is about 5 of 73 requirements and does not help on large PRs, so it is a candidate, not an established gain."]
+          f"{_v['hit@5_big_prs']['random_baseline']} on the large ones, so only the large-PR column discriminates, and with n={_nb} one requirement is "
+          f"{round(100 / _nb)} points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; "
+          "no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; "
+          "weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains."]
 OUT.write_text("\n".join(L) + "\n", encoding="utf-8")
 txt = "\n".join(L)
 RM = OUT.parents[1] / "README.md"

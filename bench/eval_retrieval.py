@@ -89,7 +89,11 @@ if __name__ == "__main__":
     print("random hit@5:", res["variants"]["lexical (IDF overlap)"]["hit@5"]["random_baseline"], "| n =", len(cases))
     out_p = ROOT / "bench/results/retrieval.json"
     if out_p.exists():      # keep rows from an earlier run that this machine cannot reproduce (e.g. CodeBERT without torch)
-        for name, v in json.loads(out_p.read_text(encoding="utf-8")).get("variants", {}).items():
+        prev = json.loads(out_p.read_text(encoding="utf-8"))
+        if prev.get("n_requirements") != res["n_requirements"]:
+            print("NOTE: the gold set changed since the earlier run; rows that need torch (CodeBERT) are dropped, re-run on a machine with torch")
+            prev = {}
+        for name, v in prev.get("variants", {}).items():
             if name not in res["variants"]:
                 res["variants"][name] = v
                 print(f"(kept from earlier run: {name})")

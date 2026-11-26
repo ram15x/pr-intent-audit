@@ -48,7 +48,7 @@
  },
  {
   "pr": "https://github.com/daniela-tio/project-relay/pull/48",
-  "title": "chore: sets up Django project with modular apps and enviroment settin\u2026",
+  "title": "chore: sets up Django project with modular apps and enviroment settin…",
   "requirements": [
    {
     "id": 1,
@@ -169,6 +169,375 @@
     "note": ""
    }
   ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/Ikey168/Noesis/pull/285",
+  "title": "Airflow ↔ MLflow glue - Issue #225",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "airflow/plugins/mlflow_callbacks.py",
+    "status": "done",
+    "hunks": [
+     "airflow/plugins/mlflow_callbacks.py:1-484"
+    ],
+    "confidence": "medium",
+    "note": "the ask names the deliverable file; it is added"
+   },
+   {
+    "id": 2,
+    "text": "On DAG start, set an MLflow parent run with tags: dag_id, run_id, execution_date.",
+    "status": "done",
+    "hunks": [
+     "airflow/plugins/mlflow_callbacks.py:1-484"
+    ],
+    "confidence": "medium",
+    "note": "on_dag_start creates the parent run with dag_id, run_id, execution_date tags"
+   },
+   {
+    "id": 3,
+    "text": "Child tasks log metrics under nested runs (or as tags/artifacts).",
+    "status": "done",
+    "hunks": [
+     "airflow/plugins/mlflow_callbacks.py:1-484"
+    ],
+    "confidence": "medium",
+    "note": "on_task_start creates nested child runs; metrics/tags logged"
+   },
+   {
+    "id": 4,
+    "text": "Respect MLFLOW_DISABLED=true env to turn off in CI.",
+    "status": "done",
+    "hunks": [
+     "airflow/plugins/mlflow_callbacks.py:1-484"
+    ],
+    "confidence": "high",
+    "note": "MLFLOW_DISABLED=true check in _is_mlflow_enabled"
+   },
+   {
+    "id": 5,
+    "text": "Triggering news_pipeline produces an MLflow parent run with child entries.",
+    "status": "done",
+    "hunks": [
+     "airflow/dags/news_pipeline.py:28-36",
+     "airflow/dags/news_pipeline.py:491-499",
+     "airflow/plugins/mlflow_callbacks.py:1-484"
+    ],
+    "confidence": "medium",
+    "note": "DAG is wired to the callbacks in news_pipeline.py; end-to-end behaviour not verifiable from the diff"
+   }
+  ],
+  "creep_hunks": [
+   {
+    "hunk": "_mlruns_ci/0/meta.yaml:1-6",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/303720245422693958/meta.yaml:1-6",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/artifacts/evaluation_results/tmpw5zy7ttg.csv:1-3",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/meta.yaml:1-14",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_answer_f1:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_mrr:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_ndcg_at_1:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_ndcg_at_3:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_query_time_ms:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_recall_at_1:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_recall_at_3:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/avg_retrieved_docs:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/queries_evaluated:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/metrics/total_evaluation_time_s:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/environment:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/experiment_name:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/fusion_weight_keyword:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/fusion_weight_semantic:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/git_branch:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/git_sha:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/hostname:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/k_values:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/max_k:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/rag_answer_provider:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/rag_default_k:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/rag_fusion_enabled:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/reranker_enabled:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/params/run_name:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/code_version:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/data_version:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/description:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/env:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/git.branch:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/git.sha:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/hostname:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/mlflow.runName:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/mlflow.source.git.commit:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/mlflow.source.name:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/mlflow.source.type:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/mlflow.user:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/c7f4266d1e6f4fa79a09786bdac419d2/tags/pipeline:1-1",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   },
+   {
+    "hunk": "_mlruns_ci/390175407796713606/meta.yaml:1-6",
+    "confidence": "medium",
+    "note": "committed MLflow run output from a CI/local run, not source"
+   }
+  ],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/bec-project/bec_widgets/pull/686",
+  "title": "Feat: edit device config through the device browser",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "add a button to open a dialog to edit the device config, generic and such that it can be reused in #495",
+    "status": "done",
+    "hunks": [
+     "bec_widgets/widgets/services/device_browser/device_item/device_item.py:43-71",
+     "bec_widgets/widgets/services/device_browser/device_item/device_config_dialog.py:1-254",
+     "bec_widgets/widgets/services/device_browser/device_item/device_item.py:3-29"
+    ],
+    "confidence": "high",
+    "note": "edit button in DeviceItem opens the new DeviceConfigDialog"
+   },
+   {
+    "id": 2,
+    "text": "add toggles to enable and disable the devices",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "a Toggle bool form item and ToggleSwitch.setChecked/isChecked are added, but no hunk adds enable/disable toggles to the device browser itself"
+   },
+   {
+    "id": 3,
+    "text": "global lock on toggles for enable/disable",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "low",
+    "note": "no hunk adds a lock; the word does not appear in non-test hunks"
+   },
+   {
+    "id": 4,
+    "text": "add a widget to `TypedForm` to edit lists, for use with device tags",
+    "status": "done",
+    "hunks": [
+     "bec_widgets/utils/forms_from_types/items.py:350-612"
+    ],
+    "confidence": "high",
+    "note": "ListFormItem added to the typed form items"
+   },
+   {
+    "id": 5,
+    "text": "move config view into tab for later expansion with signal display",
+    "status": "missing",
+    "hunks": [],
+    "confidence": "medium",
+    "note": "no tab widget appears in any hunk; DeviceItem still embeds DeviceConfigForm directly"
+   }
+  ],
+  "creep_hunks": [],
+  "reviewed_by_human": false,
+  "labeled_by": "claude"
+ },
+ {
+  "pr": "https://github.com/juntagrico/juntagrico-paas/pull/19",
+  "title": "Staging and V2",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "apply migrations after re-cloning DB.",
+    "status": "done",
+    "hunks": [
+     "adminconsole/management/commands/clone_db.py:1-75"
+    ],
+    "confidence": "high",
+    "note": "clone_db.py applies migrations after cloning"
+   },
+   {
+    "id": 2,
+    "text": "Expose V2-Upgrade option to users",
+    "status": "done",
+    "hunks": [
+     "adminconsole/management/commands/redeploy.py:1-77",
+     "adminconsole/urls.py:32-67",
+     "adminconsole/views/v2.py:1-118",
+     "adminconsole/templates/overview.html:8-207"
+    ],
+    "confidence": "medium",
+    "note": "upgrade URL + view + redeploy --upgrade + overview button"
+   },
+   {
+    "id": 3,
+    "text": "Make new apps V2 by default. Adjust creation workflow.",
+    "status": "done",
+    "hunks": [
+     "adminconsole/models.py:19-85"
+    ],
+    "confidence": "medium",
+    "note": "App.version defaults to 2; creation-workflow changes are spread over views/create.py and util/create_app.py"
+   }
+  ],
+  "creep_hunks": [],
   "reviewed_by_human": false,
   "labeled_by": "claude"
  }

@@ -109,3 +109,10 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 - Scope-creep flags: precision 0.25 at the default threshold against a 0.17 base rate (`bench/eval_creep.py`, 7 positives). Documented as low precision.
 - Identifier boost (named identifiers / file paths in the requirement matched verbatim in the hunk; weights fixed in advance, run once): hit@1 0.66 -> 0.73 (BM25) and 0.59 -> 0.67 (lexical), hit@5 unchanged, large PRs unchanged (0.60 / 0.70). About 5 of 73 requirements, intervals overlap. Not adopted as default; to be tested end to end (judge verdicts) when quota allows.
 - Retrieval scores are now summed in sorted token order, so lexical/BM25 results are deterministic (earlier 0.57 vs 0.59 hit@1 jitter was float summation order over a set).
+
+## 2026-11-26 (f) — Large-PR gold grew 4 -> 7 PRs; retrieval table re-read
+
+- Mining with wider queries added 10 large PRs; 3 were usable and were labelled (Claude draft, unreviewed): Noesis/285, bec_widgets/686, juntagrico-paas/19 (+10 requirements). The other mined PRs were rejected because their "requirements" were checklists, repro steps or unrelated scaffolding.
+- With the large-PR sample doubled (n=10 -> 20), the earlier reading changed: plain BM25 on large PRs is the worst (hit@5 0.45 vs 0.80 for lexical; random 0.19), and BM25+identifiers (0.75) / lexical+identifiers (0.80) are close to lexical. The earlier "BM25+identifiers 0.60 vs BM25 0.50 vs lexical 0.70" ordering was noise, which is why single-digit-n comparisons were labelled hypotheses.
+- CodeBERT rows were dropped from `retrieval.json` because the gold set changed and this machine has no torch; the owner needs to re-run `python bench\eval_retrieval.py` for them. Earlier CodeBERT numbers (n=73) are in entry (e).
+- Lexical stays the default. No retrieval change is adopted.
