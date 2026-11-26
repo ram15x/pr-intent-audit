@@ -35,7 +35,7 @@ def judge_all(llm, scorer, bundle, texts, only=None):
             from pr_audit.judge import judge_with_escalation
             jd = judge_with_escalation(llm, i, t, ranked, verify=CFG["verify"])
         else:
-            jd = judge_requirement(llm, i, t, ranked[:CFG["topk"]], verify=CFG["verify"])
+            jd = judge_requirement(llm, i, t, ranked[:CFG["topk"]], verify=CFG["verify"], context=CFG.get("context", False))
         if jd.reason.startswith("judge error"):
             ERRORS.append(jd.reason)
         out[i] = jd.verdict.value
@@ -108,11 +108,13 @@ if __name__ == "__main__":
     CFG["topk"] = 99 if "all" in args else 5
     CFG["verify"] = "noverify" not in args
     CFG["escalate"] = "escalate" in args
+    CFG["context"] = "context" in args
     tag = ("all" if "all" in args else "top5") + ("" if CFG["verify"] else "_noverify")
     LARGE = "large" in args
     LEX = "lexical" in args
     EXTRA = "extra" in args
     if CFG["escalate"]: tag = "escalate_" + tag
+    if CFG["context"]: tag = "context_" + tag
     if LEX: tag = "lexical_" + tag
     if LARGE: tag = "large_" + tag
     if EXTRA: tag = "extra_" + tag

@@ -24,10 +24,14 @@ For done/partial, cite the hunk ids you rely on and copy 1-3 quoted lines EXACTL
 Reply with JSON only: {{"verdict": "done|partial|missing", "hunk_ids": ["..."], "quotes": ["..."], "reason": "one sentence"}}"""
 
 
-def hunk_view(h: Hunk, req: str, limit: int = 3500) -> str:
-    """Whole hunk if it fits; otherwise the lines most related to the requirement (plus neighbours), in order."""
+def hunk_view(h: Hunk, req: str, limit: int = 3500, context: bool = False) -> str:
+    """Whole hunk if it fits; otherwise the lines most related to the requirement (plus neighbours), in order.
+    context=True shows the diff as git prints it (unchanged neighbour lines with a leading space), not just +/- lines."""
     from .audit import _tokens
-    lines = [f"+ {l}" for l in h.added] + [f"- {l}" for l in h.removed]
+    if context and h.text:
+        lines = [l for l in h.text.splitlines() if not l.startswith("@@")]
+    else:
+        lines = [f"+ {l}" for l in h.added] + [f"- {l}" for l in h.removed]
     full = f"{h.file}\n" + "\n".join(lines)
     if len(full) <= limit:
         return full
@@ -46,9 +50,9 @@ def hunk_view(h: Hunk, req: str, limit: int = 3500) -> str:
     return "\n".join(out)
 
 
-def build_prompt(req: str, hunks: list[Hunk], per_hunk: int = 3500, total: int = 14000) -> str:
+def build_prompt(req: str, hunks: list[Hunk], per_hunk: int = 3500, total: int = 14000, context: bool = False) -> str:
     each = min(per_hunk, max(1200, total // max(1, len(hunks))))
-    body = "\n\n".join(f"[{h.id}]\n{hunk_view(h, req, each)}" for h in hunks)
+    body = "\n\n".join(f"[{h.id}]\n{hunk_view(h, req, each, context)}" for h in hunks)
     return PROMPT.format(req=req.strip()[:600], hunks=body)
 
 
@@ -73,9 +77,9 @@ def _resolve_ids(ids: list[str], hunks: list[Hunk], quotes: list[str] | None = N
     return list(dict.fromkeys(out))
 
 
-def judge_requirement(llm, req_id: int, req: str, hunks: list[Hunk], verify: bool = True) -> Judgment:
+def judge_requirement(llm, req_id: int, req: str, hunks: list[Hunk], verify: bool = True, context: bool = False) -> Judgment:
     try:
-        raw = llm(build_prompt(req, hunks))
+        raw = llm(build_prompt(req, hunks, context=context))
         d = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
         j = Judgment(req_id=req_id, verdict=Verdict(d.get("verdict", "unclear")),
                      hunk_ids=_resolve_ids([str(x) for x in d.get("hunk_ids", [])][:5], hunks, [str(x) for x in d.get("quotes", [])][:5]),

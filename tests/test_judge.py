@@ -76,3 +76,12 @@ def test_escalation_looks_wider_only_after_a_miss_and_never_accepts_unverified()
     # pass 2 with an invented quote must not replace pass 1
     bad = lambda p: json.dumps({"verdict": "done", "hunk_ids": ["f7.py:1-2"], "quotes": ["invented"], "reason": "x"}) if "f7.py" in p else json.dumps({"verdict": "missing", "hunk_ids": [], "quotes": [], "reason": "no"})
     assert judge_with_escalation(bad, 1, "do 7", hs, first_k=5, wide_k=8).verdict == Verdict.missing
+
+
+def test_context_view_shows_unchanged_neighbour_lines():
+    from pr_audit.judge import hunk_view
+    from pr_audit.schemas import Hunk
+    h = Hunk(id="a.py:1-5", file="a.py", start=1, end=5, added=["x = cached()"], removed=[],
+             text="@@ -1,3 +1,4 @@\n def load():\n+    x = cached()\n     return x\n")
+    plain, ctx = hunk_view(h, "load cached"), hunk_view(h, "load cached", context=True)
+    assert "def load():" not in plain and "def load():" in ctx and "@@" not in ctx
