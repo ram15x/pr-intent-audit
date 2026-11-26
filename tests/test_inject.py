@@ -47,3 +47,11 @@ def test_composite_truth():
     assert full.label == Verdict.done and part.label == Verdict.partial
     assert len(part.hunks) == 1 and len(full.hunks) == 2
     assert part.meta["reqs_missing_in_partial"] == ["We should add gamma", "We should add delta"]
+
+
+def test_partial_drop_keeps_some_and_removes_some():
+    from pr_audit.inject import partial_drop
+    assert partial_drop(["a"]) is None and partial_drop(["a", "a"]) is None
+    d = partial_drop(["c", "a", "b", "d"])
+    assert d == {"a", "b"}
+    assert partial_drop(["x", "y"]) == {"x"}

@@ -109,3 +109,14 @@ def build_cases(bundles: list[PRBundle], seed: int = 0) -> list[Case]:
         if p:
             out.append(p)
     return out
+
+
+def partial_drop(hunk_ids: list[str]) -> set[str] | None:
+    """Ids to remove so that a requirement keeps SOME but not ALL of its own hunks (deterministic: first half, sorted).
+
+    Weak truth: the remainder may still satisfy the requirement, so a 'done' after this fault is a miss only if the
+    removed hunks were really needed. bench/eval_partial.py reports it as such, never as exact."""
+    ids = sorted(set(hunk_ids))
+    if len(ids) < 2:
+        return None
+    return set(ids[: len(ids) // 2])

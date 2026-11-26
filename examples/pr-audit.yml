@@ -3,7 +3,7 @@
 #  - Uses `pull_request` (not `pull_request_target`): the audit only reads the diff through the API, it never runs PR code,
 #    but fork PRs get no secrets, so the judge is skipped and the job fails closed (no comment).
 #  - PR text is sent to the judge provider. Free Gemini terms allow Google to train on it: public repos only.
-#  - Retrieval here is lexical word overlap; see docs/RESULTS.md for how it compares with our trained retriever.
+#  - Retrieval here is lexical word overlap; its accuracy versus the trained retriever has not been measured validly yet (see docs/RESULTS.md).
 name: PR Intent Audit
 on:
   pull_request:

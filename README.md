@@ -102,7 +102,7 @@ python bench\train_relevance.py      # CodeBERT cross-encoder -> models/relevanc
 python bench\train_verdict.py        # verdict + scope-creep classifiers -> models/verdict.joblib
 ```
 
-Without `models/`, `pr-audit run` cannot retrieve hunks.
+Without `models/`, use lexical retrieval (the default quick start): `pr-audit run <PR_URL> --retrieval lexical`. It needs a free Groq or Gemini key in `.env`. Whether lexical retrieval matches the CodeBERT retriever is not established yet: the comparison runs were invalid (judge errors) and are not reported.
 
 ## License
 

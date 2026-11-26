@@ -13,6 +13,7 @@ class LLM:
         self.dir = Path(cache_dir); self.dir.mkdir(parents=True, exist_ok=True)
         self.providers = [p for p in providers if os.environ.get(f"{p.upper()}_API_KEY")]
         self.gemini_model: str | None = None
+        self.cool: dict[str, float] = {}     # provider -> skip until (monotonic seconds)
         self.calls = {"cache": 0, "net": 0, "fail": 0}
         self.by_provider: dict[str, int] = {}
         self.http = httpx.Client(timeout=90)
@@ -53,9 +54,11 @@ class LLM:
         if f.exists():
             self.calls["cache"] += 1
             return json.loads(f.read_text(encoding="utf-8"))["text"]
-        last = None
+        last, errs = None, []
         for p in self.providers:
-            for attempt in range(3):
+            if self.cool.get(p, 0) > time.monotonic() and len(self.providers) > 1:
+                errs.append(f"{p} skipped (cooling down after 429)"); continue
+            for attempt in range(6):
                 try:
                     text = self._call(p, prompt)
                     f.write_text(json.dumps({"provider": p, "model": self.gemini_model if p == "gemini" else GROQ_MODEL,
@@ -65,10 +68,21 @@ class LLM:
                     return text
                 except httpx.HTTPStatusError as e:
                     last = f"{p} HTTP {e.response.status_code}"
-                    time.sleep(12 * (attempt + 1) if e.response.status_code in (429, 503) else 1)
+                    errs.append(last)
+                    if e.response.status_code == 429 and p == "gemini" and len(self.providers) > 1:
+                        self.cool[p] = time.monotonic() + 900      # quota exhausted: stop hammering it, use the fallback
+                        break
+                    if e.response.status_code in (429, 503):
+                        try:
+                            wait = float(e.response.headers.get("retry-after", ""))
+                        except ValueError:
+                            wait = 12 * (attempt + 1)
+                        time.sleep(min(max(wait, 5), 70))      # honour the provider's own hint, capped at ~1 minute
+                    else:
+                        time.sleep(1)
                     if e.response.status_code not in (429, 503):
                         break
                 except Exception as e:
-                    last = f"{p} {type(e).__name__}"; break
+                    last = f"{p} {type(e).__name__}"; errs.append(last); break
         self.calls["fail"] += 1
-        raise RuntimeError(f"all providers failed (last: {last})")
+        raise RuntimeError(f"all providers failed (last: {last}; seen: {', '.join(dict.fromkeys(errs))})")
