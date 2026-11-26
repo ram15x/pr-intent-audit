@@ -9,6 +9,7 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 | hybrid: our top-5 hunks + LLM judge + our verifier | 0.966 | 0.824 | 5 | 21/28 | 0.57-0.87 | 15/28 | 1/19 | 0 |
 | hybrid ablation: judge sees all hunks (no retrieval) | 0.963 | 0.839 | 9 | 20/26 | 0.58-0.89 | 16/26 | 2/18 | 0 |
 | hybrid ablation: no verifier | 0.97 | 0.821 | 0 | 19/31 | 0.44-0.76 | 15/31 | 1/26 | 0 |
+| hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.963 | 0.812 | 7 | 18/26 | 0.50-0.83 | 10/26 | 1/22 | 0 |
 
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge calls were mostly Groq gpt-oss-120b.
@@ -21,16 +22,16 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 | large PRs: judge sees all hunks (prompt is length-capped) **(INVALID: 7 judge calls failed, HTTP 413/429)** | 1.0 | 1.0 | 7 | 4/5 | 0.38-0.96 | 2/5 | 0/6 | 7 | {'done': [5, 0, 0, 4], 'partial': [0, 0, 0, 1], 'missing': [0, 0, 1, 2]} |
 | large PRs: top-5, no verifier | 1.0 | 0.778 | 0 | 4/7 | 0.25-0.84 | 2/7 | 2/8 | n/a | {'done': [7, 0, 2, 0], 'partial': [0, 1, 0, 0], 'missing': [0, 0, 3, 0]} |
 
-### Retrieval only: is the right hunk in the top k? (108 gold requirements, 31 PRs; no LLM involved)
+### Retrieval only: is the right hunk in the top k? (124 gold requirements, 35 PRs; no LLM involved)
 
 | retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks |
 |---|---|---|---|---|
-| lexical (IDF overlap) | 0.519 | 0.796 | 0.88 [0.8, 0.93] | 0.733 |
-| lexical, full hunk text | 0.546 | 0.833 | 0.861 [0.78, 0.91] | 0.667 |
-| bm25 | 0.574 | 0.769 | 0.815 [0.73, 0.88] | 0.578 |
-| bm25, full hunk text | 0.583 | 0.796 | 0.852 [0.77, 0.91] | 0.644 |
-| fusion lexical+bm25 | 0.537 | 0.806 | 0.87 [0.79, 0.92] | 0.711 |
-| bm25 + named identifiers/paths (full text) | 0.639 | 0.806 | 0.87 [0.79, 0.92] | 0.689 |
-| lexical + named identifiers/paths | 0.593 | 0.806 | 0.88 [0.8, 0.93] | 0.733 |
+| lexical (IDF overlap) | 0.54 | 0.806 | 0.879 [0.81, 0.93] | 0.77 |
+| lexical, full hunk text | 0.556 | 0.839 | 0.863 [0.79, 0.91] | 0.721 |
+| bm25 | 0.589 | 0.774 | 0.815 [0.74, 0.87] | 0.639 |
+| bm25, full hunk text | 0.597 | 0.798 | 0.847 [0.77, 0.9] | 0.689 |
+| fusion lexical+bm25 | 0.556 | 0.806 | 0.871 [0.8, 0.92] | 0.754 |
+| bm25 + named identifiers/paths (full text) | 0.653 | 0.806 | 0.863 [0.79, 0.91] | 0.721 |
+| lexical + named identifiers/paths | 0.605 | 0.815 | 0.879 [0.81, 0.93] | 0.77 |
 
-Random ranking would reach hit@5 = 0.637 overall (most gold PRs are small) and 0.228 on the large ones, so only the large-PR column discriminates, and with n=45 one requirement is 2 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.
+Random ranking would reach hit@5 = 0.58 overall (most gold PRs are small) and 0.219 on the large ones, so only the large-PR column discriminates, and with n=61 one requirement is 2 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.

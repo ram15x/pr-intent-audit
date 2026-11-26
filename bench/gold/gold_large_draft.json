@@ -954,5 +954,262 @@
     "note": ""
    }
   ]
+ },
+ {
+  "pr": "https://github.com/reductstore/reduct-grafana/pull/28",
+  "title": "JSON editor for queries",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "MIT",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Toolbar includes buttons: extend editor, format, run query",
+    "status": "done",
+    "hunks": [
+     "src/components/QueryHeader.tsx:1-202",
+     "src/components/json-editor/JsonToolbox.tsx:1-162"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Syntax highlighting for JSON",
+    "status": "done",
+    "hunks": [
+     "src/components/json-editor/JsonEditorCore.tsx:1-108"
+    ],
+    "confidence": "medium",
+    "note": "Monaco editor with language=\"json\""
+   },
+   {
+    "id": 3,
+    "text": "Auto-indentation and formatting support",
+    "status": "partial",
+    "hunks": [
+     "src/components/json-editor/JsonEditorCore.tsx:1-108",
+     "src/components/json-editor/JsonToolbox.tsx:1-162"
+    ],
+    "confidence": "low",
+    "note": "a format action exists, but formatOnType/formatOnPaste are set to false"
+   },
+   {
+    "id": 4,
+    "text": "Real-time error detection for invalid JSON",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "JSON diagnostics are set validate:false; conditions are validated server-side instead"
+   },
+   {
+    "id": 5,
+    "text": "Automatic bracket and quote completion",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "no autoClosing option seen in the added lines"
+   }
+  ]
+ },
+ {
+  "pr": "https://github.com/DialmasterOrg/Youtarr/pull/306",
+  "title": "Dark mode",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "ISC",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Implement light and dark theme definitions using MUI ThemeProvider",
+    "status": "done",
+    "hunks": [
+     "client/src/App.tsx:28-36",
+     "client/src/App.tsx:358-380",
+     "client/src/theme.ts:1-223"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Add dark mode toggle switch in Core Settings section",
+    "status": "done",
+    "hunks": [
+     "client/src/components/Configuration/sections/CoreSettingsSection.tsx:11-17",
+     "client/src/components/Configuration/sections/CoreSettingsSection.tsx:283-303",
+     "client/src/App.tsx:85-95"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Convert all hardcoded colors to theme-aware palette tokens throughout app",
+    "status": "done",
+    "hunks": [
+     "client/src/theme.ts:1-223",
+     "client/src/components/DatabaseErrorOverlay.tsx:44-51",
+     "client/src/App.tsx:509-524"
+    ],
+    "confidence": "medium",
+    "note": "'all' cannot be verified from the diff"
+   },
+   {
+    "id": 4,
+    "text": "Dispatch CONFIG_UPDATED_EVENT when configuration is saved to propagate theme changes",
+    "status": "done",
+    "hunks": [
+     "client/src/components/Configuration/hooks/useConfigSave.ts:34-46"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 5,
+    "text": "Update all components (App, ChannelManager, ChannelPage, DatabaseErrorOverlay, DownloadManager, etc.) to use theme-aware styling",
+    "status": "done",
+    "hunks": [
+     "client/src/App.tsx:358-380",
+     "client/src/components/DatabaseErrorOverlay.tsx:11-17",
+     "client/src/components/DatabaseErrorOverlay.tsx:19-25",
+     "client/src/components/DatabaseErrorOverlay.tsx:44-51"
+    ],
+    "confidence": "medium",
+    "note": "'all' cannot be verified from the diff"
+   },
+   {
+    "id": 6,
+    "text": "Add tests for config update event dispatching",
+    "status": "done",
+    "hunks": [
+     "client/src/components/Configuration/hooks/__tests__/useConfigSave.test.ts:3-9",
+     "client/src/components/Configuration/hooks/__tests__/useConfigSave.test.ts:238-275",
+     "client/src/components/Configuration/hooks/__tests__/useConfigSave.test.ts:1040-1078"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "pr": "https://github.com/DialmasterOrg/Youtarr/pull/304",
+  "title": "Advanced settings: proxy and sleep interval",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "ISC",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Add AdvancedSettingsSection for yt-dlp proxy and sleep interval configuration",
+    "status": "done",
+    "hunks": [
+     "client/src/components/Configuration.tsx:18-24",
+     "client/src/components/Configuration.tsx:247-258",
+     "client/src/components/Configuration/sections/AdvancedSettingsSection.tsx:1-116"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Add centralized validation utilities (validateConfig, validateProxyUrl)",
+    "status": "done",
+    "hunks": [
+     "client/src/components/Configuration/utils/__tests__/configValidation.test.ts:1-70",
+     "client/src/components/Configuration/utils/configValidation.ts:1-58"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "Refactor tests to use DEFAULT_CONFIG and improve mocking patterns",
+    "status": "done",
+    "hunks": [
+     "client/src/components/Configuration/hooks/__tests__/useConfigSave.test.ts:2-8",
+     "client/src/components/Configuration/hooks/__tests__/useConfigSave.test.ts:10-22",
+     "client/src/components/Configuration/hooks/__tests__/usePlexConnection.test.ts:14-26"
+    ],
+    "confidence": "medium",
+    "note": ""
+   },
+   {
+    "id": 4,
+    "text": "Move Configuration.test.tsx to parent directory",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "a file move; not checked in the hunk list"
+   },
+   {
+    "id": 5,
+    "text": "Change default LOG_LEVEL from 'warn' to 'info' in .env.example",
+    "status": "done",
+    "hunks": [
+     ".env.example:82-90"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "pr": "https://github.com/IT-Academy-BCN/ita-challenges-frontend/pull/753",
+  "title": "Challenge card redesign",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "MIT",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "Challenge card displays: language icons, title, description preview, tags, difficulty level, times solved, favorites count, and creation date",
+    "status": "done",
+    "hunks": [
+     "src/app/shared/components/challenge-card/challenge-card.component.html:1-118"
+    ],
+    "confidence": "medium",
+    "note": "times solved, favorites and creation date seen; icons/difficulty not individually checked"
+   },
+   {
+    "id": 2,
+    "text": "Tags are fetched per challenge and rendered as chips",
+    "status": "done",
+    "hunks": [
+     "src/app/services/challenge.service.spec.ts:362-424",
+     "src/app/services/challenge.service.ts:203-243",
+     "src/app/shared/components/challenge-card/challenge-card.component.spec.ts:143-194",
+     "src/app/shared/components/challenge-card/challenge-card.component.ts:37-70"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "HTML descriptions from the backend are safely stripped and truncated for the card preview",
+    "status": "done",
+    "hunks": [
+     "src/app/shared/components/challenge-card/challenge-card.component.ts:37-70"
+    ],
+    "confidence": "high",
+    "note": "DOMParser textContent plus slice with ellipsis"
+   },
+   {
+    "id": 4,
+    "text": "Optimizing tag fetching (one HTTP request per card; to be addressed in a follow-up)",
+    "status": "exclude",
+    "hunks": [],
+    "confidence": "high",
+    "note": "explicitly deferred, not a requirement of this PR"
+   },
+   {
+    "id": 5,
+    "text": "Bookmark functionality, removed from component logic as it does not appear in the new layout",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "low",
+    "note": "the new card html still contains a bookmark button, so the statement and the diff disagree"
+   }
+  ]
  }
 ]

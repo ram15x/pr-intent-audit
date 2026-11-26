@@ -207,3 +207,9 @@ Policy experiment (14-PR gold, cache-only replay, nothing written to results; th
 | at least one quote must verify | 1 | 0.97 | 0.842 | 18/31 | 12/31 | 0/28 |
 
 Reading it: the looser rule recovers 6 abstentions and lifts recall by 0.03, but more requirements are now judged done, so more faults are run against them and 13 of 31 slip through (catch rate 0.58 vs 0.69). One judge call was not cached in the looser replay (`judge_errors` 1), so treat it as approximate. Decision: keep "all quotes must verify". It costs some recall on requirements the judge got right, and it is the part that makes removed requirements stay caught. Recall is the price of the evidence guarantee, and the report shows such cases as unclear, not as missing.
+
+## (s) Large-PR gold 16 PRs / 74 requirements; retrieval re-read at n=61 large-PR requirements
+
+After the miner fix (it now remembers finished search pages) three runs kept 0, 1 and 6 PRs. Labelled four (Claude drafts, unreviewed, all permissive): reduct-grafana/28 (MIT), Youtarr/306 and 304 (ISC), ita-challenges-frontend/753 (MIT). Not used: kata/17 (design statements), ServiceDesk-Lite/75 (one-word requirements), Wahllokalsystem/2483 (German).
+- Labelling notes worth knowing: several requirements are unclear on purpose (reduct R4/R5, Youtarr/304 R4 file move, ita R5 where the issue text and the diff disagree) and one is excluded (ita R4, explicitly deferred). reduct R3 is partial: a format action exists but formatOnType/formatOnPaste are off. "All components"-style requirements are labelled done with medium confidence because "all" cannot be verified from a diff.
+- Retrieval (n=124 requirements, 61 on large PRs, random 0.22 on large): lexical 0.77, lexical+identifiers 0.77, BM25 0.64. Stable-to-higher than the n=45 read (0.73); the gap to BM25 is back to about 0.13. Still a candidate ordering, not an established one.
