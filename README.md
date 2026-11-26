@@ -70,6 +70,9 @@ Random ranking would reach hit@5 = 0.752 overall (most gold PRs are small) and 0
 
 ## Example report
 
+![Score, breakdown and diff map](docs/report-overview.png)
+![Evidence viewer: the exact diff lines behind a verdict](docs/report-evidence.png)
+
 `docs/demo_report.html` (open it in a browser) is a real audit of a public, MIT-licensed PR, built from saved judge
 responses, not a live run. The PR was chosen only because the saved responses cover all its requirements and its repo has
 a permissive license. It is not a clean showcase: requirement 4 ("run pytest ...") is judged DONE on weak evidence where the hand
