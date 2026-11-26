@@ -67,6 +67,13 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 Random ranking would reach hit@5 = 0.838 overall (most gold PRs are small) and 0.256 on the large ones, so only the large-PR column discriminates, and with n=10 a difference of one or two requirements is noise. No gold PR was in the CodeBERT training set (gold PRs were held out). Reading: our trained retriever is not better than word-overlap or BM25 on its own; the CodeBERT+lexical fusion is nominally best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result. Boosting BM25 / word overlap with identifiers the requirement names verbatim (backticked names, file paths, snake_case/camelCase; fixed weights chosen before looking at the results) raised hit@1 from 0.66 to 0.73 and 0.59 to 0.67 with no loss at hit@5; that is about 5 of 73 requirements and does not help on large PRs, so it is a candidate, not an established gain.
 <!-- RESULTS:END -->
 
+## Example report
+
+`docs/demo_report.html` (open it in a browser) is a real audit of a public PR, built from saved judge responses, not
+a live run. It is not cherry-picked to look good: the PR was chosen only because the saved responses cover all its
+requirements, and one verdict is wrong (a requirement judged MISSING whose code the same report cites as evidence for another
+requirement). The report says so on its first screen. Regenerate it with `python bench/demo_from_cache.py`.
+
 ## Cost of one audit
 
 One judge call per requirement. On the 24 gold PRs (median 3 requirements, max 7) an audit is about 4K input tokens
