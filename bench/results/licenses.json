@@ -1,0 +1,158 @@
+{
+ "Agrim-Intelligence/sigma": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 2,
+  "private": false
+ },
+ "CanastaWiki/Canasta-CLI": {
+  "license": "none",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "EvilBit-Labs/opnDossier": {
+  "license": "Apache-2.0",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "Ikey168/Noesis": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "NASA-ACROSS/across-data-ingestion": {
+  "license": "Apache-2.0",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "YinceIuCode/assistant_core_lab": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "adamsuk/gh-factory": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "aganezov/ont_qc_mcp": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "bec-project/bec_widgets": {
+  "license": "BSD-3-Clause",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "boris-heuer/lianiq": {
+  "license": "GPL-3.0",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "cisagov/manage.get.gov": {
+  "license": "NOASSERTION",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "daniela-tio/project-relay": {
+  "license": "none",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "epr-ds/nutriplan": {
+  "license": "NOASSERTION",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "iteam7/gateway7": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "itpd-team-6/sentence-cards-generator-team-6": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "jt-mchorse/chunking-strategies-lab": {
+  "license": "NOASSERTION",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "juntagrico/juntagrico-paas": {
+  "license": "none",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "kesamot11/chaosnet": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "lubobali/MissionCopilot-AI": {
+  "license": "NOASSERTION",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "monicadelaine/capstone-design": {
+  "license": "none",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "nahuel893/agents-system": {
+  "license": "MIT",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "nanohype/eks-gitops": {
+  "license": "Apache-2.0",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "oddessentials/odd-bot-moltbook": {
+  "license": "NOASSERTION",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "pfBlockerNG/pfBlockerNG": {
+  "license": "Apache-2.0",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "upm-agile-team2/upm-entrepreneurship-platform": {
+  "license": "none",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ },
+ "ztrange/veri": {
+  "license": "none",
+  "permissive": false,
+  "prs": 1,
+  "private": false
+ }
+}

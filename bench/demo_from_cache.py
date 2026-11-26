@@ -29,6 +29,9 @@ for f in ("bundles.jsonl", "gold_pool.jsonl", "large_pool.jsonl"):
     if p.exists():
         for l in open(p, encoding="utf-8"):
             b = PRBundle.model_validate_json(l); bundles[b.source] = b
+lic = json.loads((ROOT / "bench/results/licenses.json").read_text(encoding="utf-8"))     # only permissively licensed repos may appear in a published demo
+ok_repos = {r for r, v in lic.items() if v["permissive"]}
+bundles = {u: b for u, b in bundles.items() if "/".join(u.split("github.com/")[1].split("/")[:2]) in ok_repos}
 llm = CacheOnly(ROOT / ".cache/llm", providers=())
 best = None
 for u, b in bundles.items():
@@ -57,6 +60,8 @@ for gf in ("gold_draft.json", "gold_extra_draft.json", "gold_large_draft.json"):
         gold[g["pr"]] = {" ".join(r["text"].split()): r["status"] for r in g["requirements"]}
 for r in a.reqs:
     gs = gold.get(u, {}).get(" ".join(r.text.split()))
+    if gs == "unclear" and r.status in ("done", "partial"):
+        a.bundle.notes.append(f"Demo note: for requirement #{r.id} the hand label is UNCLEAR (not decidable from the diff alone) but this audit says {r.status.upper()}; check its evidence before trusting it.")
     if gs and gs not in ("exclude", "unclear") and r.status in ("done", "partial", "missing") and gs != r.status:
         a.bundle.notes.append(f"Demo note: for requirement #{r.id} the hand label is {gs.upper()} but this audit says {r.status.upper()}. That is a judge error, left in on purpose.")
 out = Path(sys.argv[1] if len(sys.argv) > 1 else ROOT / "docs/demo_report.html")

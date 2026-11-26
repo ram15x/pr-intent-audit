@@ -138,3 +138,9 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 
 - The golden pipeline test showed a hunk that a verdict cites as verified evidence could still be flagged as "possible scope creep" (creep used only the relevance score threshold) and cost 5 points. Fixed: a hunk cited as evidence by any requirement is never creep. The demo report moved from 55 to 65 for this reason (two cited hunks no longer counted). Offline scope-creep precision numbers (`bench/eval_creep.py`) were computed from scores only and are unaffected.
 - Added: thin-ask warning (a one-line or list-less ask is flagged on the report), a one-line "N of M requirements have verified evidence" summary, and a "Copy as PR comment" button in the HTML report.
+
+## 2026-11-26 (k) — Licenses: audit, demo replaced, mining filtered
+
+- Audit: 14/26 gold repos permissive, 12 not (none / NOASSERTION / GPL-3.0). The demo report had been built from a repo with no license (it embeds diff lines), so it was regenerated from an MIT repo; the hand-label comparison notes still appear. New demo: 4/4 requirements DONE, one of them (#4) on weak evidence where the hand label is UNCLEAR, 3 scope-creep candidates (-15).
+- `bench/mine_large.py` now skips repos without a permissive license (cached in `bench/data/license_cache.json`) and takes a time budget via MINE_SECONDS.
+- Open decision for the owner: keep or remove the 12 non-permissive repos' short requirement excerpts from the public `bench/gold/*.json`.

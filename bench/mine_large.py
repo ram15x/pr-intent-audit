@@ -21,18 +21,36 @@ QS = [BASE + f'language:{lang} "{kw}" created:{win}'
       for win in ("2025-03-01..2025-08-31", "2025-09-01..2026-02-28", "2026-03-01..2026-10-30")
       for lang in ("python", "typescript", "go", "javascript", "java", "rust", "csharp", "ruby", "php", "kotlin")
       for kw in ("acceptance criteria", "- [ ]", "definition of done", "requirements")]
+PERMISSIVE = {"MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Unlicense", "CC0-1.0", "0BSD", "MPL-2.0"}
+LIC = ROOT / "bench/data/license_cache.json"
+lic_cache = json.loads(LIC.read_text(encoding="utf-8")) if LIC.exists() else {}
+
+
+def permissive(client, url):
+    """Only permissively licensed repos are kept ('free to use'); license looked up once per repo and cached."""
+    repo = "/".join(url.split("github.com/")[1].split("/")[:2])
+    if repo not in lic_cache:
+        j = client.get(f"https://api.github.com/repos/{repo}", headers=_headers("application/vnd.github+json")).json()
+        lic_cache[repo] = (j.get("license") or {}).get("spdx_id") or "none"
+        LIC.write_text(json.dumps(lic_cache), encoding="utf-8")
+    return lic_cache[repo] in PERMISSIVE
+
+
+import os
+BUDGET = int(os.environ.get("MINE_SECONDS", "540"))   # time budget per run; re-running continues where the caches left off
 t0, kept = time.time(), 0
 with httpx.Client(timeout=30) as c:
     for q in QS:
         for page in (1, 2):
-            if time.time() - t0 > 540: break
+            if time.time() - t0 > BUDGET: break
             r = c.get("https://api.github.com/search/issues", headers=_headers("application/vnd.github+json"),
                       params={"q": q, "per_page": 30, "page": page})
             if r.status_code != 200: time.sleep(8); continue
             for it in r.json()["items"]:
                 u = it["html_url"]
-                if u in skip or u in seen or time.time() - t0 > 540: continue
+                if u in skip or u in seen or time.time() - t0 > BUDGET: continue
                 seen.add(u)
+                if not permissive(c, u): continue
                 try: b = fetch_pr(u)
                 except Exception: continue
                 with REJ.open("a", encoding="utf-8") as f: f.write(u + "\n")

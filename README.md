@@ -70,10 +70,10 @@ Random ranking would reach hit@5 = 0.752 overall (most gold PRs are small) and 0
 
 ## Example report
 
-`docs/demo_report.html` (open it in a browser) is a real audit of a public PR, built from saved judge responses, not
-a live run. It is not cherry-picked to look good: the PR was chosen only because the saved responses cover all its
-requirements, and one verdict is wrong (a requirement judged MISSING whose code the same report cites as evidence for another
-requirement). The report says so on its first screen. Regenerate it with `python bench/demo_from_cache.py`.
+`docs/demo_report.html` (open it in a browser) is a real audit of a public, MIT-licensed PR, built from saved judge
+responses, not a live run. The PR was chosen only because the saved responses cover all its requirements and its repo has
+a permissive license. It is not a clean showcase: requirement 4 ("run pytest ...") is judged DONE on weak evidence where the hand
+label is UNCLEAR, and 3 scope-creep candidates cost 15 points. The report says so on its first screen. Regenerate it with `python bench/demo_from_cache.py`.
 
 ## Cost of one audit
 
@@ -164,6 +164,11 @@ Without `models/`, use lexical retrieval (the default quick start): `pr-audit ru
 
 MIT, see `LICENSE`. Benchmark data is derived from public GitHub PRs; it is mined locally and not redistributed here
 except short requirement excerpts and hunk ids in `bench/gold/`.
+
+License status of that data (`bench/license_audit.py`, `bench/results/licenses.json`): 14 of the 26 repos behind the gold PRs
+have a permissive license (MIT, Apache-2.0, BSD); 12 have none, an unrecognised one, or GPL. The excerpts are short and no
+code is redistributed in `bench/gold/`, but the 12 should be treated as a known gap. New mining (`bench/mine_large.py`) keeps
+only permissive repos, and the published demo report uses one.
 
 ## Reproduce
 
