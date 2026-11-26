@@ -176,3 +176,13 @@ The last mining run kept 14 PRs; 13 were MaibornWolff/codecharta (BSD-3), whose 
 - Used: canvas-lms-kit/20 (MIT), 6 requirements, Claude draft, unreviewed. "Code Style: PSR-12" is labelled unclear (not verifiable from a diff); the class-structure and DocBlock items are medium confidence.
 - Splitter re-measure (in-sample, the gold sets also grew): 93 of 107 matched outputs are real requirements (0.87), all 93 gold requirements are still produced. Not comparable with the earlier 72/86.
 - Lesson: one repo can dominate a mined batch. Mining should cap PRs per repo (not done yet).
+
+## (p) First end-to-end run of the lexical default (Groq gpt-oss-120b judge, 14-PR gold, judge_errors = 0)
+
+`python bench\eval_gold_llm.py lexical`: 42 requirements scored, 7 abstained (unclear). Done precision 0.963, done recall 0.812 [0.65, 0.91]; false "done" on not-done 1/3; faults on not-done requirements caught 18/26 [0.50, 0.83]; faults that remove everything a requirement points at (missing) caught 10/26 [0.22, 0.57]; false alarms on other requirements 1/22. Gold labels are single-annotator.
+- Versus the earlier CodeBERT-retrieval hybrid (precision 0.966, recall 0.824, caught 21/28, missing 15/28): done precision and recall are the same within noise. The fault-catch numbers are lower for lexical (missing 10/26 vs 15/28), but the intervals overlap and the denominators differ, so this is a direction to watch, not a demonstrated loss. Together with the retrieval benchmark (no variant demonstrably better) it supports keeping lexical as the dependency-free default.
+- Where the 5 false "missing" on gold-done come from: not retrieval. For nutriplan R1, gateway7 R3, agents-system R4 and Canasta R1 the best gold hunk is ranked 1-2 of the top 5, and the judge still answered missing/partial. Findings:
+  - The judge sees only added/removed lines, no unchanged context. For nutriplan R1 the changed lines in the gold hunk are doc comments about cache-first reads; the judge said the code was "syntactically broken", a reason it could not know from fragments. That is a real limitation of the diff-only view, not fixable offline (the bundles hold no unchanged lines).
+  - Some of the gold labels are generous (nutriplan R1 rests on a doc-comment hunk plus a test). Review before treating these as judge errors.
+  - Not examined further: how many of the 7 unclear are verifier rejections vs judge uncertainty.
+- Still to measure: `--escalate`, naive baseline, partial-fault variant, large-PR runs.
