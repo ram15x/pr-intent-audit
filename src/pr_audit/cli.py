@@ -35,6 +35,34 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         raise typer.Exit(2)
     if not bundle.hunks:
         raise typer.Exit("no auditable hunks in this PR")
+    _audit_and_write(bundle, models, local, retrieval, out, html)
+
+@app.command("local")
+def local_cmd(ask_file: Path = typer.Argument(..., help="Text file with the ask (the prompt you gave the agent, a spec or an issue)"),
+              repo: Path = typer.Option(Path("."), "--repo", help="Git repository"),
+              base: str = typer.Option("HEAD~1", "--base", help="Base ref (what the work started from)"),
+              head: str = typer.Option("HEAD", "--head", help="Head ref; use '' for the working tree"),
+              out: Path = typer.Option(Path("report.md"), "--out"),
+              html: Path = typer.Option(None, "--html"),
+              models: Path = typer.Option(ROOT / "models", "--models"),
+              local: bool = typer.Option(False, "--local"),
+              retrieval: str = typer.Option("auto", "--retrieval")):
+    """Audit local commits (no PR needed) against an ask file. Example: pr-audit local prompt.txt --base main~3 --head HEAD"""
+    from .local import bundle_from_git
+    load_env(ROOT / ".env")
+    try:
+        bundle = bundle_from_git(repo, ask_file.read_text(encoding="utf-8"), base, head or None)
+    except ValueError as e:
+        typer.echo(f"error: {e}", err=True)
+        raise typer.Exit(2)
+    if not bundle.hunks:
+        raise typer.Exit("no auditable hunks between those refs")
+    _audit_and_write(bundle, models, local, retrieval, out, html)
+
+
+def _audit_and_write(bundle, models: Path, local: bool, retrieval: str, out: Path, html: Path | None) -> None:
+    from .audit import load_scorer, run_audit
+    from .report import render_markdown
     have_models = (models / "relevance").exists() and (models / "verdict.joblib").exists()
     use_lexical = retrieval == "lexical" or (retrieval == "auto" and not have_models)
     if retrieval == "model" and not have_models:
@@ -71,6 +99,7 @@ def run(url: str = typer.Argument(..., help="GitHub PR URL"),
         html.write_text(render_html(audit, info), encoding="utf-8")
         typer.echo(f"html: {html}")
     typer.echo(f"rank: {audit.rank} ({audit.band}) -> {out}")
+
 
 
 if __name__ == "__main__":

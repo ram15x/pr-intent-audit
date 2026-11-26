@@ -82,6 +82,18 @@ at the median and 14K at the maximum (estimated as characters / 4; `bench/cost_p
 roughly 8K tokens per minute that is under a minute for a typical PR and about two minutes for the largest here.
 PRs with long asks (dozens of requirements) will take proportionally longer and can hit the daily limit.
 
+## Audit local work, no PR needed
+
+Pushed straight to `main`, or reviewing what an agent just did? Put the prompt you gave it in a text file and audit the
+commits:
+
+```
+pr-audit local prompt.txt --base main~3 --head HEAD --retrieval lexical --html report.html
+```
+
+`--head ''` audits the uncommitted working tree against `--base`. It uses plain `git diff` (refs are validated; no shell)
+and the same retrieval, judge and verifier as a PR audit. Nothing leaves your machine except the hunks sent to the judge.
+
 ## HTML report
 
 `pr-audit run <PR_URL> --retrieval lexical --html report.html` also writes one self-contained HTML file: the score, a
