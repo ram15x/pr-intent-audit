@@ -116,7 +116,7 @@ penalty), a map of which hunks back which requirement, and for every verdict the
   flagging at the default threshold (0.5) gives precision 0.25 and recall 1.0; a stricter 0.2 gives 0.42 and 0.71
   (`bench/eval_creep.py`). With 7 positives and the threshold looked at on the same data, treat these as a rough
   guide: the flags are candidates for a human to look at, not findings.
-- **The gold set is tiny and single-annotator.** 14 PRs plus 4 large PRs (the large set is not reviewed by the owner).
+- **The gold set is tiny and single-annotator.** 14 PRs plus a large-PR set (9 PRs now labelled; the LLM tables above cover only the first 4; none of the large set is reviewed by the owner).
   Labels were drafted by Claude; the owner approved the 14-PR draft unchanged, and a later cross-check by Claude
   still found 5 wrong labels (docs/GOLD_CHANGES.md), which shows how weak "approved" is. The judge is also an LLM, so
   errors may be correlated. After the fixes the 14-PR set has no `missing` labels at all.
@@ -166,7 +166,7 @@ Without `models/`, use lexical retrieval (the default quick start): `pr-audit ru
 MIT, see `LICENSE`. Benchmark data is derived from public GitHub PRs; it is mined locally and not redistributed here
 except short requirement excerpts and hunk ids in `bench/gold/`.
 
-License status of that data (`bench/license_audit.py`, `bench/results/licenses.json`): 14 of the 26 repos behind the gold PRs
+License status of that data (`bench/license_audit.py`, `bench/results/licenses.json`): 16 of the 28 repos behind the gold PRs
 have a permissive license (MIT, Apache-2.0, BSD); 12 have none, an unrecognised one, or GPL. The excerpts are short and no
 code is redistributed in `bench/gold/`, but the 12 should be treated as a known gap. New mining (`bench/mine_large.py`) keeps
 only permissive repos, and the published demo report uses one.

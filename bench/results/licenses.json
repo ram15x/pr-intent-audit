@@ -101,6 +101,12 @@
   "prs": 1,
   "private": false
  },
+ "kadai-io/kadai": {
+  "license": "Apache-2.0",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
  "kesamot11/chaosnet": {
   "license": "MIT",
   "permissive": true,
@@ -139,6 +145,12 @@
  },
  "pfBlockerNG/pfBlockerNG": {
   "license": "Apache-2.0",
+  "permissive": true,
+  "prs": 1,
+  "private": false
+ },
+ "reductstore/reduct-grafana": {
+  "license": "MIT",
   "permissive": true,
   "prs": 1,
   "private": false
