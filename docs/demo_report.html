@@ -283,7 +283,7 @@ function buildReq(r){
   if(r.note){var w=el("div","why");add(w,el("b",null,"Why: "),document.createTextNode(r.note));inner.appendChild(w)}
   var ver=el("div","ver");
   if(r.evidence.length){var nq=r.evidence.reduce(function(s,e){return s+e.quotes.length},0);
-    ver.appendChild(el("span","ok","✓ Verified: "+r.evidence.length+" cited hunk"+(r.evidence.length>1?"s":"")+" exist in the diff, "+nq+" quoted line"+(nq===1?"":"s")+" found in them"))}
+    ver.appendChild(el("span","ok","✓ Verified: "+r.evidence.length+" cited hunk"+(r.evidence.length>1?"s exist":" exists")+" in the diff, "+nq+" quoted line"+(nq===1?"":"s")+" found in them"))}
   else if(r.status==="done"||r.status==="partial")ver.appendChild(el("span","bad","✗ No verifiable evidence"));
   else if(r.status==="unclear")ver.appendChild(el("span",null,"Unclear: the tool could not verify a verdict and does not guess. Not counted in the score."));
   else ver.appendChild(el("span",null,"No hunk in this PR was judged to implement this requirement."));
