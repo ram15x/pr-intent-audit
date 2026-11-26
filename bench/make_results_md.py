@@ -75,7 +75,7 @@ if rp.exists():
           f"{_v['hit@5_big_prs']['random_baseline']} on the large ones, so only the large-PR column discriminates, and with n=10 a "
           "difference of one or two requirements is noise. No gold PR was in the CodeBERT training set (gold PRs were held out). "
           "Reading: our trained retriever is not better than word-overlap or BM25 on its own; the CodeBERT+lexical fusion is nominally "
-          "best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result."]
+          "best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result. Boosting BM25 / word overlap with identifiers the requirement names verbatim (backticked names, file paths, snake_case/camelCase; fixed weights chosen before looking at the results) raised hit@1 from 0.66 to 0.73 and 0.59 to 0.67 with no loss at hit@5; that is about 5 of 73 requirements and does not help on large PRs, so it is a candidate, not an established gain."]
 OUT.write_text("\n".join(L) + "\n", encoding="utf-8")
 txt = "\n".join(L)
 RM = OUT.parents[1] / "README.md"

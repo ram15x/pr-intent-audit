@@ -37,7 +37,7 @@ def lexical_scorer():
             rt = _toks(req)
             if not rt:
                 out.append(0.0); continue
-            tot = sum(idf(w) for w in rt) or 1.0
-            out.append(sum(idf(w) for w in rt if w in docs[h]) / tot)
+            tot = sum(idf(w) for w in sorted(rt)) or 1.0
+            out.append(sum(idf(w) for w in sorted(rt) if w in docs[h]) / tot)
         return out
     return score

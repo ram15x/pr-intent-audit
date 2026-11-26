@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "bench"))
 from eval_gold_llm import wilson
 from pr_audit.lexical import lexical_scorer
 from pr_audit.pairs import hunk_text
-from pr_audit.retrieval import bm25_scorer, fuse
+from pr_audit.retrieval import bm25_scorer, fuse, identifier_boost
 from pr_audit.schemas import PRBundle
 
 SETS = [("gold_draft.json", "gold_pool.jsonl"), ("gold_extra_draft.json", "gold_pool.jsonl"), ("gold_large_draft.json", "large_pool.jsonl")]
@@ -70,7 +70,9 @@ if __name__ == "__main__":
     lex = lexical_scorer()
     variants = {"lexical (IDF overlap)": (lex, False), "lexical, full hunk text": (lex, True),
                 "bm25": (bm25_scorer(), False), "bm25, full hunk text": (bm25_scorer(), True),
-                "fusion lexical+bm25": (fuse(lex, bm25_scorer()), False)}
+                "fusion lexical+bm25": (fuse(lex, bm25_scorer()), False),
+                "bm25 + named identifiers/paths (full text)": (identifier_boost(bm25_scorer()), True),
+                "lexical + named identifiers/paths": (identifier_boost(lex), False)}
     try:
         from pr_audit.audit import load_scorer
         cb = load_scorer(ROOT / "models/relevance")
@@ -85,4 +87,10 @@ if __name__ == "__main__":
         print(f"{name:34s} hit@1 {v['hit@1']['value']:.2f}  hit@3 {v['hit@3']['value']:.2f}  hit@5 {v['hit@5']['value']:.2f} {v['hit@5']['ci']}"
               + (f"  big-PR hit@5 {v['hit@5_big_prs']['value']:.2f} (n={v['hit@5_big_prs']['n']}, random {v['hit@5_big_prs']['random_baseline']:.2f})" if "hit@5_big_prs" in v else ""))
     print("random hit@5:", res["variants"]["lexical (IDF overlap)"]["hit@5"]["random_baseline"], "| n =", len(cases))
-    (ROOT / "bench/results/retrieval.json").write_text(json.dumps(res, indent=1), encoding="utf-8")
+    out_p = ROOT / "bench/results/retrieval.json"
+    if out_p.exists():      # keep rows from an earlier run that this machine cannot reproduce (e.g. CodeBERT without torch)
+        for name, v in json.loads(out_p.read_text(encoding="utf-8")).get("variants", {}).items():
+            if name not in res["variants"]:
+                res["variants"][name] = v
+                print(f"(kept from earlier run: {name})")
+    out_p.write_text(json.dumps(res, indent=1), encoding="utf-8")
