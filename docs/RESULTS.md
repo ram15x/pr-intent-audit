@@ -21,16 +21,16 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 | large PRs: judge sees all hunks (prompt is length-capped) **(INVALID: 7 judge calls failed, HTTP 413/429)** | 1.0 | 1.0 | 7 | 4/5 | 0.38-0.96 | 2/5 | 0/6 | 7 | {'done': [5, 0, 0, 4], 'partial': [0, 0, 0, 1], 'missing': [0, 0, 1, 2]} |
 | large PRs: top-5, no verifier | 1.0 | 0.778 | 0 | 4/7 | 0.25-0.84 | 2/7 | 2/8 | n/a | {'done': [7, 0, 2, 0], 'partial': [0, 1, 0, 0], 'missing': [0, 0, 3, 0]} |
 
-### Retrieval only: is the right hunk in the top k? (103 gold requirements, 30 PRs; no LLM involved)
+### Retrieval only: is the right hunk in the top k? (108 gold requirements, 31 PRs; no LLM involved)
 
 | retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks |
 |---|---|---|---|---|
-| lexical (IDF overlap) | 0.515 | 0.796 | 0.883 [0.81, 0.93] | 0.725 |
-| lexical, full hunk text | 0.544 | 0.835 | 0.864 [0.78, 0.92] | 0.65 |
-| bm25 | 0.583 | 0.777 | 0.825 [0.74, 0.89] | 0.575 |
-| bm25, full hunk text | 0.602 | 0.816 | 0.874 [0.8, 0.92] | 0.675 |
-| fusion lexical+bm25 | 0.544 | 0.816 | 0.874 [0.8, 0.92] | 0.7 |
-| bm25 + named identifiers/paths (full text) | 0.66 | 0.825 | 0.893 [0.82, 0.94] | 0.725 |
-| lexical + named identifiers/paths | 0.592 | 0.806 | 0.883 [0.81, 0.93] | 0.725 |
+| lexical (IDF overlap) | 0.519 | 0.796 | 0.88 [0.8, 0.93] | 0.733 |
+| lexical, full hunk text | 0.546 | 0.833 | 0.861 [0.78, 0.91] | 0.667 |
+| bm25 | 0.574 | 0.769 | 0.815 [0.73, 0.88] | 0.578 |
+| bm25, full hunk text | 0.583 | 0.796 | 0.852 [0.77, 0.91] | 0.644 |
+| fusion lexical+bm25 | 0.537 | 0.806 | 0.87 [0.79, 0.92] | 0.711 |
+| bm25 + named identifiers/paths (full text) | 0.639 | 0.806 | 0.87 [0.79, 0.92] | 0.689 |
+| lexical + named identifiers/paths | 0.593 | 0.806 | 0.88 [0.8, 0.93] | 0.733 |
 
-Random ranking would reach hit@5 = 0.66 overall (most gold PRs are small) and 0.235 on the large ones, so only the large-PR column discriminates, and with n=40 one requirement is 2 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.
+Random ranking would reach hit@5 = 0.637 overall (most gold PRs are small) and 0.228 on the large ones, so only the large-PR column discriminates, and with n=45 one requirement is 2 points. The large-PR labels were drafted by Claude and are not reviewed by the owner. CodeBERT rows appear only if the last run had torch; no gold PR was in the CodeBERT training set. Variants with identifier boosting use identifiers the requirement names verbatim (backticked names, paths, snake_case/camelCase; weights fixed before looking at results). Differences of a few points are within noise: treat the best variants as candidates, not established gains.

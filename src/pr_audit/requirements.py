@@ -30,7 +30,10 @@ NOISE = re.compile(
     r"|\*\*(?:code completion|testing|peer review|documentation|deployment readiness)\*\*\s*:"   # definition-of-done template
     r"|please (?:run|update|install|note|see)\b"                                # instructions to the reader, not code requirements
     r"|(?:the )?(?:pr|pull request|changes?) (?:is|are) (?:tagged|compliant)\b|(?:the )?(?:charm )?style guide was\b|(?:the )?contributing guide was\b"
-    r"|bug fix \(|new feature \(|breaking change \(|reviewer has tested|all new and existing tests)", re.I)
+    r"|bug fix \(|new feature \(|breaking change \(|reviewer has tested|all new and existing tests"
+    r"|changes have been manually tested|all todos related to this pr|there are automated tests for newly written"   # PR-template checklist
+    r"|all bugs discovered while working|(?:documentation|changelog(?:\.md)?)\b.{0,120}\bhas been updated"
+    r"|what problem/issue are you fixing|what does this pr implement)", re.I)
 REVIEWED_BY = re.compile(r"\b(?:reviewed|approved) by\b", re.I)
 # A plain line that introduces alternatives: bullets under it are options, not obligations.
 OPTION_INTRO = re.compile(r"(possible approaches|fix options|options?\b.*:|alternatives?\b.*:|to evaluate|not commit to|and/or\s*$)", re.I)

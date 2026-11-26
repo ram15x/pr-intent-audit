@@ -73,3 +73,11 @@ def test_emoji_heading_repro_steps_and_template_noise_are_dropped():
     got = [r.text for r in split_requirements(txt)]
     assert "**Fix**: add the cache layer" in got
     assert not any("Go to" in t or "Hover over" in t or "Python version" in t or "Relevant tests" in t or "Please run" in t for t in got)
+
+
+def test_pr_template_checklist_is_noise():
+    ask = ("- [ ] Changes have been manually tested\n- [ ] All TODOs related to this PR have been closed\n"
+           "- [ ] There are automated tests for newly written code and bug fixes\n- [ ] CHANGELOG.md has been updated\n"
+           "- [ ] Documentation (GH-pages, READMEs) has been updated (almost always necessary)\n- [ ] Add retry on timeout")
+    texts = [r.text for r in split_requirements(ask)]
+    assert texts == ["Add retry on timeout"]

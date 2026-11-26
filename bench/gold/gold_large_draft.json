@@ -882,5 +882,77 @@
     "note": ""
    }
   ]
+ },
+ {
+  "pr": "https://github.com/jjuanrivvera/canvas-lms-kit/pull/20",
+  "title": "feat: Add Tabs API class with complete Canvas LMS integration",
+  "reviewed_by_human": false,
+  "labeled_by": "claude",
+  "license": "MIT",
+  "requirements": [
+   {
+    "id": 1,
+    "text": "List tabs for a course",
+    "status": "done",
+    "hunks": [
+     "src/Api/Tabs/Tab.php:1-477",
+     "tests/Api/Tabs/TabTest.php:1-379"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 2,
+    "text": "Update a course Tab",
+    "status": "done",
+    "hunks": [
+     "src/Api/Tabs/Tab.php:1-477",
+     "src/Dto/Tabs/UpdateTabDTO.php:1-134",
+     "tests/Dto/Tabs/UpdateTabDTOTest.php:1-188"
+    ],
+    "confidence": "high",
+    "note": ""
+   },
+   {
+    "id": 3,
+    "text": "A class named Tab on folder src/Api/Tabs, following the structure of existing API classes",
+    "status": "done",
+    "hunks": [
+     "src/Api/Tabs/Tab.php:1-477"
+    ],
+    "confidence": "medium",
+    "note": "class exists in src/Api/Tabs/Tab.php; 'similar structure' judged from the first lines only"
+   },
+   {
+    "id": 4,
+    "text": "Code Style: PSR-12",
+    "status": "unclear",
+    "hunks": [],
+    "confidence": "high",
+    "note": "not verifiable from a diff"
+   },
+   {
+    "id": 5,
+    "text": "Documentation: PHP DocBlocks for methods and the class with usage examples",
+    "status": "done",
+    "hunks": [
+     "src/Api/Tabs/Tab.php:1-477",
+     "src/Dto/Tabs/UpdateTabDTO.php:1-134"
+    ],
+    "confidence": "medium",
+    "note": "class docblock has usage examples in both new files"
+   },
+   {
+    "id": 6,
+    "text": "Unit Tests",
+    "status": "done",
+    "hunks": [
+     "tests/Api/Tabs/TabTest.php:1-379",
+     "tests/Dto/Tabs/UpdateTabDTOTest.php:1-188"
+    ],
+    "confidence": "high",
+    "note": ""
+   }
+  ]
  }
 ]

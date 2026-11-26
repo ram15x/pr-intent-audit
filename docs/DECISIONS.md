@@ -168,3 +168,11 @@ Added gauss-quad/141 (Apache-2.0, 7 requirements) and StudyConnect-ZHAW/Backend/
 - Retrieval (n=103 requirements, 40 on large PRs, random 0.23 on large): lexical 0.72, lexical+identifiers 0.72, BM25+identifiers 0.72, fusion 0.70, BM25 full text 0.68, lexical full text 0.65, BM25 0.57.
 - What changed: at n=28 plain BM25 was clearly worst (0.46) and lexical-based variants led. At n=40 the best variants tie at 0.72 and BM25 on full text (0.68) is close. The earlier ordering claim "lexical beats BM25" is weaker than I said; differences of 0.04 on n=40 are about one or two requirements.
 - Decision unchanged: lexical stays the default (simplest, no dependency, tied for best), but no variant is shown to be better. CodeBERT rows are still missing (no torch here).
+
+## (o) PR-template checklists are noise; 13 of 14 newly mined PRs were one repo's template
+
+The last mining run kept 14 PRs; 13 were MaibornWolff/codecharta (BSD-3), whose PR template is a checklist ("changes have been manually tested", "CHANGELOG.md has been updated", ...). Those are process items, not requirements on the code, so labelling them would have added meaningless rows to the gold set. Not used.
+- Splitter: added the template phrases to NOISE (test `test_pr_template_checklist_is_noise`). The miner needs 3-8 requirements after splitting, so such PRs are no longer collected. The 13 PRs were removed from the local large pool (they stay in `large_rejected.txt`).
+- Used: canvas-lms-kit/20 (MIT), 6 requirements, Claude draft, unreviewed. "Code Style: PSR-12" is labelled unclear (not verifiable from a diff); the class-structure and DocBlock items are medium confidence.
+- Splitter re-measure (in-sample, the gold sets also grew): 93 of 107 matched outputs are real requirements (0.87), all 93 gold requirements are still produced. Not comparable with the earlier 72/86.
+- Lesson: one repo can dominate a mined batch. Mining should cap PRs per repo (not done yet).
