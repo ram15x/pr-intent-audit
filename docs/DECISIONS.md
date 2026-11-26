@@ -150,3 +150,14 @@ lists fall back to sentence mode; list structure is now judged before filtering.
 - Added reduct-grafana/13 (MIT) and kadai/1329 (Apache-2.0), 9 requirements, Claude draft, unreviewed. Not used: concourse/9218 (env-form fields), jni-rs/596 (generic PR checklist), Wahllokalsystem/1794 (German refactor list; non-English).
 - Large-PR sample is now n=28. Lexical large-PR hit@5 moved 0.80 -> 0.71 (random 0.26), BM25 0.45 -> 0.46, lexical+identifiers 0.80 -> 0.71, BM25+identifiers 0.75 -> 0.68. Ordering unchanged: lexical-based variants best, plain BM25 worst. The 0.80 figure in entry (g) was a small-sample high; the better estimate is about 0.7.
 - CodeBERT rows are dropped again (gold set changed, no torch here). Re-run `python bench\eval_retrieval.py` once labelling stops, so it is done once.
+
+## (m) Why lexical retrieval misses on large PRs (error analysis, no code change)
+
+`python bench/miss_analysis.py` lists the 8 of 28 large-PR requirements where the best gold hunk is outside the top 5 (n is small; read as a pattern, not a rate). Of the 20 hits, 15 are at rank 1–2.
+
+Causes seen in the misses:
+- **Bare identifier requirements** (kadai `TaskHistoryEvent`, `WorkbasketHistoryEvent`, `ClassificationHistoryEvent`): sample/test SQL files named `*-history-event.sql` repeat the words and outrank the query implementation hunks. CamelCase is already split by the tokenizer, so this is not a tokenizer gap.
+- **Generic requirements** ("Added tests", "Commit the generated folder"): little vocabulary to match, so ranking is close to arbitrary.
+- **Docs/instruction files outranking code** in repos that ship many markdown instruction files (opnDossier, upm-entrepreneurship-platform).
+
+Decision: no retrieval change. A path-type prior (down-weight docs/SQL data) would fit these 8 cases but I have no held-out large PRs to check it against, so it would be tuned on the test set. Revisit when the large gold set is bigger. The escalating judge (top-12) is the existing mitigation and is still unmeasured, pending Groq quota.
