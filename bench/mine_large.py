@@ -30,8 +30,16 @@ def permissive(client, url):
     """Only permissively licensed repos are kept ('free to use'); license looked up once per repo and cached."""
     repo = "/".join(url.split("github.com/")[1].split("/")[:2])
     if repo not in lic_cache:
-        j = client.get(f"https://api.github.com/repos/{repo}", headers=_headers("application/vnd.github+json")).json()
-        lic_cache[repo] = (j.get("license") or {}).get("spdx_id") or "none"
+        try:
+            r = client.get(f"https://api.github.com/repos/{repo}", headers=_headers("application/vnd.github+json"))
+        except httpx.HTTPError:
+            return False                      # network hiccup: skip this PR now, nothing cached, retried next run
+        if r.status_code == 404:
+            lic_cache[repo] = "none"
+        elif r.status_code != 200:
+            return False                      # rate limit or server error: do not cache a wrong "none"
+        else:
+            lic_cache[repo] = (r.json().get("license") or {}).get("spdx_id") or "none"
         LIC.write_text(json.dumps(lic_cache), encoding="utf-8")
     return lic_cache[repo] in PERMISSIVE
 
@@ -43,8 +51,11 @@ with httpx.Client(timeout=30) as c:
     for q in QS:
         for page in (1, 2):
             if time.time() - t0 > BUDGET: break
-            r = c.get("https://api.github.com/search/issues", headers=_headers("application/vnd.github+json"),
-                      params={"q": q, "per_page": 30, "page": page})
+            try:
+                r = c.get("https://api.github.com/search/issues", headers=_headers("application/vnd.github+json"),
+                          params={"q": q, "per_page": 30, "page": page})
+            except httpx.HTTPError:
+                time.sleep(8); continue
             if r.status_code != 200: time.sleep(8); continue
             for it in r.json()["items"]:
                 u = it["html_url"]
