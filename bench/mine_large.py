@@ -47,6 +47,7 @@ def permissive(client, url):
 import os
 BUDGET = int(os.environ.get("MINE_SECONDS", "540"))   # time budget per run; re-running continues where the caches left off
 t0, kept = time.time(), 0
+PER_REPO = {}   # at most 2 kept PRs per repo per run, so one repo's template cannot flood the pool
 with httpx.Client(timeout=30) as c:
     for q in QS:
         for page in (1, 2):
@@ -62,6 +63,8 @@ with httpx.Client(timeout=30) as c:
                 if u in skip or u in seen or time.time() - t0 > BUDGET: continue
                 seen.add(u)
                 if not permissive(c, u): continue
+                repo_key = u.split('github.com/')[1].rsplit('/pull/', 1)[0]
+                if PER_REPO.get(repo_key, 0) >= 2: continue
                 try: b = fetch_pr(u)
                 except Exception: continue
                 with REJ.open("a", encoding="utf-8") as f: f.write(u + "\n")
@@ -69,7 +72,7 @@ with httpx.Client(timeout=30) as c:
                 reqs = split_requirements(b.ask)
                 if asc > 0.96 and 3 <= len(reqs) <= 8 and 30 <= len(b.hunks) <= 150 and len(b.ask) < 3500:
                     with OUT.open("a", encoding="utf-8") as f: f.write(b.model_dump_json() + "\n")
-                    kept += 1
+                    kept += 1; PER_REPO[repo_key] = PER_REPO.get(repo_key, 0) + 1
             time.sleep(2.2)
 n = sum(1 for _ in OUT.open(encoding="utf-8")) if OUT.exists() else 0
 print("kept this run:", kept, "| pool size:", n)
