@@ -47,11 +47,14 @@ def permissive(client, url):
 import os
 BUDGET = int(os.environ.get("MINE_SECONDS", "540"))   # time budget per run; re-running continues where the caches left off
 t0, kept = time.time(), 0
+DONE = ROOT / "bench/data/large_queries_done.txt"     # search pages already fully processed: later runs continue after them
+done_q = set(DONE.read_text(encoding="utf-8").splitlines()) if DONE.exists() else set()
 PER_REPO = {}   # at most 2 kept PRs per repo per run, so one repo's template cannot flood the pool
 with httpx.Client(timeout=30) as c:
     for q in QS:
         for page in (1, 2):
             if time.time() - t0 > BUDGET: break
+            if f"{q}|{page}" in done_q: continue
             try:
                 r = c.get("https://api.github.com/search/issues", headers=_headers("application/vnd.github+json"),
                           params={"q": q, "per_page": 30, "page": page})
@@ -73,6 +76,8 @@ with httpx.Client(timeout=30) as c:
                 if asc > 0.96 and 3 <= len(reqs) <= 8 and 30 <= len(b.hunks) <= 150 and len(b.ask) < 3500:
                     with OUT.open("a", encoding="utf-8") as f: f.write(b.model_dump_json() + "\n")
                     kept += 1; PER_REPO[repo_key] = PER_REPO.get(repo_key, 0) + 1
+            if time.time() - t0 <= BUDGET:        # finished this page inside the budget -> never search it again
+                with DONE.open("a", encoding="utf-8") as f: f.write(f"{q}|{page}\n")
             time.sleep(2.2)
 n = sum(1 for _ in OUT.open(encoding="utf-8")) if OUT.exists() else 0
 print("kept this run:", kept, "| pool size:", n)
