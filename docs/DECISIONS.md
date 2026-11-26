@@ -100,3 +100,10 @@ bench/eval_splitter.py compares splitter output with gold: before, 59/80 matched
 this overstates real-world gains. Added `Requirement.optional` for bullets under "possible approaches / fix options":
 a missing optional requirement no longer lowers the rank. Bug found while testing: noise filtering made single-item
 lists fall back to sentence mode; list structure is now judged before filtering. 31 tests pass.
+
+## 2026-11-26 (e) — Retrieval measured without an LLM; no new model training
+
+- Question: is the CodeBERT retriever worth keeping over word overlap? The LLM-based comparison was invalid (judge errors), so we measured retrieval directly: hit@k of the gold hunks (`bench/eval_retrieval.py`, 73 requirements, no quota).
+- Result: CodeBERT alone hit@1 0.56 / hit@3 0.81 / hit@5 0.93, no better than lexical (0.57 / 0.88 / 0.94) or BM25 (0.66 / 0.86 / 0.92). Fusion CodeBERT+lexical is nominally best (hit@5 0.97; large PRs 0.80 vs 0.50-0.70) but the large-PR sample is 10 requirements and the intervals overlap.
+- Decision: keep lexical as the default (no model files, same accuracy within noise); keep CodeBERT optional; do NOT train or tune more models: the bottleneck is the amount of large-PR gold, not the architecture. Fusion stays a hypothesis until more large-PR labels exist.
+- Scope-creep flags: precision 0.25 at the default threshold against a 0.17 base rate (`bench/eval_creep.py`, 7 positives). Documented as low precision.

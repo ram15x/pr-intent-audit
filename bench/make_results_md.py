@@ -61,6 +61,21 @@ if big:
         L.append(f"| {n} | {s.get('done_precision')} | {s.get('done_recall')} | {s.get('abstained')} | {s.get('fault_catch_not_done')} | "
                  f"{ci(s,'fault_catch_not_done_95ci')} | {s.get('fault_catch_missing')} | {s.get('false_alarm_other_reqs')} | {s.get('judge_errors', 'n/a')} | "
                  f"{s.get('confusion_gold_x_pred[done,partial,missing,unclear]')} |")
+
+rp = R / "retrieval.json"
+if rp.exists():
+    _r = json.loads(rp.read_text(encoding="utf-8"))
+    L += ["", f"### Retrieval only: is the right hunk in the top k? ({_r['n_requirements']} gold requirements, {_r['n_prs']} PRs; no LLM involved)", "",
+          "| retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks (n=10) |", "|---|---|---|---|---|"]
+    for name, v in _r["variants"].items():
+        big = v.get("hit@5_big_prs", {})
+        L.append(f"| {name} | {v['hit@1']['value']} | {v['hit@3']['value']} | {v['hit@5']['value']} {v['hit@5']['ci']} | {big.get('value', 'n/a')} |")
+    _v = next(iter(_r["variants"].values()))
+    L += ["", f"Random ranking would reach hit@5 = {_v['hit@5']['random_baseline']} overall (most gold PRs are small) and "
+          f"{_v['hit@5_big_prs']['random_baseline']} on the large ones, so only the large-PR column discriminates, and with n=10 a "
+          "difference of one or two requirements is noise. No gold PR was in the CodeBERT training set (gold PRs were held out). "
+          "Reading: our trained retriever is not better than word-overlap or BM25 on its own; the CodeBERT+lexical fusion is nominally "
+          "best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result."]
 OUT.write_text("\n".join(L) + "\n", encoding="utf-8")
 txt = "\n".join(L)
 RM = OUT.parents[1] / "README.md"

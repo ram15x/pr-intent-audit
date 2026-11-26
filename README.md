@@ -49,6 +49,20 @@ gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge
 | large PRs (36-98 hunks): top-5 + verifier | 1.0 | 0.778 | 0 | 4/7 | 0.25-0.84 | 2/7 | 2/8 | n/a | {'done': [7, 0, 2, 0], 'partial': [0, 1, 0, 0], 'missing': [0, 0, 3, 0]} |
 | large PRs: judge sees all hunks (prompt is length-capped) **(INVALID: 7 judge calls failed, HTTP 413/429)** | 1.0 | 1.0 | 7 | 4/5 | 0.38-0.96 | 2/5 | 0/6 | 7 | {'done': [5, 0, 0, 4], 'partial': [0, 0, 0, 1], 'missing': [0, 0, 1, 2]} |
 | large PRs: top-5, no verifier | 1.0 | 0.778 | 0 | 4/7 | 0.25-0.84 | 2/7 | 2/8 | n/a | {'done': [7, 0, 2, 0], 'partial': [0, 1, 0, 0], 'missing': [0, 0, 3, 0]} |
+
+### Retrieval only: is the right hunk in the top k? (73 gold requirements, 23 PRs; no LLM involved)
+
+| retrieval | hit@1 | hit@3 | hit@5 (95% CI) | hit@5 on PRs with 10+ hunks (n=10) |
+|---|---|---|---|---|
+| lexical (IDF overlap) | 0.575 | 0.877 | 0.945 [0.87, 0.98] | 0.7 |
+| lexical, full hunk text | 0.562 | 0.904 | 0.932 [0.85, 0.97] | 0.5 |
+| bm25 | 0.658 | 0.863 | 0.918 [0.83, 0.96] | 0.5 |
+| bm25, full hunk text | 0.658 | 0.932 | 0.959 [0.89, 0.99] | 0.7 |
+| fusion lexical+bm25 | 0.63 | 0.877 | 0.932 [0.85, 0.97] | 0.6 |
+| CodeBERT cross-encoder (ours) | 0.562 | 0.808 | 0.932 [0.85, 0.97] | 0.6 |
+| fusion CodeBERT+lexical | 0.589 | 0.89 | 0.973 [0.91, 0.99] | 0.8 |
+
+Random ranking would reach hit@5 = 0.838 overall (most gold PRs are small) and 0.256 on the large ones, so only the large-PR column discriminates, and with n=10 a difference of one or two requirements is noise. No gold PR was in the CodeBERT training set (gold PRs were held out). Reading: our trained retriever is not better than word-overlap or BM25 on its own; the CodeBERT+lexical fusion is nominally best (0.97 / 0.80) but the intervals overlap, so that is a hypothesis, not a result.
 <!-- RESULTS:END -->
 
 ## HTML report
