@@ -194,3 +194,16 @@ The last mining run kept 14 PRs; 13 were MaibornWolff/codecharta (BSD-3), whose 
 - The invalid naive run (`judge_errors` 7, HTTP 429) was a quota problem. Successful calls are cached on disk, so a rerun only pays for the uncached ones.
 - Wrapper changes: reports the provider-measured tokens of each run (`groq_tokens` in the printed call counts), and a 429 that names a per-day cap now stops retrying for that provider instead of retrying 6 times with waits of up to a minute per call.
 - Run order that spends the least: `eval_naive.py` (rerun, only the failed calls), then `eval_gold_llm.py lexical escalate` (the first pass is cached from the lexical run, so only the wider second pass is new), then `eval_partial.py`, then large-PR runs one per day.
+
+## (r) Why the verifier requires every quote to exist (offline replay of cached judge answers, `bench/verifier_policy.py`)
+
+Of the 7 gold-done requirements that came out "unclear" in the lexical run, 6 were a judge "done" that the verifier downgraded because a quoted line does not occur in a cited hunk (1 was a judge error). Looking at those quotes: most are modified, merged or cut mid-line, not exact; a few are the exact line wrapped in extra quotation marks or with escaped quotes. Loosening the string matching (strip wrapping quotes, unescape, drop a trailing ellipsis) rescues only 1 of the 6 requirements, so the matching is not the main cause.
+
+Policy experiment (14-PR gold, cache-only replay, nothing written to results; the "all" row reproduces the real run exactly):
+
+| rule | abstained | done precision | done recall | caught (not-done faults) | caught (missing faults) | false alarm on other reqs |
+|---|---|---|---|---|---|---|
+| all quotes must verify (current) | 7 | 0.963 | 0.812 | 18/26 | 10/26 | 1/22 |
+| at least one quote must verify | 1 | 0.97 | 0.842 | 18/31 | 12/31 | 0/28 |
+
+Reading it: the looser rule recovers 6 abstentions and lifts recall by 0.03, but more requirements are now judged done, so more faults are run against them and 13 of 31 slip through (catch rate 0.58 vs 0.69). One judge call was not cached in the looser replay (`judge_errors` 1), so treat it as approximate. Decision: keep "all quotes must verify". It costs some recall on requirements the judge got right, and it is the part that makes removed requirements stay caught. Recall is the price of the evidence guarantee, and the report shows such cases as unclear, not as missing.
