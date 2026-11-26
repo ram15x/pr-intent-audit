@@ -224,3 +224,14 @@ Entry (p) said the diff-only view could not be fixed offline because bundles hol
 - Security: local-only bind; session cookie (HttpOnly, SameSite=Strict) plus Host check against CSRF and DNS rebinding; JSON-only POSTs; run ids validated (no path traversal); one audit at a time.
 - Verification done: 56 Python tests, headless-DOM UI smoke test (13 checks). Not done: a visual check in a real browser. File URLs were refused by the browser tool and the sandbox declined starting a local server for it, so the layout has only been reviewed from code. Treat visual polish as unverified until someone opens it.
 - Not built: cancelling a running audit, multi-user use, authentication beyond the local cookie.
+
+## (v) `--escalate` and the naive baseline: what the saved runs show, and what they do not (14-PR gold, lexical retrieval)
+
+Written from the saved result files (`gold_eval_llm_lexical_escalate_top5.json`, `gold_eval_llm_naive.json`), not from new runs. The draft for this entry came from an outside review; I re-checked every number against the files.
+
+- `--escalate` (second pass over the top 12 hunks), `judge_errors` 0: done precision 0.967, recall 0.829; abstained 4 (was 7); faults no longer "done" 19/29 (was 18/26); "missing" faults caught 11/29 (was 10/26); false alarms 1/24 (was 1/22); false "done" on not-done 1/3 (unchanged).
+  Reading: abstentions fell and nothing else moved beyond noise. The risk named in entry (g), more chances to find a "done" raising false "done", did not show up here, but with only 3 not-done requirements the set cannot show it. Not adopted as default. Large-PR escalate is still unmeasured.
+- Naive baseline (one prompt, whole PR): INVALID, `judge_errors` 7 (HTTP 429). Its partial numbers (done precision 1.0, recall 0.722, faults no longer "done" 19/26, "missing" faults caught 16/26, false alarms 4/28) must not be compared with the pipeline: failed calls change the denominators. They do say the pipeline's accuracy edge over a plain prompt is unproven, and may not exist.
+- Consequence for the claims: the README must not say retrieval or the verifier improves accuracy. What is shown is the evidence guarantee (every quote is real diff text) and the abstain behaviour.
+- Corrected in the same pass: the generated caveat said precision "must be read against 0.85"; the base rate is 39/42 = 0.93. Also stated explicitly now: the gold set has no `missing` labels (done 39, partial 3, unclear 4, excluded 21).
+- Next: rerun `eval_naive.py` until `judge_errors` = 0 (successful calls are cached), then record the comparison here even if the naive prompt wins.

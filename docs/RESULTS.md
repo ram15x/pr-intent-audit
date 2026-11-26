@@ -10,9 +10,12 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 | hybrid ablation: judge sees all hunks (no retrieval) | 0.963 | 0.839 | 9 | 20/26 | 0.58-0.89 | 16/26 | 2/18 | 0 |
 | hybrid ablation: no verifier | 0.97 | 0.821 | 0 | 19/31 | 0.44-0.76 | 15/31 | 1/26 | 0 |
 | hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.963 | 0.812 | 7 | 18/26 | 0.50-0.83 | 10/26 | 1/22 | 0 |
+| hybrid: lexical retrieval + `--escalate` (top-12 second pass) | 0.967 | 0.829 | 4 | 19/29 | 0.47-0.80 | 11/29 | 1/24 | 0 |
+| naive baseline: one prompt, whole PR, no retrieval or verifier **(INVALID: 7 judge calls failed)** | 1.0 | 0.722 | 3 | 19/26 | 0.54-0.86 | 16/26 | 4/28 | 7 |
 
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
-gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge calls were mostly Groq gpt-oss-120b.
+gold base rate of 'done' is 39/42 = 0.93, so precision must be read against 0.93; the gold set has no 'missing' labels, so every
+'missing' result comes from synthetic removals (omissions only); judge calls were mostly Groq gpt-oss-120b.
 
 ### Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)
 

@@ -25,7 +25,9 @@ rows.append(("ours-only (trained models)", o))
 for tag, name in [("top5", "hybrid: our top-5 hunks + LLM judge + our verifier"),
                   ("all", "hybrid ablation: judge sees all hunks (no retrieval)"),
                   ("top5_noverify", "hybrid ablation: no verifier"),
-                  ("lexical_top5", "hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever")]:
+                  ("lexical_top5", "hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever"),
+                  ("lexical_escalate_top5", "hybrid: lexical retrieval + `--escalate` (top-12 second pass)"),
+                  ("naive", "naive baseline: one prompt, whole PR, no retrieval or verifier")]:
     p = R / f"gold_eval_llm_{tag}.json"
     if p.exists():
         rows.append((name, json.loads(p.read_text(encoding="utf-8"))["summary"]))
@@ -43,7 +45,8 @@ for n, s in rows:
              f"{s.get('fault_catch_rate_missing', s.get('fault_catch_missing'))} | "
              f"{s.get('false_alarm_other_reqs')} | {s.get('judge_errors', 'n/a')} |")
 L += ["", "Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;",
-      "gold base rate of 'done' is 39/42, so precision must be read against 0.85; judge calls were mostly Groq gpt-oss-120b."]
+      "gold base rate of 'done' is 39/42 = 0.93, so precision must be read against 0.93; the gold set has no 'missing' labels, so every",
+      "'missing' result comes from synthetic removals (omissions only); judge calls were mostly Groq gpt-oss-120b."]
 big = []
 for tag, name in [("large_top5", "large PRs (36-98 hunks): top-5 + verifier"),
                   ("large_all", "large PRs: judge sees all hunks (prompt is length-capped)"),

@@ -1,0 +1,313 @@
+{
+ "summary": {
+  "requirements_scored": 42,
+  "abstained": 3,
+  "done_precision": 1.0,
+  "done_recall": 0.722,
+  "false_done_on_notdone": "0/3",
+  "fault_catch_not_done": "19/26",
+  "fault_catch_missing": "16/26",
+  "false_alarm_other_reqs": "4/28",
+  "labels_human_reviewed": false,
+  "judge_errors": 7,
+  "judge_error_examples": [
+   "judge error: RuntimeError: all providers failed (last: groq HTTP 429; seen: gemini skipped (cooling down after 429), groq HTTP 429)"
+  ],
+  "fault_catch_not_done_95ci": [
+   0.54,
+   0.86
+  ],
+  "fault_catch_missing_95ci": [
+   0.43,
+   0.78
+  ],
+  "done_recall_95ci": [
+   0.56,
+   0.84
+  ],
+  "confusion_gold_x_pred[done,partial,missing,unclear]": {
+   "done": [
+    26,
+    1,
+    9,
+    3
+   ],
+   "partial": [
+    0,
+    3,
+    0,
+    0
+   ],
+   "missing": [
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "detail": [
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 1,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 4,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 5,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "CanastaWiki/Canasta-CLI/pull/924",
+   "req": 6,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "aganezov/ont_qc_mcp/pull/135",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "cisagov/manage.get.gov/pull/5156",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "cisagov/manage.get.gov/pull/5156",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "pfBlockerNG/pfBlockerNG/pull/672",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "pfBlockerNG/pfBlockerNG/pull/672",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "jt-mchorse/chunking-strategies-lab/pull/97",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nanohype/eks-gitops/pull/84",
+   "req": 2,
+   "gold": "partial",
+   "pred": "partial"
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "adamsuk/gh-factory/pull/10",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 2,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "ztrange/veri/pull/2693",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 1,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 2,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 3,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 4,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "Agrim-Intelligence/sigma/pull/380",
+   "req": 5,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "epr-ds/nutriplan/pull/759",
+   "req": 1,
+   "gold": "done",
+   "pred": "partial"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 1,
+   "gold": "partial",
+   "pred": "partial"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 2,
+   "gold": "partial",
+   "pred": "partial"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 3,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "iteam7/gateway7/pull/150",
+   "req": 4,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 1,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 2,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 3,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 4,
+   "gold": "done",
+   "pred": "missing"
+  },
+  {
+   "pr": "nahuel893/agents-system/pull/215",
+   "req": 5,
+   "gold": "done",
+   "pred": "done"
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 1,
+   "gold": "done",
+   "pred": "unclear"
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 2,
+   "gold": "done",
+   "pred": "unclear"
+  },
+  {
+   "pr": "YinceIuCode/assistant_core_lab/pull/26",
+   "req": 3,
+   "gold": "done",
+   "pred": "unclear"
+  }
+ ],
+ "variant": "naive",
+ "llm_calls": {
+  "cache": 4,
+  "net": 34,
+  "fail": 2
+ },
+ "llm_by_provider_this_run": {
+  "groq": 34
+ },
+ "gemini_model": "gemini-3.5-flash"
+}
