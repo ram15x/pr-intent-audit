@@ -4,7 +4,7 @@ Did the pull request do what was asked? Especially when a coding agent wrote it.
 
 Give it a PR URL and the ask (the prompt you gave Claude Code or Codex, or the issue/PR body). It splits the ask into
 requirements, finds the hunks that address each one, and reports **done / partial / missing / unclear** with evidence
-pinned to diff lines, plus hunks that no requirement claims (possible scope creep). It never approves or blocks a merge.
+pinned to diff lines, plus hunks that no requirement claims (listed as unmapped changes, not scored). It never approves or blocks a merge.
 
 ```
 # any public PR; --ask-file is optional (use it when the ask is a prompt, not the PR body)
@@ -56,14 +56,14 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 | hybrid: our top-5 hunks + LLM judge + our verifier | 0.966 | 0.824 | 5 | 21/28 | 0.57-0.87 | 15/28 | 1/19 | 0 |
 | hybrid ablation: judge sees all hunks (no retrieval) | 0.963 | 0.839 | 9 | 20/26 | 0.58-0.89 | 16/26 | 2/18 | 0 |
 | hybrid ablation: no verifier | 0.97 | 0.821 | 0 | 19/31 | 0.44-0.76 | 15/31 | 1/26 | 0 |
-| hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.963 | 0.812 | 7 | 18/26 | 0.50-0.83 | 10/26 | 1/22 | 0 |
-| hybrid: lexical retrieval + `--escalate` (top-12 second pass) | 0.967 | 0.829 | 4 | 19/29 | 0.47-0.80 | 11/29 | 1/24 | 0 |
+| hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.96 | 0.8 | 9 | 18/24 | 0.55-0.88 | 10/24 | 3/16 | 0 |
+| hybrid: lexical retrieval + `--escalate` (top-12 second pass) | 0.964 | 0.818 | 6 | 19/27 | 0.52-0.84 | 11/27 | 3/18 | 0 |
 | hybrid: lexical retrieval + unchanged context lines shown to the judge (`--context`) | 0.967 | 0.879 | 6 | 19/29 | 0.47-0.80 | 13/29 | 3/23 | 0 |
 | naive baseline: one prompt, whole PR, no retrieval or verifier | 1.0 | 0.744 | 0 | 22/29 | 0.58-0.88 | 20/29 | 2/28 | 0 |
 
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/42 = 0.93, so precision must be read against 0.93; the gold set has no 'missing' labels, so every
-'missing' result comes from synthetic removals (omissions only); judge calls were mostly Groq gpt-oss-120b.
+'missing' result comes from synthetic removals (omissions only); judge calls were mostly Groq gpt-oss-120b. Rows 'lexical', '--escalate' and '--context' were recomputed from cached judge answers under the added-lines-only verifier (the default since DECISIONS w); the first four rows (CodeBERT retriever, no-retrieval and no-verifier ablations) and the naive row come from earlier runs under the older any-line rule or no verifier, so compare them with care.
 
 ### Large PRs (4 PRs, 13 requirements; labels by Claude, NOT human-reviewed; tiny sample)
 
@@ -96,7 +96,7 @@ Random ranking would reach hit@5 = 0.58 overall (most gold PRs are small) and 0.
 `docs/demo_report.html` (open it in a browser) is a real audit of a public, MIT-licensed PR, built from saved judge
 responses, not a live run. The PR was chosen only because the saved responses cover all its requirements and its repo has
 a permissive license. It is not a clean showcase: requirement 4 ("run pytest ...") is judged DONE on weak evidence where the hand
-label is UNCLEAR, and 3 scope-creep candidates cost 15 points. The report says so on its first screen. Regenerate it with `python bench/demo_from_cache.py`.
+label is UNCLEAR, and its score is 100 although one requirement is not verifiable from a diff. The report says so on its first screen. Unmapped changes are listed there but, since flag precision is low, they no longer change the score. Regenerate it with `python bench/demo_from_cache.py`.
 
 ## Cost of one audit
 
@@ -132,8 +132,7 @@ Opens a local app (http://127.0.0.1:8765): paste a PR URL or pick local commits,
 ## HTML report
 
 `pr-audit run <PR_URL> --retrieval lexical --html report.html` also writes one self-contained HTML file: the score, a
-step-by-step breakdown of how it was computed (done = 1, partial = 0.5, missing = 0, minus a capped scope-creep
-penalty), a map of which hunks back which requirement, and for every verdict the exact diff lines the judge quoted
+step-by-step breakdown of how it was computed (done = 1, partial = 0.5, missing = 0, with unmapped changes listed but not scored), a map of which hunks back which requirement, and for every verdict the exact diff lines the judge quoted
 (verified to exist in the hunk). No network, no external assets; PR text is rendered as text, never as HTML.
 
 ## Where it fails (read this before trusting a number)

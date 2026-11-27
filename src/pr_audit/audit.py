@@ -155,10 +155,8 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
         cov = sum(1.0 if r.status == "done" else 0.5 if r.status == "partial" else 0.0 for r in decided) / len(decided)
         rank = round(100 * cov)
         lines.append(f"coverage {cov:.2f} over {len(decided)} decided requirement(s) -> {rank}")
-        pen = min(5 * len(creep), 20)
-        if pen:
-            rank -= pen
-            lines.append(f"scope-creep candidates {len(creep)} -> -{pen}")
+        if creep:                      # shown, never scored: flag precision is only 0.25 (docs/DECISIONS.md)
+            lines.append(f"{len(creep)} unmapped change(s) listed for a human to review; they do not change the score")
         rank = max(rank, 0)
     else:
         rank = None

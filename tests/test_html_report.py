@@ -19,8 +19,8 @@ def make(evil=False):
 def test_breakdown_matches_rank_formula():
     d = build_data(make())
     bd = d["breakdown"]
-    assert [r["id"] for r in bd["decided"]] == [1, 2] and bd["coverage"] == 0.5 and bd["creep_penalty"] == 5
-    assert round(bd["coverage"] * 100) - bd["creep_penalty"] == 45   # what the UI derives; run_audit gives the real rank
+    assert [r["id"] for r in bd["decided"]] == [1, 2] and bd["coverage"] == 0.5 and bd["creep_penalty"] == 0
+    assert round(bd["coverage"] * 100) - bd["creep_penalty"] == 50
     assert [r["id"] for r in bd["excluded"]] == [3]
     assert d["hunks"][0]["claimed_by"] == [1] and d["hunks"][1]["creep"] is True
 

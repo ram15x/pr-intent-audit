@@ -14,7 +14,7 @@ def _norm(s: str) -> str:
 
 # Evidence rule. False = legacy (quote may come from any line of the raw hunk, incl. unchanged context and removed
 # lines). True = a quote must be an ADDED line; context/removed lines can never prove a requirement was implemented.
-ADDED_ONLY = False
+ADDED_ONLY = True
 
 
 def _lines(h: Hunk, added_only: bool) -> list[str]:

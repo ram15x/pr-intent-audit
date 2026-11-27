@@ -24,7 +24,7 @@ def test_audit_end_to_end():
     st = {r.id: r.status for r in a.reqs}
     assert st == {1: "done", 2: "missing"}
     assert a.reqs[0].evidence[0][0] == "a.py:1-3" and "def add_login():" in a.reqs[0].evidence[0][2]
-    assert a.rank == 50 - 5          # coverage 0.5, minus one creep candidate (b.py)
+    assert a.rank == 50              # coverage 0.5; the creep candidate (b.py) is listed but not scored
     assert [h for h, _ in a.creep] == ["b.py:1-3"]
     md = render_markdown(a)
     assert "MISSING" in md and "DONE" in md and "never approves" in md
@@ -39,7 +39,7 @@ def test_audit_with_judge_decides_status_and_partial_counts_half():
     a = run_audit(bundle(), scorer, FakeClf(), tau=0.5, band=0.1, judge=judge)
     assert [r.status for r in a.reqs] == ["partial", "unclear"]
     assert a.reqs[0].evidence[0][0] == "a.py:1-3"
-    assert a.rank == 50 - 5          # partial counts 0.5 over 1 decided requirement, minus creep
+    assert a.rank == 50              # partial counts 0.5 over 1 decided requirement
     assert "PARTIAL" in render_markdown(a)
 
 
@@ -57,7 +57,7 @@ def test_missing_optional_requirement_is_not_counted_against_the_rank():
     b = bundle().model_copy(update={"ask": "Approaches to evaluate:\n- We could add login support\n- We could add rate limiting\n"})
     a = run_audit(b, scorer, FakeClf(), tau=0.5, band=0.1)
     assert [(r.status, r.optional) for r in a.reqs] == [("done", True), ("missing", True)]
-    assert a.rank == 100 - 5          # only the done one counts; one creep candidate still penalised
+    assert a.rank == 100            # only the done one counts; creep candidate not scored
 
 
 def test_wide_judge_receives_the_ranked_list():

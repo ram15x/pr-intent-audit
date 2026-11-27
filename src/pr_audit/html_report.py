@@ -32,7 +32,7 @@ def build_data(a: Audit, run_info: str = "") -> dict:
     decided = [r for r in a.reqs if r.status != "unclear" and not (r.optional and r.status == "missing")]
     excluded = [r for r in a.reqs if r not in decided]
     cov = (sum(POINTS[r.status] for r in decided) / len(decided)) if decided else None
-    creep_pen = min(5 * len(a.creep), 20) if decided else 0
+    creep_pen = 0                       # unmapped changes are listed, never scored
     return dict(
         pr=dict(source=b.source, title=b.title, ask_source=b.ask_source, notes=b.notes),
         run_info=run_info, rank=a.rank, band=a.band, low_confidence=a.low_confidence,
@@ -246,7 +246,7 @@ function openReq(id,scroll,hunk){
 document.getElementById("copyc").onclick=function(){
   var L=["## PR Intent Audit: "+(D.rank==null?"n/a":D.rank+"/100")+" ("+D.band+")","",D.pr.source,"","| # | Requirement | Verdict | Evidence |","|---|---|---|---|"];
   D.reqs.forEach(function(r){var ev=r.evidence.map(function(e){return "`"+e.hunk+"`"}).join(", ")||"-";L.push("| "+r.id+" | "+r.text.replace(/\|/g,"/").slice(0,140)+" | "+ST[r.status]+(r.optional?" (option)":"")+" | "+ev+" |")});
-  if(D.creep.length){L.push("","Possible scope creep (candidates): "+D.creep.map(function(c){return "`"+c.hunk+"`"}).join(", "))}
+  if(D.creep.length){L.push("","Unmapped changes (review, not scored): "+D.creep.map(function(c){return "`"+c.hunk+"`"}).join(", "))}
   L.push("","_Evidence lines are verified to exist in the cited hunks. Unclear = not verifiable. This never approves or blocks a merge._");
   var t=L.join("\n"),b=this;function ok(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy as PR comment"},1400)}
   try{navigator.clipboard.writeText(t).then(ok,function(){fallback()})}catch(e){fallback()}
@@ -271,7 +271,7 @@ document.getElementById("copyc").onclick=function(){
   if(B.coverage!=null){
     var sum=el("div","sum"),mk=function(v,l){var d=el("div");add(d,el("b",null,String(v)),el("span",null,l));return d};
     add(sum,mk(B.decided.length,"decided requirements"),mk((B.coverage*B.decided.length).toFixed(1)+" / "+B.decided.length,"points earned"),
-      mk(Math.round(B.coverage*100),"coverage × 100"),mk(B.creep_penalty?"−"+B.creep_penalty:"0","scope-creep penalty ("+B.creep_count+" hunk"+(B.creep_count===1?"":"s")+" × 5, max 20)"),mk(D.rank,"final score"));
+      mk(Math.round(B.coverage*100),"coverage × 100"),mk(D.rank,"final score (unmapped changes are not scored)"));
     card.appendChild(sum)}
   if(B.excluded.length){
     var ex=el("div","excl");
@@ -291,7 +291,7 @@ document.getElementById("copyc").onclick=function(){
     h.claimed_by.forEach(function(id){var r=reqById[id];if(r&&(best==null||rank[r.status]>rank[best]))best=r.status});
     var cls=best?best:(h.creep?"creep":"other");
     var bl=el("div","blk "+cls);bl.style.flexGrow=Math.max(1,Math.sqrt(h.n_add+h.n_del));bl.tabIndex=0;blkEls[h.id]=bl;
-    var label=h.file+" ("+h.n_add+" added, "+h.n_del+" removed)\n"+(h.claimed_by.length?"Claimed by requirement "+h.claimed_by.map(function(i){return "#"+i}).join(", "):h.creep?"Not claimed by any requirement: scope-creep candidate":"Not claimed (test, doc or config)");
+    var label=h.file+" ("+h.n_add+" added, "+h.n_del+" removed)\n"+(h.claimed_by.length?"Claimed by requirement "+h.claimed_by.map(function(i){return "#"+i}).join(", "):h.creep?"Not claimed by any requirement: unmapped change":"Not claimed (test, doc or config)");
     bl.addEventListener("mousemove",function(e){showTip(e,label)});
     bl.addEventListener("mouseenter",function(){h.claimed_by.forEach(function(i){hl(i,true,false,false)})});
     bl.addEventListener("mouseleave",function(){hideTip();h.claimed_by.forEach(function(i){hl(i,false,false,false)})});
@@ -299,7 +299,7 @@ document.getElementById("copyc").onclick=function(){
     map.appendChild(bl)});
   card.appendChild(map);
   var lg=el("div","legend"),L=function(c,t){var s=el("span");var i=el("i");i.className="blk "+c;s.appendChild(i);s.appendChild(document.createTextNode(t));return s};
-  add(lg,L("done","cited for a done requirement"),L("partial","cited for a partial one"),L("creep","unclaimed code (candidate scope creep)"),L("other","unclaimed test / doc / config"));
+  add(lg,L("done","cited for a done requirement"),L("partial","cited for a partial one"),L("creep","unclaimed code (unmapped change)"),L("other","unclaimed test / doc / config"));
   card.appendChild(lg);sec.appendChild(card);app.appendChild(sec);
 })();
 
@@ -374,7 +374,7 @@ function buildReq(r){
 /* ---------- scope creep ---------- */
 (function(){
   var sec=el("section","fade");sec.id="creep";
-  add(sec,el("h2",null,"Possible scope creep"),el("p","sub","Hunks (not tests or docs) that no requirement claims. These are candidates, not findings: precision is low, so a human should look."));
+  add(sec,el("h2",null,"Unmapped changes"),el("p","sub","Code hunks (not tests or docs) that no requirement claims. They may be scope creep or necessary supporting work; they do not affect the score, so a human should decide."));
   if(!D.creep.length)sec.appendChild(el("div","card pad none","None flagged."));
   else{var l=el("div","creepl");D.creep.forEach(function(c){var it=el("div","it"),e=evidenceBlock({hunk:c.hunk,relevance:c.relevance,quotes:[]});e.style.margin="0";e.style.border="0";it.appendChild(e);l.appendChild(it)});sec.appendChild(l)}
   app.appendChild(sec);

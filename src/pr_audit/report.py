@@ -27,9 +27,9 @@ def render_markdown(a: Audit, run_info: str = "") -> str:
         if not r.evidence:
             out.append("- " + (r.note[:240] if r.note else "no hunk matched this requirement above the threshold"))
         out.append("")
-    out += ["## Possible scope creep", ""]
+    out += ["## Unmapped changes", ""]
     if a.creep:
-        out.append("Hunks (excluding tests/docs) that no requirement claims. Low precision: treat as candidates.")
+        out.append("Hunks (excluding tests/docs) that no requirement claims. They may be scope creep or needed supporting work; not scored.")
         out += [f"- `{h}` (best relevance to any requirement {s})" for h, s in a.creep]
     else:
         out.append("None flagged.")

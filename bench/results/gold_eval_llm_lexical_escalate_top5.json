@@ -1,34 +1,34 @@
 {
  "summary": {
   "requirements_scored": 42,
-  "abstained": 4,
-  "done_precision": 0.967,
-  "done_recall": 0.829,
+  "abstained": 6,
+  "done_precision": 0.964,
+  "done_recall": 0.818,
   "false_done_on_notdone": "1/3",
-  "fault_catch_not_done": "19/29",
-  "fault_catch_missing": "11/29",
-  "false_alarm_other_reqs": "1/24",
+  "fault_catch_not_done": "19/27",
+  "fault_catch_missing": "11/27",
+  "false_alarm_other_reqs": "3/18",
   "labels_human_reviewed": false,
   "judge_errors": 0,
   "judge_error_examples": [],
   "fault_catch_not_done_95ci": [
-   0.47,
-   0.8
+   0.52,
+   0.84
   ],
   "fault_catch_missing_95ci": [
-   0.23,
-   0.56
+   0.25,
+   0.59
   ],
   "done_recall_95ci": [
-   0.67,
-   0.92
+   0.66,
+   0.91
   ],
   "confusion_gold_x_pred[done,partial,missing,unclear]": {
    "done": [
-    29,
+    27,
     2,
     4,
-    4
+    6
    ],
    "partial": [
     1,
@@ -157,13 +157,13 @@
    "pr": "adamsuk/gh-factory/pull/10",
    "req": 1,
    "gold": "done",
-   "pred": "done"
+   "pred": "unclear"
   },
   {
    "pr": "adamsuk/gh-factory/pull/10",
    "req": 2,
    "gold": "done",
-   "pred": "done"
+   "pred": "unclear"
   },
   {
    "pr": "adamsuk/gh-factory/pull/10",
@@ -300,12 +300,11 @@
  ],
  "variant": "lexical_escalate_top5",
  "llm_calls": {
-  "cache": 95,
-  "net": 16,
-  "fail": 0
+  "cache": 103,
+  "net": 0,
+  "fail": 2,
+  "groq_tokens": 0
  },
- "llm_by_provider_this_run": {
-  "groq": 16
- },
- "gemini_model": "gemini-3.5-flash"
+ "llm_by_provider_this_run": {},
+ "gemini_model": null
 }

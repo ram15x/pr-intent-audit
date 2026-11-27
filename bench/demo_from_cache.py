@@ -34,7 +34,10 @@ ok_repos = {r for r, v in lic.items() if v["permissive"]}
 bundles = {u: b for u, b in bundles.items() if "/".join(u.split("github.com/")[1].split("/")[:2]) in ok_repos}
 llm = CacheOnly(ROOT / ".cache/llm", providers=())
 best = None
+PIN = sys.argv[2] if len(sys.argv) > 2 else None      # pin the demo PR so the README text stays true
 for u, b in bundles.items():
+    if PIN and u != PIN:
+        continue
     if not b.hunks or not b.ask.strip():
         continue
     n0 = llm.calls["cache"]
@@ -48,7 +51,7 @@ for u, b in bundles.items():
     except Exception:
         continue
     hit = llm.calls["cache"] - n0
-    if len(a.reqs) >= 3 and hit >= 3 and not errs and (best is None or (hit, len(a.bundle.hunks)) > best[0]):
+    if len(a.reqs) >= 3 and hit >= 3 and not errs and not a.low_confidence and (best is None or (hit, len(a.bundle.hunks)) > best[0]):
         best = ((hit, len(a.bundle.hunks)), u, a)
 if not best:
     sys.exit("no PR is fully covered by the cache")

@@ -261,3 +261,12 @@ faults called missing 13/29 [0.28,0.62], false alarms 3/23. Default lexical: 0.9
 Read: recall on true `done` rises 0.81 -> 0.88 (and abstentions fall 7 -> 6), but more injected omissions stay `done` (10/29 vs 8/26)
 and false alarms rise 1/22 -> 3/23. All intervals overlap, so this is not an established gain; it stays opt-in. Cache replay with the
 added-lines-only verifier gives identical numbers, i.e. the strict rule costs nothing in this mode. Used 164K Groq tokens (one run = most of a day).
+
+## (z) Defaults changed: added-lines-only evidence, unmapped changes are not scored
+- `verify.ADDED_ONLY` is now True. Lexical/escalate/context rows were recomputed from cached judge answers (0 network calls):
+  lexical 0.960 / 0.800, abstained 9, faults 18/24 and 10/24, false alarms 3/16 (was 0.963 / 0.812, 7, 18/26, 10/26, 1/22);
+  escalate 0.964 / 0.818, abstained 6, 19/27, 11/27, 3/18; context unchanged. Rows from older runs are marked in the table caveat.
+- The scope-creep penalty (-5 per hunk, max -20) is gone: flag precision is 0.25. The hunks are listed as "Unmapped changes".
+  Demo report regenerated pinned to assistant_core_lab#26 (score now 100 with one requirement not verifiable from a diff; the demo
+  note says so). Without the pin the demo picker chose other PRs once more answers were cached; it now also skips low-confidence audits.
+- Requirement cap and untracked-file handling: see tests/test_truncation.py, tests/test_local_untracked.py.

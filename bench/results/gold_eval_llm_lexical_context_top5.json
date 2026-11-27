@@ -300,14 +300,11 @@
  ],
  "variant": "lexical_context_top5",
  "llm_calls": {
-  "cache": 4,
-  "net": 94,
+  "cache": 98,
+  "net": 0,
   "fail": 0,
-  "groq_tokens": 163906
+  "groq_tokens": 0
  },
- "llm_by_provider_this_run": {
-  "gemini": 15,
-  "groq": 79
- },
- "gemini_model": "gemini-3.5-flash"
+ "llm_by_provider_this_run": {},
+ "gemini_model": null
 }

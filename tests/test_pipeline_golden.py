@@ -32,8 +32,8 @@ def test_golden_scores_statuses_and_evidence():
     assert [r.status for r in a.reqs] == ["done", "unclear", "missing"]       # invented quote is downgraded, never "done"
     assert [e[0] for e in a.reqs[0].evidence] == ["auth.py:1-6"] and a.reqs[0].evidence[0][2] == ["def login(user, pw):"]
     assert a.reqs[1].evidence == []
-    # (1 done + 1 missing) / 2 decided = 50, minus 5 for the one unclaimed hunk. auth.py is cited as evidence, so it is NOT creep.
-    assert [c[0] for c in a.creep] == ["misc.py:1-3"] and a.rank == 45
+    # (1 done + 1 missing) / 2 decided = 50; the one unclaimed hunk is listed but not scored. auth.py is cited as evidence, so it is NOT creep.
+    assert [c[0] for c in a.creep] == ["misc.py:1-3"] and a.rank == 50
     md = render_markdown(a)
     assert "DONE" in md and "UNCLEAR" in md and "MISSING" in md and "def login(user, pw):" in md
     d = build_data(a)
