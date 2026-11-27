@@ -70,6 +70,11 @@ def clean_ask(text: str) -> str:
 
 
 def split_requirements(text: str, max_reqs: int = 12) -> list[Requirement]:
+    return split_requirements_ex(text, max_reqs)[0]
+
+
+def split_requirements_ex(text: str, max_reqs: int = 12) -> tuple[list[Requirement], int]:
+    """(requirements kept, number found beyond max_reqs and therefore NOT audited)."""
     cleaned = clean_ask(text)
     items: list[tuple[str, bool]] = []
     optional = False
@@ -93,4 +98,4 @@ def split_requirements(text: str, max_reqs: int = 12) -> list[Requirement]:
     for i, (s_, opt) in enumerate(items[:max_reqs], 1):
         s_ = re.sub(r"\s+", " ", s_).strip()
         reqs.append(Requirement(id=i, text=s_, source_sentence=s_, unclear=not MODAL.search(s_), optional=opt))
-    return reqs
+    return reqs, max(0, len(items) - max_reqs)

@@ -17,10 +17,12 @@ pr-audit run https://github.com/ztrange/veri/pull/2693 --out report.md
 cited hunk exists and each quoted line occurs in it; otherwise the verdict becomes `unclear`. A looser verifier rule was
 tested and rejected because more removed requirements slipped through (docs/DECISIONS.md, entry r).
 
-**Not shown:** that retrieval plus the verifier makes the verdicts *more accurate* than a single "did this PR meet the ask?"
-prompt. A naive whole-PR baseline exists (`bench/eval_naive.py`); its only run so far is INVALID (7 judge calls failed on
-the free-tier quota), so no comparison is claimed. Until a clean run exists, read the pipeline as "verdicts you can check",
-not "verdicts that are more often right".
+**Not shown, and the clean baseline run does not show it:** a naive whole-PR prompt (`bench/eval_naive.py`, one prompt, no retrieval,
+no verifier, 0 judge errors) scored precision 1.0, recall 0.744, caught 22/29 injected omissions as no-longer-done and called
+20/29 of them `missing`, against 18/26 and 10/26 for the lexical pipeline. Intervals overlap everywhere (n=42 requirements), so
+neither is better on this evidence. What the pipeline adds is checkable evidence (every quote is real diff text) and abstention
+instead of guessing; the naive prompt gives no such guarantee. Read the pipeline as "verdicts you can check", not "verdicts that
+are more often right".
 
 Other limits to keep in mind: the 14-PR gold set has no `missing` labels (every "missing" result comes from synthetic removals,
 which cover omissions only), the labels are single-annotator and were drafted by Claude, and scope-creep flags have low
@@ -56,7 +58,8 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 | hybrid ablation: no verifier | 0.97 | 0.821 | 0 | 19/31 | 0.44-0.76 | 15/31 | 1/26 | 0 |
 | hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.963 | 0.812 | 7 | 18/26 | 0.50-0.83 | 10/26 | 1/22 | 0 |
 | hybrid: lexical retrieval + `--escalate` (top-12 second pass) | 0.967 | 0.829 | 4 | 19/29 | 0.47-0.80 | 11/29 | 1/24 | 0 |
-| naive baseline: one prompt, whole PR, no retrieval or verifier **(INVALID: 7 judge calls failed)** | 1.0 | 0.722 | 3 | 19/26 | 0.54-0.86 | 16/26 | 4/28 | 7 |
+| hybrid: lexical retrieval + unchanged context lines shown to the judge (`--context`) | 0.967 | 0.879 | 6 | 19/29 | 0.47-0.80 | 13/29 | 3/23 | 0 |
+| naive baseline: one prompt, whole PR, no retrieval or verifier | 1.0 | 0.744 | 0 | 22/29 | 0.58-0.88 | 20/29 | 2/28 | 0 |
 
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/42 = 0.93, so precision must be read against 0.93; the gold set has no 'missing' labels, so every
@@ -123,7 +126,7 @@ pr-audit serve
 Opens a local app (http://127.0.0.1:8765): paste a PR URL or pick local commits, add the ask, and watch each requirement resolve live (status, reason, cited hunks, judge tokens used). The finished audit opens as the full evidence report in the same page, with Markdown/JSON downloads, a history of past runs, and the saved example report. Runs are stored under `.pr-audit/` (gitignored).
 
 - Standard library only; binds to 127.0.0.1; API calls need the session cookie and a local Host header, so other websites cannot drive your API keys. One audit at a time, to protect the free-tier quota.
-- Same pipeline as the CLI (`pipeline.py`): lexical retrieval, LLM judge, verifier. "Wider search" is the experimental `--escalate`; "Show unchanged context" is an untested option (see docs/DECISIONS.md t).
+- Same pipeline as the CLI (`pipeline.py`): lexical retrieval, LLM judge, verifier. "Wider search" is the experimental `--escalate`; "Show unchanged context" is measured but not an established gain (higher recall, more false alarms; docs/DECISIONS.md y).
 - Checked by 56 Python tests (lifecycle, auth, one-at-a-time, local-repo run with a stub judge) and a headless-DOM UI smoke test (`node tests/ui/smoke.js`, needs `npm install jsdom`). The visual design has not been checked in a real browser by the author yet: if something looks off, open an issue.
 
 ## HTML report

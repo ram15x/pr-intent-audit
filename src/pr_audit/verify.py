@@ -12,7 +12,17 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-def verify_judgment(j: Judgment, hunks: list[Hunk]) -> Judgment:
+# Evidence rule. False = legacy (quote may come from any line of the raw hunk, incl. unchanged context and removed
+# lines). True = a quote must be an ADDED line; context/removed lines can never prove a requirement was implemented.
+ADDED_ONLY = False
+
+
+def _lines(h: Hunk, added_only: bool) -> list[str]:
+    return list(h.added) if added_only else h.added + h.text.splitlines()
+
+
+def verify_judgment(j: Judgment, hunks: list[Hunk], added_only: bool | None = None) -> Judgment:
+    added_only = ADDED_ONLY if added_only is None else added_only
     by_id = {h.id: h for h in hunks}
     problems: list[str] = []
 
@@ -26,7 +36,7 @@ def verify_judgment(j: Judgment, hunks: list[Hunk]) -> Judgment:
             if i not in by_id:
                 problems.append(f"cited hunk does not exist: {i}")
         # quotes must appear in the added lines (or text) of a cited hunk
-        pool = [_norm(l) for h in cited for l in (h.added + h.text.splitlines())]
+        pool = [_norm(l) for h in cited for l in _lines(h, added_only)]
         blob = " ".join(pool)
         for q in j.quotes:
             nq = _norm(q).rstrip(",;").strip() if _norm(q) not in blob else _norm(q)
@@ -42,9 +52,10 @@ def verify_judgment(j: Judgment, hunks: list[Hunk]) -> Judgment:
     return j
 
 
-def quotes_in(h: Hunk, quotes: list[str]) -> list[str]:
+def quotes_in(h: Hunk, quotes: list[str], added_only: bool | None = None) -> list[str]:
     """The subset of `quotes` that really occur in this one hunk (same matching rule as verify_judgment)."""
-    blob = " ".join(_norm(l) for l in (h.added + h.text.splitlines()))
+    added_only = ADDED_ONLY if added_only is None else added_only
+    blob = " ".join(_norm(l) for l in _lines(h, added_only))
     keep = []
     for q in quotes:
         nq = _norm(q).rstrip(",;").strip()

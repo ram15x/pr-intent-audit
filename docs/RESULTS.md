@@ -11,7 +11,8 @@ Faults: all hunks a requirement points at are removed; controls share no hunks w
 | hybrid ablation: no verifier | 0.97 | 0.821 | 0 | 19/31 | 0.44-0.76 | 15/31 | 1/26 | 0 |
 | hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever | 0.963 | 0.812 | 7 | 18/26 | 0.50-0.83 | 10/26 | 1/22 | 0 |
 | hybrid: lexical retrieval + `--escalate` (top-12 second pass) | 0.967 | 0.829 | 4 | 19/29 | 0.47-0.80 | 11/29 | 1/24 | 0 |
-| naive baseline: one prompt, whole PR, no retrieval or verifier **(INVALID: 7 judge calls failed)** | 1.0 | 0.722 | 3 | 19/26 | 0.54-0.86 | 16/26 | 4/28 | 7 |
+| hybrid: lexical retrieval + unchanged context lines shown to the judge (`--context`) | 0.967 | 0.879 | 6 | 19/29 | 0.47-0.80 | 13/29 | 3/23 | 0 |
+| naive baseline: one prompt, whole PR, no retrieval or verifier | 1.0 | 0.744 | 0 | 22/29 | 0.58-0.88 | 20/29 | 2/28 | 0 |
 
 Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;
 gold base rate of 'done' is 39/42 = 0.93, so precision must be read against 0.93; the gold set has no 'missing' labels, so every

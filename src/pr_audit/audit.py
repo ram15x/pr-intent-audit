@@ -11,7 +11,7 @@ from typing import Callable
 from .coverage import best_per_req, features, orphan_flags
 from .inject import is_substantive
 from .pairs import hunk_text
-from .requirements import clean_ask, split_requirements
+from .requirements import clean_ask, split_requirements_ex
 from .schemas import Hunk, PRBundle, Verdict
 from .verify import quotes_in, verify_judgment
 from .schemas import Judgment
@@ -41,6 +41,7 @@ class Audit:
     band: str
     rank_lines: list[str]
     low_confidence: bool
+    dropped: int = 0                 # requirements found in the ask but beyond the cap, so NOT audited
 
 
 def load_scorer(model_dir: str | Path) -> Scorer:
@@ -87,7 +88,7 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
               req_texts: list[str] | None = None, judge=None, topk: int = 5, wide_k: int = 12, progress=None) -> Audit:
     """judge: optional callable (req_id, text, top_hunks) -> Judgment (already verified). When given it decides each
     requirement's status; our relevance model only retrieves the candidate hunks."""
-    reqs = [] if req_texts else split_requirements(bundle.ask)
+    reqs, dropped = ([], 0) if req_texts else split_requirements_ex(bundle.ask)
     texts = list(req_texts or []) or [r.text for r in reqs] or [clean_ask(bundle.ask)[:400] or bundle.title]
     thin = None
     if not reqs and not req_texts:
@@ -148,7 +149,7 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
     creep = [(h.id, round(s, 2)) for h, o, s in zip(hunks, orphans, _best_hunk(m)) if o and is_substantive(h) and h.id not in cited]
 
     decided = [r for r in results if r.status != "unclear" and not (r.optional and r.status == "missing")]
-    low = len(results) > 0 and (len(results) - len(decided)) / len(results) > 0.30
+    low = (len(results) > 0 and (len(results) - len(decided)) / len(results) > 0.30) or dropped > 0
     lines: list[str] = []
     if decided:
         cov = sum(1.0 if r.status == "done" else 0.5 if r.status == "partial" else 0.0 for r in decided) / len(decided)
@@ -162,12 +163,14 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
     else:
         rank = None
         lines.append("no requirement could be decided")
+    if dropped:
+        lines.append(f"{dropped} further requirement(s) in the ask were NOT audited (cap of {len(results)}); this score covers only the first {len(results)}")
     n_unc = len(results) - len(decided)
     if n_unc:
         lines.append(f"{n_unc} requirement(s) unclear, excluded from coverage")
     band_name = ("n/a" if rank is None else "matches the ask" if rank >= 90 else "minor gaps" if rank >= 70
                  else "significant gaps" if rank >= 40 else "does not match")
-    return Audit(bundle, results, pr_verdict, pr_probs, creep, rank, band_name, lines, low)
+    return Audit(bundle, results, pr_verdict, pr_probs, creep, rank, band_name, lines, low, dropped)
 
 
 def _best_hunk(m):

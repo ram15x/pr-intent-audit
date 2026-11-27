@@ -27,6 +27,7 @@ for tag, name in [("top5", "hybrid: our top-5 hunks + LLM judge + our verifier")
                   ("top5_noverify", "hybrid ablation: no verifier"),
                   ("lexical_top5", "hybrid ablation: lexical word-overlap retrieval instead of our CodeBERT retriever"),
                   ("lexical_escalate_top5", "hybrid: lexical retrieval + `--escalate` (top-12 second pass)"),
+                  ("lexical_context_top5", "hybrid: lexical retrieval + unchanged context lines shown to the judge (`--context`)"),
                   ("naive", "naive baseline: one prompt, whole PR, no retrieval or verifier")]:
     p = R / f"gold_eval_llm_{tag}.json"
     if p.exists():

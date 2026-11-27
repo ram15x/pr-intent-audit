@@ -235,3 +235,29 @@ Written from the saved result files (`gold_eval_llm_lexical_escalate_top5.json`,
 - Consequence for the claims: the README must not say retrieval or the verifier improves accuracy. What is shown is the evidence guarantee (every quote is real diff text) and the abstain behaviour.
 - Corrected in the same pass: the generated caveat said precision "must be read against 0.85"; the base rate is 39/42 = 0.93. Also stated explicitly now: the gold set has no `missing` labels (done 39, partial 3, unclear 4, excluded 21).
 - Next: rerun `eval_naive.py` until `judge_errors` = 0 (successful calls are cached), then record the comparison here even if the naive prompt wins.
+
+## (w) Evidence rule: added lines only (offline replay, no quota)
+An outside review noted the verifier accepted quotes from any line of the raw hunk (context and removed lines too), while the
+judge is told to quote added lines. Added `verify.ADDED_ONLY` (default still False, so published numbers reproduce) and
+`bench/verifier_added_only.py` (cache replay, 14-PR gold set, judge_errors 0):
+- legacy: abstained 7, precision 0.963, recall 0.812, caught 18/26, false alarm 1/22
+- added-only: abstained 9, precision 0.960, recall 0.800, caught 18/24, false alarm 3/16
+Two more requirements fall to `unclear` and the eligible-fault denominators shrink, so the two rows are not directly comparable.
+The stricter rule matches the guarantee we state (a quoted line is a line the change added). Default switch + README refresh pending owner call.
+
+## (x) Naive whole-PR baseline, clean run (judge_errors 0)
+14-PR gold set, 42 requirements, labels single-annotator. Naive: precision 1.0, recall 0.744 [0.59,0.85], abstained 0,
+false-done 0/3, faults no longer done 22/29 [0.58,0.88], faults called missing 20/29 [0.51,0.83], false alarms 2/28.
+Lexical pipeline: 0.963 / 0.812, abstained 7, 1/3, 18/26 [0.50,0.83], 10/26 [0.22,0.57], 1/22.
+Read: all intervals overlap; the naive prompt is at least as good at flagging omissions and calls them `missing` far more
+often (the pipeline answers `unclear` when the verifier cannot confirm), while the pipeline has slightly higher recall on
+true `done` and fewer false alarms. No accuracy advantage for retrieval + verifier is demonstrated, and the README now says
+so. The pipeline's case rests on checkable evidence, not accuracy. Caveats: 40 of 43 calls came from the cache of the earlier
+run (provider mix gemini/groq), the three base-rate-heavy 'done' labels dominate, and no real `missing` labels exist.
+
+## (y) Judge sees unchanged context lines (first clean run, judge_errors 0, 14-PR gold set)
+Lexical top-5 + context: precision 0.967, recall 0.879 [0.73,0.95], abstained 6, false-done 1/3, faults no longer done 19/29 [0.47,0.80],
+faults called missing 13/29 [0.28,0.62], false alarms 3/23. Default lexical: 0.963 / 0.812, abstained 7, 18/26, 10/26, 1/22.
+Read: recall on true `done` rises 0.81 -> 0.88 (and abstentions fall 7 -> 6), but more injected omissions stay `done` (10/29 vs 8/26)
+and false alarms rise 1/22 -> 3/23. All intervals overlap, so this is not an established gain; it stays opt-in. Cache replay with the
+added-lines-only verifier gives identical numbers, i.e. the strict rule costs nothing in this mode. Used 164K Groq tokens (one run = most of a day).

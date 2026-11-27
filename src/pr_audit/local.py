@@ -22,7 +22,34 @@ def git_diff(repo: Path, base: str, head: str | None = None) -> str:
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0:
         raise ValueError(f"git diff failed: {r.stderr.strip()[:200]}")
-    return r.stdout
+    out = r.stdout
+    if not head:                       # working tree: brand-new files (an agent's new modules) are untracked and invisible to `git diff`
+        out += _untracked_diff(repo)
+    return out
+
+
+MAX_UNTRACKED_BYTES = 200_000
+
+
+def _untracked_diff(repo: Path) -> str:
+    """Diff of untracked, non-ignored text files, as if they were added. Argument lists only; binary/huge files skipped."""
+    r = subprocess.run(["git", "-C", str(repo), "ls-files", "--others", "--exclude-standard", "-z"],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if r.returncode != 0:
+        return ""
+    parts = []
+    for rel in [x for x in r.stdout.split("\0") if x]:
+        f = Path(repo) / rel
+        try:
+            if not f.is_file() or f.stat().st_size > MAX_UNTRACKED_BYTES or b"\0" in f.read_bytes()[:8000]:
+                continue
+        except OSError:
+            continue
+        d = subprocess.run(["git", "-C", str(repo), "diff", "--no-color", "--no-ext-diff", "--no-index", "-U3", "--", "/dev/null", rel],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
+        if d.stdout:                    # exit code 1 just means "differs"
+            parts.append(d.stdout)
+    return "".join(parts)
 
 
 def bundle_from_git(repo: Path, ask: str, base: str = "HEAD~1", head: str | None = "HEAD",
