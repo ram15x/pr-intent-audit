@@ -47,7 +47,7 @@ for n, s in rows:
              f"{s.get('false_alarm_other_reqs')} | {s.get('judge_errors', 'n/a')} |")
 L += ["", "Caveats: faults are injected only where the baseline said 'done', so denominators differ per row;",
       "gold base rate of 'done' is 39/42 = 0.93, so precision must be read against 0.93; the gold set has no 'missing' labels, so every",
-      "'missing' result comes from synthetic removals (omissions only); judge calls were mostly Groq gpt-oss-120b."]
+      "'missing' result comes from synthetic removals (omissions only); judge calls were mostly Groq gpt-oss-120b. Rows 'lexical', '--escalate' and '--context' were recomputed from cached judge answers under the added-lines-only verifier (the default since DECISIONS w); the first four rows (CodeBERT retriever, no-retrieval and no-verifier ablations) and the naive row come from earlier runs under the older any-line rule or no verifier, so compare them with care."]
 big = []
 for tag, name in [("large_top5", "large PRs (36-98 hunks): top-5 + verifier"),
                   ("large_all", "large PRs: judge sees all hunks (prompt is length-capped)"),
