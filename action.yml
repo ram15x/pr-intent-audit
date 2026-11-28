@@ -10,6 +10,10 @@ inputs:
   groq-api-key:
     description: Optional free-tier Groq key for the judge
     required: false
+  ask-file:
+    description: Optional path (in the checked-out repo) to a text file holding the ask, e.g. the prompt you gave the coding agent. Without it the PR description or linked issue is used.
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
@@ -26,9 +30,12 @@ runs:
         GEMINI_API_KEY: ${{ inputs.gemini-api-key }}
         GROQ_API_KEY: ${{ inputs.groq-api-key }}
         PR_URL: ${{ github.event.pull_request.html_url }}
+        ASK_FILE: ${{ inputs.ask-file }}
       run: |
-        # PR_URL comes from the event payload via env (never interpolated into the shell command).
-        pr-audit run "$PR_URL" --retrieval lexical --out "$RUNNER_TEMP/pr-audit.md" --html "$RUNNER_TEMP/pr-audit.html"
+        # PR_URL and ASK_FILE come in via env (never interpolated into the shell command).
+        args=()
+        if [ -n "$ASK_FILE" ]; then args+=(--ask-file "$ASK_FILE"); fi
+        pr-audit run "$PR_URL" "${args[@]}" --retrieval lexical --out "$RUNNER_TEMP/pr-audit.md" --html "$RUNNER_TEMP/pr-audit.html"
         cat "$RUNNER_TEMP/pr-audit.md" >> "$GITHUB_STEP_SUMMARY"
     - name: Comment on the PR
       shell: bash

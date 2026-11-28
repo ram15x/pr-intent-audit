@@ -1,0 +1,24 @@
+{
+ "n": 14,
+ "verdicts_after_partial_removal": {
+  "done": 11,
+  "partial": 1,
+  "missing": 2,
+  "unclear": 0
+ },
+ "caught_not_done": "3/14",
+ "caught_not_done_95ci": [
+  0.08,
+  0.48
+ ],
+ "judge_errors": 0,
+ "judge_error_examples": [],
+ "note": "weak truth: remaining hunks may still satisfy the requirement",
+ "variant": "partial",
+ "llm_calls": {
+  "cache": 22,
+  "net": 12,
+  "fail": 0,
+  "groq_tokens": 25417
+ }
+}

@@ -11,7 +11,7 @@ from typing import Callable
 from .coverage import best_per_req, features, orphan_flags
 from .inject import is_substantive
 from .pairs import hunk_text
-from .requirements import clean_ask, split_requirements_ex
+from .requirements import clean_ask, requirement_kind, split_requirements_ex
 from .schemas import Hunk, PRBundle, Verdict
 from .verify import quotes_in, verify_judgment
 from .schemas import Judgment
@@ -121,7 +121,10 @@ def run_audit(bundle: PRBundle, scorer: Scorer, clf, tau: float = 0.5, band: flo
             status, note = "unclear", "hunk looks related but no line in it matches this requirement's wording (generic match, or non-English ask)"
         else:
             note = ""
-        if judge is not None:
+        if requirement_kind(t) == "execution":
+            # nothing in a diff proves that a command was run or a check passed: say so instead of guessing
+            status, ev, note = "unclear", [], "needs execution or CI evidence (a diff cannot show that something was run or passed): not verified"
+        elif judge is not None:
             top = [hunks[j] for j in sorted(range(n), key=lambda j: -row[j])[:topk]]
             if getattr(judge, "wants_wide", False):
                 jd = judge(i, t, [hunks[j] for j in sorted(range(n), key=lambda j: -row[j])[:wide_k]])    # ranked list; judge picks its own first_k

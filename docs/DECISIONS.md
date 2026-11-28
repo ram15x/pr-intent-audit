@@ -270,3 +270,17 @@ added-lines-only verifier gives identical numbers, i.e. the strict rule costs no
   Demo report regenerated pinned to assistant_core_lab#26 (score now 100 with one requirement not verifiable from a diff; the demo
   note says so). Without the pin the demo picker chose other PRs once more answers were cached; it now also skips low-confidence audits.
 - Requirement cap and untracked-file handling: see tests/test_truncation.py, tests/test_local_untracked.py.
+
+## (aa) Partial-fault run (drop only part of the evidence a requirement points at), judge_errors 0
+n=14 cases, lexical retrieval, added-lines-only verifier. After removing one of a requirement's hunks the verdict was: done 11,
+partial 1, missing 2, unclear 0. "Caught" (no longer done) 3/14 [0.08, 0.48]. Weak truth: the remaining hunks may still satisfy the
+requirement (e.g. a test file removed while the implementation stays), so a surviving `done` is not automatically wrong. Read: the audit
+mostly notices whole-requirement omissions, not partial ones; no claim about partial implementations is made. Used 25K Groq tokens.
+
+## (ab) Requirement types, ask-file in the Action, "verified N of M"
+- `requirement_kind()`: requirements about running something or a check passing ("run pytest", "CI green", "all tests pass") are
+  `unclear` with the note "needs execution or CI evidence" and the judge is not called for them. "Add tests" / "update CI config"
+  stay implementation. Not applied in `bench/eval_gold_llm.py` (it calls the judge directly), so published benchmark numbers do not
+  move; in the 4 gold sets the rule matches 3 requirements (one hand-labelled UNCLEAR, one composite labelled done, one excluded).
+- Action input `ask-file` (path in the checked-out repo) is passed to `pr-audit run --ask-file`; never run on a live PR yet.
+- Markdown report (used for the PR comment) now states "Verified verdicts: N of M requirements", plus requirements dropped by the cap.

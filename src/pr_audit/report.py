@@ -10,6 +10,9 @@ def render_markdown(a: Audit, run_info: str = "") -> str:
     out = [f"# PR Intent Audit", "", f"**PR:** {b.source}  ", f"**Title:** {b.title}  ",
            f"**Ask source:** {b.ask_source}  ", f"**Rank:** {rank} ({a.band})"
            + ("  **low confidence: many requirements unclear**" if a.low_confidence else ""), ""]
+    n_dec = sum(1 for r in a.reqs if r.status != "unclear" and not (r.optional and r.status == "missing"))
+    out += [f"**Verified verdicts:** {n_dec} of {len(a.reqs)} requirements; the score covers only those."
+            + (f" {a.dropped} more requirement(s) in the ask were not audited." if a.dropped else ""), ""]
     if b.notes:
         out += ["> " + n for n in b.notes] + [""]
     out += ["## Requirements", "", "| # | Requirement | Verdict | Relevance | Evidence |", "|---|---|---|---|---|"]

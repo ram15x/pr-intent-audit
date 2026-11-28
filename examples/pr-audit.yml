@@ -15,8 +15,10 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
+      # For real use pin a release tag or, better, a full commit SHA instead of @main.
       - uses: ram15x/pr-intent-audit@main
         with:
+          # ask-file: .agent-prompt.md   # optional: audit against the prompt you gave the coding agent instead of the PR text
           github-token: ${{ secrets.GITHUB_TOKEN }}
           groq-api-key: ${{ secrets.GROQ_API_KEY }}
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}

@@ -95,8 +95,7 @@ Random ranking would reach hit@5 = 0.58 overall (most gold PRs are small) and 0.
 
 `docs/demo_report.html` (open it in a browser) is a real audit of a public, MIT-licensed PR, built from saved judge
 responses, not a live run. The PR was chosen only because the saved responses cover all its requirements and its repo has
-a permissive license. It is not a clean showcase: requirement 4 ("run pytest ...") is judged DONE on weak evidence where the hand
-label is UNCLEAR, and its score is 100 although one requirement is not verifiable from a diff. The report says so on its first screen. Unmapped changes are listed there but, since flag precision is low, they no longer change the score. Regenerate it with `python bench/demo_from_cache.py`.
+a permissive license. Requirement 4 ("run pytest ...") shows how execution requirements are handled: a diff cannot show that a command was run, so it is marked UNCLEAR ("needs execution or CI evidence") and left out of the score, and the report says so on its first screen. Unmapped changes are listed there but, since flag precision is low, they no longer change the score. Regenerate it with `python bench/demo_from_cache.py`.
 
 ## Cost of one audit
 

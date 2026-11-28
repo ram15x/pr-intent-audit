@@ -99,3 +99,17 @@ def split_requirements_ex(text: str, max_reqs: int = 12) -> tuple[list[Requireme
         s_ = re.sub(r"\s+", " ", s_).strip()
         reqs.append(Requirement(id=i, text=s_, source_sentence=s_, unclear=not MODAL.search(s_), optional=opt))
     return reqs, max(0, len(items) - max_reqs)
+
+
+# A diff cannot show that something was RUN or that a check PASSED: those need execution/CI evidence.
+EXECUTION = re.compile(
+    r"\b(?:run|runs|running|execute|executes|executing)\s+(?:the\s+|all\s+|your\s+|our\s+)?(?:\w+\s+){0,2}[`'\"]?"
+    r"(?:tests?|test suite|pytest|unittest|jest|lint\w*|linters?|build|ci|checks?|type\s?check\w*|mypy|ruff|npm\s+\w+|make\s+\w+)\b"
+    r"|\b(?:tests?|ci|build|checks?|lint\w*|pipeline)\s+(?:must\s+|should\s+|needs? to\s+)?(?:pass|passes|green|succeed\w*)\b"
+    r"|\ball\s+tests\s+pass|\bwith\s+ci\s+green\b", re.I)
+
+
+def requirement_kind(text: str) -> str:
+    """'execution' when the requirement is about running something or a check passing (not provable from added lines),
+    else 'implementation'. Deliberately narrow: 'add tests' or 'update CI config' stay implementation."""
+    return "execution" if EXECUTION.search(text) else "implementation"
